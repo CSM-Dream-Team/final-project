@@ -73,4 +73,22 @@ lessons we learned while implementing the project.
 
 \section{References and Dependencies}
 
+Because of the performance requirements and complexity of virtual reality software,
+we decided to use the Rust programming language for all the projects in this 
+independent study.
+
+Our individual and final projects will all be built using our own shared, open-source
+library called ``flight'', which will be continually updated to reflect what we learn 
+while developing these projects. As of writing, flight incorporates our own VR hardware
+interface, several custom rendering environments, mesh manipulation tools, and a few 
+asset loading utilities.
+
+Although most of the planned features of our shell can be implemented using the 
+Rust standard libraries, there are several other tools that we will be depending on. 
+The most notable are gfx (a GPU graphics wrapper), nalgebra (vector and matrix math),\
+ncollide (geometric operations such as collisions and intersections), nphysics (physics
+engine), OpenVR (Valve's VR hardware SDK), image (raster image loader), and futures
+(asynchronous events). With the exception of OpenVR, all these libraries can be found on 
+\texttt{crates.io}.
+
 \end{document}
