@@ -42,8 +42,16 @@ occur in each environment:
     \item [Robbie] ``Lets get Physical'' --- an environment where you can throw
         lots of objects around and see them interact in a physically-accurate
         manner.
-    \item [Sam] ``Workbench'' --- a workbench where you can construct your own
-        virtual objects from a variety of parts.
+    \item [Sam] ``Workbench'' --- The goal of this environment is to find a general 
+    pattern for VR element design that can apply to both diegetic (semi-realistic) 
+    and spacial (purely abstract) items. Specifically, it includes logic for moving,
+    placing, snapping, and recombining arbitrary VR elements. These elements are split
+    into 2 categories. Some are purely abstract user interface items (spacial), others
+    are blocks that appear more concrete (diegetic). The user has the ability to recombine 
+    blocks into moving objects such as miniature vehicles. More interestingly, the user can
+    recombine interface elements into static control "devices" for these objects. For
+    example, the user could attach 4 rocket engines together, and control it by combining
+    the 4 thrust controls into a crude joystick.
     \item [Team] ``VRsh'' --- a VR shell where users can interact with a variety
         of widgets as well as open other programs (environments).
 \end{enumerate}
@@ -51,6 +59,17 @@ occur in each environment:
 \subsection{C-MAPP Event Readiness}
 Our goal is to have this project ready for the C-MAPP event in January. To do
 this, we must have a finished product and report by the end of this semester.
+
+\section{Proposed Implementation}
+
+In order for vrsh to be a useful shell, it must be capable of performing the same 
+actions as existing shells such as bash. As such, this project is implemented 
+partially as a bash wrapper. Although many commands such as \texttt{cd} and
+\texttt{ls} are replaced entirely, more complex programs (e.g. \texttt{git}) 
+are executed through command templates. These templates take the outputs from specified 
+input widgets and combine them into a valid bash command to be executed. 
+
+TODO: Robbie and Sumner take a crack at this
 
 \section{Plan of Action}
 
