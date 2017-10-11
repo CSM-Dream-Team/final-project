@@ -33,24 +33,33 @@ environment individually and the fourth will be built by the whole team and will
 connect the individually-built environments.
 
 \subsection{Environments and Interactions}
-These are the concepts for our four environments and the interactions that can
-occur in each environment:
+The following sections describe the concepts for our four environments and the
+interactions that can occur in each environment.
 
-\begin{enumerate}[leftmargin=*]
-    \item [Sumner] ``Snowflakes'' --- a winter-themed environment where users
-        can create their own structures by manipulating snow blocks.
-    \item [Robbie] ``Lets get Physical'' --- an environment where you can throw
-        lots of objects around and see them interact in a physically-accurate
-        manner.
-    \item [Sam] ``Workbench'' --- a workbench where you can construct your own
-        virtual objects from a variety of parts.
-    \item [Team] ``VRsh'' --- a VR shell where users can interact with a variety
-        of widgets as well as open other programs (environments).
-\end{enumerate}
+\subsubsection{Sumner --- Snowflakes}
+Snowflakes will be a winter-themed environment where users can create their own
+structures by manipulating snow blocks. The environment will have ``snow'' on
+the ground and winter themed items in the environment such as snowmen. The user
+will be able to create new snow blocks by pointing both controllers at the
+ground and pulling both of the triggers. This action will create a snow block
+being held between the users hands. When the user releases the triggers, the
+snow block will fall in a physically-accurate manner with collision detection.
 
-\subsection{C-MAPP Event Readiness}
-Our goal is to have this project ready for the C-MAPP event in January. To do
-this, we must have a finished product and report by the end of this semester.
+\subsubsection{Robbie --- Let's Get Physical}
+An environment where you can throw lots of objects around and see them interact
+in a physically-accurate manner.
+
+\subsubsection{Sam --- Workbench}
+
+
+\subsubsection{Team --- VRsh}
+A VR shell where users can interact with a variety of widgets as well as open
+other programs (environments).
+
+More than just widgets, vrsh is a graphical way
+of sending commands. My thought is that we actually create some sort of
+templeting engine, that allows us to wrap traditional, UNIX-y commands with vrsh
+widget systems.
 
 \section{Plan of Action}
 
@@ -58,7 +67,7 @@ This project will have four main stages that correlate with the due dates for
 the individual assignments and the final project milestones.
 
 \begin{enumerate}[leftmargin=*]
-    \item [10/03] \textbf{Individual Assignments} --- Building the individual
+    \item [10/18] \textbf{Individual Assignments} --- Demo the individual
         environments
     \item [11/03] \textbf{Milestone I} --- Building the VRsh environment
     \item [11/17] \textbf{Milestone II} --- Integrating the VRsh and individual
@@ -71,24 +80,30 @@ In addition to the above code submissions, we will also produce a final report
 along with the Final Code Submission describing the work that we did and the
 lessons we learned while implementing the project.
 
+\subsection{C-MAPP Event Readiness}
+Our goal is to have this project ready for the C-MAPP event in January. To do
+this, we must have a finished product and report by the end of this semester.
+
 \section{References and Dependencies}
 
-Because of the performance requirements and complexity of virtual reality software,
-we decided to use the Rust programming language for all the projects in this 
-independent study.
+Because of the performance requirements and complexity of virtual reality
+software, we decided to use the Rust programming language for all the projects
+in this independent study.
 
-Our individual and final projects will all be built using our own shared, open-source
-library called ``flight'', which will be continually updated to reflect what we learn 
-while developing these projects. As of writing, flight incorporates our own VR hardware
-interface, several custom rendering environments, mesh manipulation tools, and a few 
-asset loading utilities.
+Our individual and final projects will all be built using our own shared,
+open-source library called \texttt{flight}, which will be continually updated to
+reflect what we learn while developing these projects. As of writing,
+\texttt{flight} incorporates our own VR hardware interface, several custom
+rendering environments, mesh manipulation tools, and a few asset loading
+utilities.
 
-Although most of the planned features of our shell can be implemented using the 
-Rust standard libraries, there are several other tools that we will be depending on. 
-The most notable are gfx (a GPU graphics wrapper), nalgebra (vector and matrix math),\
-ncollide (geometric operations such as collisions and intersections), nphysics (physics
-engine), OpenVR (Valve's VR hardware SDK), image (raster image loader), and futures
-(asynchronous events). With the exception of OpenVR, all these libraries can be found on 
-\texttt{crates.io}.
+Although most of the planned features of our shell can be implemented using the
+Rust standard libraries, there are several other tools that we will be depending
+on.  The most notable are \texttt{gfx} (a GPU graphics wrapper),
+\texttt{nalgebra} (vector and matrix math),\ \texttt{ncollide} (geometric
+operations such as collisions and intersections), \texttt{nphysics} (physics
+engine), OpenVR (Valve's VR hardware SDK), image (raster image loader), and
+futures (asynchronous events). With the exception of OpenVR, all these libraries
+can be found on \texttt{crates.io}.
 
 \end{document}
