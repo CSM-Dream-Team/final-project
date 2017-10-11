@@ -37,7 +37,7 @@ The following sections describe the concepts for our four environments and the
 interactions that can occur in each environment.
 
 
-\subsubsection{Sam --- Workbench} 
+\subsubsection{Sam --- Workbench}
 The goal of this environment is to find a general pattern for VR element design
 that can apply to both diegetic (semi-realistic) and spacial (purely abstract)
 items. Specifically, it includes logic for moving, placing, snapping, and
@@ -45,7 +45,7 @@ recombining arbitrary VR elements. These elements are split into 2 categories.
 Some are purely abstract user interface items (spacial), others are blocks that
 appear more concrete (diegetic). The user has the ability to recombine blocks
 into moving objects such as miniature vehicles. More interestingly, the user can
-recombine interface elements into static control "devices" for these objects.
+recombine interface elements into static control ``devices'' for these objects.
 For example, the user could attach 4 rocket engines together, and control it by
 combining the 4 thrust controls into a crude joystick.
 
@@ -59,28 +59,35 @@ being held between the users hands. When the user releases the triggers, the
 snow block will fall in a physically-accurate manner with collision detection.
 
 \subsubsection{Robbie --- Let's Get Physical}
-An environment where you can throw lots of objects around and see them interact
-in a physically-accurate manner.
+This project provides a physically ``real'' environment.  That is an environment
+that applies some of the fundamental laws of physics as we know them. Simple
+gravitational pull, acceleration, and collisions which in turn includes
+momentum. To achieve this, the Rust \texttt{nphysics3d} library is used to
+provide physics utility functions to the program.  Various objects will be
+placed around the environment that can be picked up, thrown, dropped, and/or
+interacted with in other ways. One example of such interactions would be
+shooting a bow and arrow.
 
 \subsubsection{Team --- VRsh}
-A VR shell where users can interact with a variety of widgets as well as open
-other programs (environments).
-
-More than just widgets, vrsh is a graphical way
-of sending commands. My thought is that we actually create some sort of
-templeting engine, that allows us to wrap traditional, UNIX-y commands with vrsh
-widget systems.
+This environment will be a user-customizable environment where users can:
+\begin{enumerate}
+    \item Navigate to other environments using a ``program picker''.
+    \item Persist the state in other environments using an intuitive UI
+        specialized for VR.
+    \item Customize the environment state using design motifs that are
+        specialized for VR.
+\end{enumerate}
 
 \section{Proposed Implementation}
-
-In order for vrsh to be a useful shell, it must be capable of performing the same 
-actions as existing shells such as bash. As such, this project is implemented 
-partially as a bash wrapper. Although many commands such as \texttt{cd} and
-\texttt{ls} are replaced entirely, more complex programs (e.g. \texttt{git}) 
-are executed through command templates. These templates take the outputs from specified 
-input widgets and combine them into a valid bash command to be executed. 
-
-TODO: Robbie and Sumner take a crack at this
+\begin{itemize}
+    \item Programs do not themselves store state. They receive state from VRsh
+        and then modify it.
+    \item Programs register their default state with VRsh?
+    \item Creating a new copy of a default environment is done by grabbing the
+        environment from the program picker.
+    \item VRsh stores all environment state information and when the user
+        ``reopens'' a state, VRsh passes that state to the application.
+\end{itemize}
 
 \section{Plan of Action}
 
