@@ -37,17 +37,18 @@ The following sections describe the concepts for our four environments and the
 interactions that can occur in each environment.
 
 
-\subsubsection{Sam --- Workbench}
-The goal of this environment is to find a general pattern for VR element design
-that can apply to both diegetic (semi-realistic) and spacial (purely abstract)
-items. Specifically, it includes logic for moving, placing, snapping, and
-recombining arbitrary VR elements. These elements are split into 2 categories.
-Some are purely abstract user interface items (spacial), others are blocks that
-appear more concrete (diegetic). The user has the ability to recombine blocks
-into moving objects such as miniature vehicles. More interestingly, the user can
-recombine interface elements into static control ``devices'' for these objects.
-For example, the user could attach 4 rocket engines together, and control it by
-combining the 4 thrust controls into a crude joystick.
+\subsubsection{Sam --- Workbench} The goal of this environment is to find a
+general pattern for VR element design that can apply to both diegetic
+(semi-realistic) and spacial (purely abstract) objects. Specifically, it
+includes logic for moving, placing, recombining, and programmatically updating
+VR elements. These elements are split into 2 categories. Some are purely
+abstract user interface items (spacial), others are blocks that appear more
+concrete (diegetic).
+
+Ideally, the developed design pattern could be very useful in creating CAD
+applications, such as the early ``sketchpad'' program. However, as the goal of
+this environment is simply to prove the practicality of the pattern, it gives
+far less granular control to the user. More like Lego than SolidWorks.
 
 \subsubsection{Sumner --- Snowflakes}
 Snowflakes will be a winter-themed environment where users can create their own
@@ -157,8 +158,8 @@ Rust standard libraries, there are several other tools that we will be depending
 on.  The most notable are \texttt{gfx} (a GPU graphics wrapper),
 \texttt{nalgebra} (vector and matrix math),\ \texttt{ncollide} (geometric
 operations such as collisions and intersections), \texttt{nphysics} (physics
-engine), OpenVR (Valve's VR hardware SDK), image (raster image loader), and
-futures (asynchronous events). With the exception of OpenVR, all these libraries
+engine), OpenVR (Valve's VR hardware SDK), \texttt{image} (raster image loader), and
+\texttt{futures} (asynchronous events). With the exception of OpenVR, all these libraries
 can be found on \texttt{crates.io}.
 
 \end{document}
