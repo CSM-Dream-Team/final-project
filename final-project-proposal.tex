@@ -7,7 +7,7 @@
 \usepackage{amsmath}
 \usepackage[makeroom]{cancel}
 
-\title{Final Project Proposal v. 1.2}
+\title{Final Project Proposal v. 1.3}
 \author{Sumner Evans, Robbie Merillat, Sam Sartor}
 \date{\today}
 
@@ -74,13 +74,17 @@ gravitational pull, acceleration, and collisions which in turn includes
 momentum. To achieve this, the Rust \texttt{nphysics3d} library is used to
 provide physics utility functions to the program.  Various objects will be
 placed around the environment that can be picked up, thrown, dropped, and/or
-interacted with in other ways. One example of such interactions would be
-shooting a bow and arrow. Additional stretch goals for this project would include
-some medieval carnival games such as darts, axe/knife throwing, and throwing 
-tomatoes at a looney.
+interacted with in other ways. One consistent object will be the floor, providing
+a sense of actually being a part of this environment, and providing some natural 
+form of object collision that would always be expected within our own reality. 
+Volumetric collisions will be used to detect when an object may be interacted with
+based upon proximity of the controller to that object. One example of such 
+interactions would be shooting a bow and arrow. Additional stretch goals for this 
+project would include some medieval carnival games such as darts, axe/knife 
+throwing, and throwing tomatoes at a looney.
 
 \section{Proposed Implementation --- VRsh (Team)}
-For our final project, our goal is to reimagine file I/O for a VR environment.
+For our final project, our goal is to re-imagine file I/O for a VR environment.
 To do this, we will implement a VR ``shell'' (VRsh). (Note that, for our
 purposes, \textit{state} refers to the current configuration of objects in an
 environment and any other environment metadata.) This environment will be a
@@ -128,11 +132,10 @@ the individual assignments and the final project milestones.
 \begin{enumerate}[leftmargin=*]
     \item [10/18] \textbf{Individual Assignments} --- Demo the individual
         environments
-    \item [11/03] \textbf{Milestone I} --- Building the VRsh environment
-    \item [11/17] \textbf{Milestone II} --- Integrating the VRsh and individual
-        environments
-    \item [12/08] \textbf{Final Code Submission} --- Final touches to the VRsh
-        environment. Polished individual projects.
+    \item [11/08] \textbf{Milestone I} --- Design Document
+    \item [11/22] \textbf{Milestone II} --- Individual Project Program Picking
+    \item [12/13] \textbf{Final Code Submission} --- State Storage. Final touches 
+    to the VRsh environment. Polished individual projects. Individual Report.
 \end{enumerate}
 
 In addition to the above code submissions, we will also produce a final report
@@ -140,7 +143,7 @@ along with the Final Code Submission describing the work that we did and the
 lessons we learned while implementing the project.
 
 \subsection{C-MAPP Event Readiness}
-Our goal is to have this project ready for the C-MAPP event in January. To do
+Our goal is to have this project ready for the C-MAPP event on January 18, 2018. To do
 this, we must have a finished product and report by the end of this semester.
 
 \section{References and Dependencies}
