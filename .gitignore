@@ -262,4 +262,7 @@ tags
 !.vscode/extensions.json
 .history
 
+### Mac ###
+*.DS_Store
+
 # End of https://www.gitignore.io/api/linux,vim,latex,visualstudiocode
