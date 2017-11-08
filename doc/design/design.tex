@@ -73,10 +73,10 @@ now):
 \end{enumerate}
 
 \subsection{Visual Design}
-The visual design of this program is dynamic in that both the general 
-settings and environment can be modified. This would look and feel 
+The visual design of this program is dynamic in that both the general
+settings and environment can be modified. This would look and feel
 similar to the Steam VR personal "desktop" with added options for settings
-and environment customization. "Running" a program will switch from the \name 
+and environment customization. "Running" a program will switch from the \name
 home environment to the desired program environment.
 
 \subsubsection{Global UI}\label{sec:ui}
@@ -88,9 +88,36 @@ the user to perform actions such as running programs and moving between
 environments. We have not yet determined the most intuitive design motif for
 these controls. However, we have brainstormed a few innovative ideas for these
 controls including pull-down selectors, Rolodex selectors, and system setting
-asteroid field of options.
+asteroid field of options. Some of these concepts can bee visualized in the 
+image below.
+
+\begin{center}
+    \includegraphics[width=0.8\textwidth]{./images/visual.jpg}
+\end{center}
 
 \subsubsection{Customizable Environment}\label{sec:env}
+Several components will enable the user to customize their \name home
+environment. Mentioned above, the system setting asteroid field will 
+allow the user to create a new entity within their home environment.
+Some entities may last for a set amount of time without being interacted
+with, while others remain persistent. Examples of these entities could be:
+\begin{itemize}
+    \item Brightness Bar : changes ambient brightness
+    \item Skymap Texture : Throw to apply image as background
+    \item Color Wheel    : modify colors
+    \item Mode           : sitting vs. standing modes
+    \item Various Objects: place objects around the home environment, 
+    allowing customization
+    \begin{itemize}
+        \item Clouds/Mist
+        \item Boxes
+        \item Penguin
+        \item Mjolnir
+        \item Rugs
+        \item Plushes
+        \item Weapons (Pikes, Axes, Swords, Bow/Arrow)
+    \end{itemize}
+\end{itemize}
 
 \subsubsection{Interactions}
 
@@ -113,15 +140,17 @@ available, however most assets will use physically based rendering.
 \section{Management}
 
 \subsection{Project Scope}
-% A summary of the scope of the software
+Our original goal was to implement a fully featured Linux shell that is able to
+wrap Linux commands in a VR environment. We realized that this was infeasible
+with our limited experience with VR and quickly changed the scope. At this
+point, we have created an achievable and measurable plan to implement the
+features that we want to include in the final project. Our plan consists of
+three milestones (see Table~\ref{tab:milestones}) with specific goals.
 
-\subsection{Detailed Schedule}
-Table~\ref{tab:milestones} shows the five major milestones and their due dates.
 \begin{table}[H]
-    \caption{Milestone Delivery Schedule}
-    \label{tab:milestones}
+    \caption{Milestone Delivery Schedule}\label{tab:milestones}
     \centering
-    \begin{tabular}{|l|l|}
+    \begin{tabular}{|p{10cm}|l|}
         \hline
         \textbf{Milestone} & \textbf{Date} \\
         \hline\hline
@@ -129,7 +158,12 @@ Table~\ref{tab:milestones} shows the five major milestones and their due dates.
         \hline
         Milestone II: Individual Project Program Picking & 2017/11/22 \\
         \hline
-        Milestone III: Final Code Submission & 2017/12/13 \\
+        Milestone III: Final Code Submission
+        \begin{itemize}
+            \item Individual project improvements
+            \item Saving Program State
+            \item Customizable home environment
+        \end{itemize} & 2017/12/13\\
         \hline
     \end{tabular}
 \end{table}
