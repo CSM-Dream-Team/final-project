@@ -30,18 +30,13 @@
 \maketitle
 
 \section{Design History}
-\begin{table}[H]
-    \caption{Version History}
-    \label{tbl:version_history}
-    \centering
-    \begin{tabularx}{\linewidth}{| l | l || X |}
-        \hline
-        \textbf{Version Number} & \textbf{Date} & \textbf{Change Description} \\
-        \hline\hline
-        1.0 & 2017-11-07 & First Draft \\
-        \hline
-    \end{tabularx}
-\end{table}
+\begin{tabularx}{\linewidth}{| l | l || X |}
+    \hline
+    \textbf{Version Number} & \textbf{Date} & \textbf{Change Description} \\
+    \hline\hline
+    1.0 & 2017-11-07 & First Draft \\
+    \hline
+\end{tabularx}
 
 \section{Overview}
 VR Technology has been developing rapidly in the 21st century. Current solutions
@@ -158,11 +153,30 @@ three milestones (see Table~\ref{tab:milestones}) with specific goals.
 \end{table}
 
 \subsection{Risk Analysis}
+While we have done a significant amount of brainstorming and design work for our
+\name environment, we have not begun to implement any of the environment.  This
+is a large risk for us, as there will be many unanticipated problems which may
+alter the complexity of our goals. Scope creep is another risk for our team, as
+a few of us are notorious for adding unnecessary features to our applications.
+
+Currently, we have a decent idea of how to store state, however, we have not
+begun to implement it. This is another major risk for us. Another risk that we
+must mitigate is settling for less than what our goals because of deadlines. To
+counter this, we will will be proactive with scheduling to help ensure that we
+meet our goals.
+
+Our dependency tree is relatively thick, so our code is vulnerable to external
+dependency disruption making the cost of refactoring high.
 
 \subsection{Test Plan}
+We will have an appropriate number of unit tests in our code, especially our
+libraries (\texttt{flight} and \texttt{picea}). Additionally, we plan to iterate
+quickly on the program, testing as we develop to help ensure that program
+behaves as predicted.
 
 \subsection{Demo Plan}
-Our goal is to have this project ready for the C-MAPP event on January 18, 2018.
+We will be demoing our intermediate milestones during our meetings. Our goal is
+to have this project ready for the C-MAPP event on January 18, 2018.
 
 \section{Dependencies}
 
