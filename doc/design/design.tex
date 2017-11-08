@@ -1,6 +1,6 @@
 \documentclass[titlepage,12pt]{article}
 \usepackage[margin=1in]{geometry}
-\usepackage{enumitem}
+\usepackage[inline]{enumitem}
 \usepackage{titlesec}
 \usepackage{textcomp}
 \usepackage{amsmath}
@@ -19,6 +19,8 @@
 
 \newcommand\tab[1][.5in]{\hspace*{#1}}
 
+\newcommand\name{VRsh\xspace}
+
 \title{Final Project Design v. 1.0}
 \author{Sumner Evans, Robbie Merillat, Sam Sartor}
 \date{\today}
@@ -28,7 +30,6 @@
 \maketitle
 
 \section{Design History}
-% This is a change listing quickly describing each major version and changes.
 \begin{table}[H]
     \caption{Version History}
     \label{tbl:version_history}
@@ -43,20 +44,45 @@
 \end{table}
 
 \section{Overview}
+VR Technology has been developing rapidly in the 21st century. Current solutions
+such as Unity attempt to use old programming languages and paradigms to
+implement VR environments and thus limit developers' abilities to create new and
+unique environments. With every cutting edge technology, new paradigms and
+design patterns must be invented. This project intends to explore and implement
+these paradigms and design patterns.
 
-\section{Design}
+For this project, we will utilize a 3D space to implement an intuitive UI for
+\begin{enumerate*}
+\item loading programs,
+\item saving program state,
+\item and customizing the environment
+\end{enumerate*} (described in Section~\ref{sec:design}).  We believe that
+implementing a shell-like environment is the most effective method for us to
+explore those patterns.
+
+\section{Design}\label{sec:design}
+There are three main goals for our project (referred to as \textit{\name} for
+now):
+\begin{enumerate}
+    \item \textbf{Loading Programs:} the user will be able to load our three
+        individual programs from our \name as described in Section~\ref{sec:ui}.
+    \item \textbf{Saving Program State:} the user will be able to save the state
+        of an environment. This is elaborated in Section~\ref{sec:state}.
+    \item \textbf{Customizing the Environment:} the user will be able to
+        customize the \name environment.
+\end{enumerate}
 
 \subsection{Visual Design}
 
-\subsubsection{Global UI}
+\subsubsection{Global UI}\label{sec:ui}
 
-\subsubsection{Customizable Environment}
+\subsubsection{Customizable Environment}\label{sec:env}
 
 \subsubsection{Interactions}
 
 \subsubsection{Lighting Model}
 
-\subsection{System State Storage}
+\subsection{System State Storage}\label{sec:state}
 
 \section{Management}
 
