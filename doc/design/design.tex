@@ -4,14 +4,91 @@
 \usepackage{titlesec}
 \usepackage{textcomp}
 \usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[pdftex]{hyperref}
+\usepackage[english]{babel}
+\usepackage{csquotes}
+\usepackage{titling}
+\usepackage{titlesec}
+\usepackage{xspace}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{parskip}
 
-\title{Final Project Design v. 0.1}
+\MakeOuterQuote{"}
+
+\newcommand\tab[1][.5in]{\hspace*{#1}}
+
+\title{Final Project Design v. 1.0}
 \author{Sumner Evans, Robbie Merillat, Sam Sartor}
 \date{\today}
 
 \begin{document}
+
 \maketitle
 
+\section{Design History}
+% This is a change listing quickly describing each major version and changes.
+\begin{table}[H]
+    \caption{Version History}
+    \label{tbl:version_history}
+    \centering
+    \begin{tabularx}{\linewidth}{| l | l || X |}
+        \hline
+        \textbf{Version Number} & \textbf{Date} & \textbf{Change Description} \\
+        \hline\hline
+        1.0 & 2017-11-07 & First Draft \\
+        \hline
+    \end{tabularx}
+\end{table}
+
 \section{Overview}
+
+\section{Design}
+
+\subsection{Visual Design}
+
+\subsubsection{Global UI}
+
+\subsubsection{Customizable Environment}
+
+\subsubsection{Interactions}
+
+\subsection{Lighting Model}
+
+\subsection{System State Storage}
+
+\section{Management}
+
+\subsection{Project Scope}
+% A summary of the scope of the software
+
+\subsection{Detailed Schedule}
+Table~\ref{tab:milestones} shows the five major milestones and their due dates.
+\begin{table}[H]
+    \caption{Milestone Delivery Schedule}
+    \label{tab:milestones}
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Milestone} & \textbf{Date} \\
+        \hline\hline
+        Milestone I: Design Document & 2017/11/08 \\
+        \hline
+        Milestone II: Individual Project Program Picking & 2017/11/22 \\
+        \hline
+        Milestone III: Final Code Submission & 2017/12/13 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Risk Analysis}
+
+\subsection{Test Plan}
+
+\subsection{Demo Plan}
+Our goal is to have this project ready for the C-MAPP event on January 18, 2018.
+
+\section{Dependencies}
 
 \end{document}
