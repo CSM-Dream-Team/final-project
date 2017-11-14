@@ -14,14 +14,15 @@
 \usepackage{tabularx}
 \usepackage{float}
 \usepackage{parskip}
+\usepackage{blindtext}
 
 \MakeOuterQuote{"}
 
 \newcommand\tab[1][.5in]{\hspace*{#1}}
 
-\newcommand\name{VRsh\xspace}
+\newcommand\name{VRsh}
 
-\title{Final Project Design v. 1.0}
+\title{Final Project Design v. 1.1}
 \author{Sumner Evans, Robbie Merillat, Sam Sartor}
 \date{\today}
 
@@ -34,7 +35,9 @@
     \hline
     \textbf{Version Number} & \textbf{Date} & \textbf{Change Description} \\
     \hline\hline
-    1.0 & 2017-11-07 & First Draft \\
+    1.0 & 2017--11--07 & First Draft \\
+    \hline
+    1.1 & 2017--11--15 & Second Draft \\
     \hline
 \end{tabularx}
 
@@ -47,10 +50,10 @@ design patterns must be invented. This project intends to explore and implement
 these paradigms and design patterns.
 
 For this project, we will utilize a 3D space to implement an intuitive UI for
-\begin{enumerate*}
-\item loading programs,
-\item saving program state,
-\item and customizing the environment
+\begin{enumerate*}[label={(\alph*)}]
+    \item loading programs,
+    \item saving program state,
+    \item and customizing the environment
 \end{enumerate*} (described in Section~\ref{sec:design}).  We believe that
 implementing a shell-like environment is the most effective method for us to
 explore those patterns.
@@ -60,30 +63,31 @@ There are three main goals for our project (referred to as \textit{\name} for
 now):
 \begin{enumerate}
     \item \textbf{Loading Programs:} the user will be able to load our three
-        individual programs from our \name as described in Section~\ref{sec:ui}.
+        individual programs from our {\name} as described in Section~\ref{sec:ui}.
     \item \textbf{Saving Program State:} the user will be able to save the state
-        of an environment. This is elaborated in Section~\ref{sec:state}.
+        of an environment (program). This is elaborated in
+        Section~\ref{sec:state}.
     \item \textbf{Customizing the Environment:} the user will be able to
-        customize the \name environment.
+        customize the {\name} environment. See Section~\ref{sec:env} for details.
 \end{enumerate}
 
 \subsection{Visual Design}
 The visual design of this program is dynamic in that both the general
 settings and environment can be modified. This would look and feel
 similar to the Steam VR personal "desktop" with added options for settings
-and environment customization. "Running" a program will switch from the \name
+and environment customization. "Running" a program will switch from the {\name}
 home environment to the desired program environment.
 
 \subsubsection{Global UI}\label{sec:ui}
-There will be a persistent user interface that will be visible from the \name
+There will be a persistent user interface that will be visible from the {\name}
 home environment and from within the individual environments that can be
-accessed from within \name. This UI will a ``halo'' centered at the user,
+accessed from within \name. This UI will be a ``halo'' centered at the user,
 located above the user's head. The halo will have components attached to allow
 the user to perform actions such as running programs and moving between
 environments. We have not yet determined the most intuitive design motif for
 these controls. However, we have brainstormed a few innovative ideas for these
 controls including pull-down selectors, Rolodex selectors, and system setting
-asteroid field of options. Some of these concepts can bee visualized in the 
+asteroid field of options. Some of these concepts can bee visualized in the
 image below.
 
 \begin{center}
@@ -91,8 +95,8 @@ image below.
 \end{center}
 
 \subsubsection{Customizable Environment}\label{sec:env}
-Several components will enable the user to customize their \name home
-environment. Mentioned above, the system setting asteroid field will 
+Several components will enable the user to customize their {\name} home
+environment. Mentioned above, the system setting asteroid field will
 allow the user to create a new entity within their home environment.
 Some entities may last for a set amount of time without being interacted
 with, while others remain persistent. Examples of these entities could be:
@@ -100,7 +104,7 @@ with, while others remain persistent. Examples of these entities could be:
     \item Brightness Bar: changes ambient brightness
     \item Skymap Texture: Throw to apply image as background
     \item Color Wheel: modify colors
-    \item Mode: sitting vs. standing modes
+    \item Mode: sitting vs.\ standing modes
     \item Various Objects: place objects around the home environment, allowing
         customization
         \begin{itemize}
@@ -149,11 +153,11 @@ three milestones (see Table~\ref{tab:milestones}) with specific goals.
         \hline
         \textbf{Milestone} & \textbf{Date} \\
         \hline\hline
-        Milestone I: Design Document & 2017/11/08 \\
+        Milestone I:\ Design Document & 2017/11/08 \\
         \hline
-        Milestone II: Individual Project Program Picking & 2017/11/22 \\
+        Milestone II:\ Individual Project Program Picking & 2017/11/22 \\
         \hline
-        Milestone III: Final Code Submission
+        Milestone III:\ Final Code Submission
         \begin{itemize}
             \item Individual project improvements
             \item Saving Program State
@@ -165,10 +169,11 @@ three milestones (see Table~\ref{tab:milestones}) with specific goals.
 
 \subsection{Risk Analysis}
 While we have done a significant amount of brainstorming and design work for our
-\name environment, we have not begun to implement any of the environment.  This
-is a large risk for us, as there will be many unanticipated problems which may
-alter the complexity of our goals. Scope creep is another risk for our team, as
-a few of us are notorious for adding unnecessary features to our applications.
+{\name} environment, we have not begun to implement any of the environment.
+This is a large risk for us, as there will be many unanticipated problems which
+may alter the complexity of our goals. Scope creep is another risk for our team,
+as a few of us are notorious for adding unnecessary features to our
+applications.
 
 Currently, we have a decent idea of how to store state, however, we have not
 begun to implement it. This is another major risk for us. Another risk that we
@@ -190,17 +195,30 @@ We will be demoing our intermediate milestones during our meetings. Our goal is
 to have this project ready for the C-MAPP event on January 18, 2018.
 
 \section{Dependencies}
-
-\begin{itemize}
-    \item \texttt{flight*} - Rendering, graphical user interface, asset loading,
-    and VR hardware library
-    \item \texttt{picea*} - Dynamic, event-oriented object trees
-    \item \texttt{serde} - Data serialization and deserialization
-    \item \texttt{nphysics} - Physics engine
-    \item \texttt{ncollide} - Vector and matrix math
-    \item \texttt{nalgebra} - Geometric/volumetric operations and queries
-\end{itemize}
-
-* - Made by this team
+These are the libraries that we are using in our application. Dependencies
+marked with a \texttt{*} are made by this team.
+\begin{table}[H]
+    \caption{Dependency List}\label{tab:milestones}
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Dependency} & \textbf{Purpose} \\
+        \hline
+        \hline
+        \texttt{flight*} & Rendering, graphical user interface, asset loading,
+            and VR hardware library \\
+        \hline
+        \texttt{picea*} & Dynamic, event-oriented object trees \\
+        \hline
+        \texttt{serde} & Data serialization and deserialization \\
+        \hline
+        \texttt{nphysics} & Physics engine \\
+        \hline
+        \texttt{ncollide} & Vector and matrix math \\
+        \hline
+        \texttt{nalgebra} & Geometric/volumetric operations and queries \\
+        \hline
+    \end{tabular}
+\end{table}
 
 \end{document}
