@@ -1,0 +1,22 @@
+[package]
+name = "vr-final-project"
+version = "0.1.0"
+authors = [
+    "Sumner Evans <jonathanevans@mines.edu>",
+    "Robbie Merillat <rdmerillat@mines.edu>",
+    "Sam Sartor <ssartor@mines.edu>",
+]
+
+[dependencies]
+flight = { git = "https://github.com/flight-rs/flight" }
+clap = "^2.26.2"
+simplelog = "^0.4.2"
+glutin = "^0.9.2"
+gfx_window_glutin = "^0.17.0"
+gfx_device_gl = "^0.14.4"
+nalgebra = "^0.13.0"
+gfx = "^0.16.1"
+log = "^0.3.8"
+nphysics3d = "^0.7.2"
+ncollide = "^0.13.0"
+num-traits = "^0.1"
