@@ -15,11 +15,13 @@
 \usepackage{float}
 \usepackage{parskip}
 \usepackage{blindtext}
+\usepackage{listings}
+\usepackage{minted}
 
 \MakeOuterQuote{"}
 
+\setminted{autogobble,python3,mathescape,fontsize=\footnotesize}
 \newcommand\tab[1][.5in]{\hspace*{#1}}
-
 \newcommand\name{VRsh}
 
 \title{Final Project Design v. 1.1}
@@ -52,8 +54,8 @@ these paradigms and design patterns.
 For this project, we will utilize a 3D space to implement an intuitive UI for
 \begin{enumerate*}[label={(\alph*)}]
     \item loading programs,
-    \item saving program state,
-    \item and customizing the environment
+    \item saving program state, and
+    \item customizing the environment
 \end{enumerate*} (described in Section~\ref{sec:design}).  We believe that
 implementing a shell-like environment is the most effective method for us to
 explore those patterns.
@@ -86,9 +88,9 @@ located above the user's head. The halo will have components attached to allow
 the user to perform actions such as running programs and moving between
 environments. We have not yet determined the most intuitive design motif for
 these controls. However, we have brainstormed a few innovative ideas for these
-controls including pull-down selectors, Rolodex selectors, and system setting
-asteroid field of options. Some of these concepts can bee visualized in the
-image below.
+controls including grab-and-pull-down selectors, Rolodex selectors, and system
+setting asteroid field of options. Some of these concepts can bee visualized in
+the image below.
 
 \begin{center}
     \includegraphics[width=0.8\textwidth]{./images/visual.jpg}
@@ -135,6 +137,41 @@ Interactions will include:
 available, however most assets will use physically based rendering.
 
 \subsection{System State Storage}\label{sec:state}
+To facilitate the storage of environment state, {\name} will create a directory
+in the \texttt{.config} folder of the user's home directory called
+\texttt{\MakeLowercase\name} and store all necessary information in that
+directory.
+
+\newpage
+Our preliminary folder structure is as follows:
+\begin{minted}{html}
+.vrsh
+|-> environments                        // all environment state data
+|   |-> home                            // for the savefiles
+|   |   |-> 2017-11-14-172312.save      // data format of these files can be
+|   |   |-> 2017-11-14-173708.save      // determined by the program that is
+|   |   |-> 2017-11-14-184937.save      // associated with this environment
+|   |   |-> ...
+|   |-> snowflakes
+|   |   |-> 2017-11-14-172312.save
+|   |   |-> 2017-11-14-173708.save
+|   |   |-> 2017-11-14-184937.save
+|   |   |-> ...
+|   |-> lets-get-physical
+|   |   |-> 2017-11-14-172312.save
+|   |   |-> 2017-11-14-173708.save
+|   |   |-> 2017-11-14-184937.save
+|   |   |-> ...
+|   |-> workbench
+|-> config                              // for general configs (if necessary)
+\end{minted}
+
+Individual programs are responsible for
+\begin{enumerate*}[label={(\alph*)}]
+\item opening these environments,
+\item creating 3D ``thumbnails'' for the environments, and
+\item creating the file's binary data
+\end{enumerate*}.
 
 \section{Management}
 
@@ -149,13 +186,13 @@ three milestones (see Table~\ref{tab:milestones}) with specific goals.
 \begin{table}[H]
     \caption{Milestone Delivery Schedule}\label{tab:milestones}
     \centering
-    \begin{tabular}{|p{10cm}|l|}
+    \begin{tabular}{|p{12cm}|l|}
         \hline
         \textbf{Milestone} & \textbf{Date} \\
         \hline\hline
         Milestone I:\ Design Document & 2017/11/08 \\
         \hline
-        Milestone II:\ Individual Project Program Picking & 2017/11/22 \\
+        Milestone II:\ Individual Project Program Picking (Demo) & 2017/11/27 \\
         \hline
         Milestone III:\ Final Code Submission
         \begin{itemize}
@@ -200,7 +237,7 @@ marked with a \texttt{*} are made by this team.
 \begin{table}[H]
     \caption{Dependency List}\label{tab:milestones}
     \centering
-    \begin{tabular}{|l|l|}
+    \begin{tabular}{|l|p{12cm}|}
         \hline
         \textbf{Dependency} & \textbf{Purpose} \\
         \hline
