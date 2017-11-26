@@ -1,3 +1,5 @@
+#![feature(conservative_impl_trait)]
+
 // Crates
 #[macro_use]
 extern crate log;
@@ -25,6 +27,9 @@ use flight::draw;
 use flight::vr::*;
 
 mod app;
+mod common;
+mod interact;
+mod geo;
 
 fn main() {
     // Logging setup
