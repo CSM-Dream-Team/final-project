@@ -26,8 +26,8 @@ impl<R: gfx::Resources> Snowflakes<R> {
     }
 }
 
-impl<C: gfx::CommandBuffer<R>, R: gfx::Resources> App<C, R> for Snowflakes<R> {
-    fn update<'a, 'b>(&'a mut self, common: &'b mut Common<R>) -> Box<FnBox(&'a mut CommonReply<R>)> {
+impl<R: gfx::Resources, C: gfx::CommandBuffer<R>> App<R, C> for Snowflakes<R> {
+    fn update<'a, 'b>(&'a mut self, common: &'b mut Common<R, C>) -> Box<FnBox(&'a mut CommonReply<R, C>)> {
         Box::new(|r| {})
     }
 }

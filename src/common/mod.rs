@@ -6,7 +6,7 @@ use gfx;
 use nalgebra::Vector3;
 
 use flight::{Error, load, PbrMesh, Texture};
-use flight::draw::{Painter, PbrMaterial, PbrStyle, SolidStyle, UnishadeStyle};
+use flight::draw::{DrawParams, Painter, PbrMaterial, PbrStyle, SolidStyle, UnishadeStyle};
 use flight::mesh::*;
 
 use self::gurus::*;
@@ -14,40 +14,42 @@ use geo::*;
 
 pub struct Meshes<R: gfx::Resources> {
     // UI Elements
-    controller: PbrMesh<R>,
-    grid_lines: Mesh<R, VertC, ()>,
+    pub controller: PbrMesh<R>,
+    pub grid_lines: Mesh<R, VertC, ()>,
 
     // Rays
-    red_ray: Mesh<R, VertC, ()>,
-    blue_ray: Mesh<R, VertC, ()>,
+    pub red_ray: Mesh<R, VertC, ()>,
+    pub blue_ray: Mesh<R, VertC, ()>,
 }
 
 pub struct Painters<R: gfx::Resources> {
-    solid: Painter<R, SolidStyle<R>>,
-    pbr: Painter<R, PbrStyle<R>>,
-    unishade: Painter<R, UnishadeStyle<R>>,
+    pub solid: Painter<R, SolidStyle<R>>,
+    pub pbr: Painter<R, PbrStyle<R>>,
+    pub unishade: Painter<R, UnishadeStyle<R>>,
 }
 
 pub struct Gurus {
-    interact: interact::InteractGuru,
-    physics: physics::PhysicsGuru,
+    pub interact: interact::InteractGuru,
+    pub physics: physics::PhysicsGuru,
 }
 
 pub struct GuruReply {
-    interact: interact::InteractionReply,
-    physics: physics::PhysicsReply,
+    pub interact: interact::InteractionReply,
+    pub physics: physics::PhysicsReply,
 }
 
-pub struct Common<R: gfx::Resources> {
-    gurus: Gurus,
-    painters: Painters<R>,
-    meshes: Meshes<R>,
+pub struct Common<R: gfx::Resources, C: gfx::CommandBuffer<R>> {
+    pub draw_params: DrawParams<R, C>,
+    pub gurus: Gurus,
+    pub painters: Painters<R>,
+    pub meshes: Meshes<R>,
 }
 
-pub struct CommonReply<R: gfx::Resources> {
-    reply: GuruReply,
-    painters: Painters<R>,
-    meshes: Meshes<R>,
+pub struct CommonReply<R: gfx::Resources, C: gfx::CommandBuffer<R>> {
+    pub draw_params: DrawParams<R, C>,
+    pub reply: GuruReply,
+    pub painters: Painters<R>,
+    pub meshes: Meshes<R>,
 }
 
 fn load_simple_object<P, R, F>(f: &mut F, path: P, albedo: [u8; 4])
@@ -100,12 +102,13 @@ impl<R: gfx::Resources> Painters<R> {
     }
 }
 
-impl<R: gfx::Resources> Common<R> {
-    pub fn resolve(self) -> CommonReply<R> {
+impl<R: gfx::Resources, C: gfx::CommandBuffer<R>> Common<R, C> {
+    pub fn resolve(self, dt: f32) -> CommonReply<R, C> {
         CommonReply {
+            draw_params: self.draw_params,
             reply: GuruReply {
-                interact: self.gurus.interact.finish(),
-                physics: self.gurus.physics.finish(),
+                interact: self.gurus.interact.resolve(),
+                physics: self.gurus.physics.resolve(dt),
             },
             painters: self.painters,
             meshes: self.meshes,

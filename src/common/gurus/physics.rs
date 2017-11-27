@@ -19,13 +19,16 @@ impl PhysicsGuru {
 
     pub fn body(&mut self, body: RigidBody<f32>)
         -> impl FnOnce(&PhysicsReply)
-        -> RigidBody<f32> 
+        -> RigidBody<f32>
     {
         let body = self.world.add_rigid_body(body);
-        move |_| body.try_unwrap().expect("Guru not resolved")
+        move |_| match Rc::try_unwrap(body) {
+            Ok(b) => b.into_inner(),
+            Err(_) => panic!("Guru has not been resolved."),
+        }
     }
 
-    pub fn resolve(self, dt: f32) -> PhysicsReply {
+    pub fn resolve(mut self, dt: f32) -> PhysicsReply {
         self.world.step(dt);
         PhysicsReply { _me: (), }
     }

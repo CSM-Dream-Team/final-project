@@ -15,6 +15,8 @@ extern crate glutin;
 extern crate gfx_device_gl;
 extern crate gfx_window_glutin;
 
+use std::boxed::FnBox;
+use std::time::Instant;
 use simplelog::{Config, TermLogger, LogLevelFilter};
 use clap::Arg;
 use gfx::{handle, Factory, texture, Device};
@@ -36,6 +38,8 @@ use app::{App, snowflakes};
 use common::{Common, Gurus, Meshes, Painters};
 use common::gurus::{interact, physics};
 
+// TODO: FIX THIS CRAP
+#[allow(mutable_transmutes)]
 fn main() {
     // Logging setup
     TermLogger::init(LogLevelFilter::Info, Config::default()).unwrap();
@@ -121,17 +125,27 @@ fn main() {
     if mock { window.show() }
 
     // Setup Controllers
-    let primary = MappedController::new(primary());
-    let secondary = MappedController::new(secondary());
+    let mut primary = MappedController::new(primary());
+    let mut secondary = MappedController::new(secondary());
 
     // Setup Common stuff
-    let meshes = Meshes::new(&mut factory);
-    let painters = Painters::new(&mut factory).unwrap();
+    let mut meshes = Meshes::new(&mut factory);
+    let mut painters = Painters::new(&mut factory).unwrap();
 
     // Main loop
     vrctx.start();
     let mut running = true;
+    let mut last_time: Option<Instant> = None;
     while running {
+        // Calculate dt
+        let dt = if let Some(last) = last_time {
+            let elapsed = last.elapsed();
+            elapsed.as_secs() as f64 + (elapsed.subsec_nanos() as f64 * 1e-9)
+        } else {
+            0.
+        };
+        last_time = Some(Instant::now());
+
         let moment = vrctx.sync();
 
         let hmd = match moment.hmd() {
@@ -149,7 +163,8 @@ fn main() {
         ctx.right = hmd.right;
 
         // Create Common
-        let common = Common {
+        let mut common = Common {
+            draw_params: ctx,
             gurus: Gurus {
                 interact: interact::InteractGuru::new(&primary, &secondary),
                 physics: physics::PhysicsGuru::new(Vector3::new(0., -9.81, 0.)),
@@ -158,15 +173,28 @@ fn main() {
             painters: painters,
         };
 
-        // Draw frame
-        let futures: Vec<_> = applications.iter_mut().map(|app| app.update(&mut common)).collect();
-
         // Resolve Gurus
-        let common_reply = common.resolve();
+        // We need to declare common_reply outside the block so that it lives
+        // longer than futures.
+        let mut common_reply = None;
+        {
+            // Draw frame
+            let futures: Vec<_> = applications.iter_mut().map(|app| app.update(&mut common)).collect();
 
-        for f in futures {
-            f(&mut common_reply);
-        }
+            common_reply = Some(common.resolve(dt.min(0.1) as f32));
+
+            for f in futures {
+                // This is A FREAKING UGLY HACK
+                use std::mem::transmute;
+                let common_reply: &'static mut _ = unsafe { transmute(common_reply.as_ref().unwrap()) };
+                FnBox::call_box(f, (common_reply, ));
+            }
+        };
+        let common_reply = common_reply.unwrap();
+
+        ctx = common_reply.draw_params;
+        meshes = common_reply.meshes;
+        painters = common_reply.painters;
 
         // Send instructions to OpenGL
         // TODO: Move flush to separate thread

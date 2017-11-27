@@ -12,6 +12,6 @@ pub mod snowflakes;
 pub const NEAR_PLANE: f64 = 0.1;
 pub const FAR_PLANE: f64 = 1000.;
 
-pub trait App<C: gfx::CommandBuffer<R>, R: gfx::Resources> {
-    fn update<'a, 'b>(&'a mut self, common: &'b mut Common<R>) -> Box<FnBox(&'a mut CommonReply<R>)>;
+pub trait App<R: gfx::Resources, C: gfx::CommandBuffer<R>> {
+    fn update<'a, 'b>(&'a mut self, common: &'b mut Common<R, C>) -> Box<FnBox(&'a mut CommonReply<R, C>)>;
 }

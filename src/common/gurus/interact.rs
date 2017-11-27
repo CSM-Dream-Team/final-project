@@ -39,13 +39,13 @@ impl InteractGuru {
             },
         }
     }
-    
+
     // Complete this guru's calculations, enabling it to answer all waiting
     // questions.
-    pub fn finish(self) -> InteractionReply {
+    pub fn resolve(self) -> InteractionReply {
         InteractionReply {
-            primary: self.primary.finish(),
-            secondary: self.secondary.finish(),
+            primary: self.primary.resolve(),
+            secondary: self.secondary.resolve(),
         }
     }
 }
