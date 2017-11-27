@@ -33,6 +33,11 @@ pub struct Gurus {
     physics: physics::PhysicsGuru,
 }
 
+pub struct GuruReply {
+    interact: interact::InteractionReply,
+    physics: physics::PhysicsReply,
+}
+
 pub struct Common<R: gfx::Resources> {
     gurus: Gurus,
     painters: Painters<R>,
@@ -96,5 +101,14 @@ impl<R: gfx::Resources> Painters<R> {
 }
 
 impl<R: gfx::Resources> Common<R> {
-    pub fn resolve(self) {}
+    pub fn resolve(self) -> CommonReply<R> {
+        CommonReply {
+            reply: GuruReply {
+                interact: self.gurus.interact.finish(),
+                physics: self.gurus.physics.finish(),
+            },
+            painters: self.painters,
+            meshes: self.meshes,
+        }
+    }
 }

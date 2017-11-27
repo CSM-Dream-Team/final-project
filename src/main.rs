@@ -22,6 +22,7 @@ use gfx::format::*;
 use gfx_device_gl::{NewTexture};
 use gfx::memory::Typed;
 use glutin::GlContext;
+use nalgebra::{Vector3};
 
 use flight::draw;
 use flight::vr::*;
@@ -151,14 +152,14 @@ fn main() {
         let common = Common {
             gurus: Gurus {
                 interact: interact::InteractGuru::new(&primary, &secondary),
-                physics: physics::PhysicsGuru::new(),
+                physics: physics::PhysicsGuru::new(Vector3::new(0., -9.81, 0.)),
             },
             meshes: meshes,
             painters: painters,
         };
 
         // Draw frame
-        let futures = applications.iter_mut().map(|app| app.update(&mut common)).collect();
+        let futures: Vec<_> = applications.iter_mut().map(|app| app.update(&mut common)).collect();
 
         // Resolve Gurus
         let common_reply = common.resolve();
