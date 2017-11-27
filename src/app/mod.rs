@@ -13,5 +13,5 @@ pub const NEAR_PLANE: f64 = 0.1;
 pub const FAR_PLANE: f64 = 1000.;
 
 pub trait App<R: gfx::Resources, C: gfx::CommandBuffer<R>> {
-    fn update<'a, 'b>(&'a mut self, common: &'b mut Common<R, C>) -> Box<FnBox(&'a mut CommonReply<R, C>)>;
+    fn update<'a>(&'a mut self, common: &mut Common<R, C>) -> Box<FnBox(&mut CommonReply<R, C>) + 'a>;
 }

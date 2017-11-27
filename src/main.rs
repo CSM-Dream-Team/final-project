@@ -30,8 +30,8 @@ use flight::draw;
 use flight::vr::*;
 
 mod app;
-mod common;
-mod geo;
+pub mod common;
+pub mod geo;
 
 // use app::{App, halo, home, lets_get_physical, snowflakes, workshop};
 use app::{App, snowflakes};
@@ -154,8 +154,10 @@ fn main() {
         };
 
         // Update controllers
-        primary.update(&moment);
-        secondary.update(&moment);
+        match (primary.update(&moment), secondary.update(&moment)) {
+            (Ok(_), Ok(_)) => (),
+            _ => warn!("Error updating controllers"),
+        }
 
         // Update context
         running = !moment.exit;
@@ -174,23 +176,15 @@ fn main() {
         };
 
         // Resolve Gurus
-        // We need to declare common_reply outside the block so that it lives
-        // longer than futures.
-        let mut common_reply = None;
+        // Draw frame
+        let mut common_reply;
         {
-            // Draw frame
             let futures: Vec<_> = applications.iter_mut().map(|app| app.update(&mut common)).collect();
-
-            common_reply = Some(common.resolve(dt.min(0.1) as f32));
-
+            common_reply = common.resolve(dt.min(0.01) as f32);
             for f in futures {
-                // This is A FREAKING UGLY HACK
-                use std::mem::transmute;
-                let common_reply: &'static mut _ = unsafe { transmute(common_reply.as_ref().unwrap()) };
-                FnBox::call_box(f, (common_reply, ));
+                FnBox::call_box(f, (&mut common_reply, ));
             }
         }
-        let common_reply = common_reply.unwrap();
 
         ctx = common_reply.draw_params;
         meshes = common_reply.meshes;

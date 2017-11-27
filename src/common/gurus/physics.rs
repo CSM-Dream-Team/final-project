@@ -1,8 +1,7 @@
 use nphysics3d::world::World;
 use nphysics3d::object::RigidBody;
-use nalgebra::{Vector3, Isometry3};
+use nalgebra::{Vector3};
 use std::rc::Rc;
-use std::cell::RefCell;
 
 pub struct PhysicsGuru {
     world: World<f32>,
