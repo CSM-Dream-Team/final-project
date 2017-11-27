@@ -8,9 +8,17 @@ use flight::mesh::*;
 
 use self::gurus::*;
 
-pub struct Meshes {
+pub struct Meshes<R: gfx::Resources> {
+    // UI Elements
     controller: PbrMesh<R>,
     grid_lines: Mesh<R, VertC, ()>,
+
+    // Rays
+    red_ray: Mesh<R, VertC, ()>,
+    blue_ray: Mesh<R, VertC, ()>,
+
+    // Shapes
+    cube: PbrMesh<R>,
 }
 
 pub struct Painters<R: gfx::Resources> {
@@ -27,5 +35,5 @@ pub struct Gurus {
 pub struct Common<R: gfx::Resources> {
     gurus: Gurus,
     painters: Painters<R>,
-    meshes: Meshes,
+    meshes: Meshes<R>,
 }

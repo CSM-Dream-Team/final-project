@@ -28,7 +28,6 @@ use flight::vr::*;
 
 mod app;
 mod common;
-mod interact;
 mod geo;
 
 use app::{App, halo, home, lets_get_physical, snowflakes, workshop};
