@@ -1,4 +1,4 @@
-#![feature(conservative_impl_trait)]
+#![feature(conservative_impl_trait, fnbox)]
 
 // Crates
 #[macro_use]
@@ -30,7 +30,10 @@ mod app;
 mod common;
 mod geo;
 
-use app::{App, halo, home, lets_get_physical, snowflakes, workshop};
+// use app::{App, halo, home, lets_get_physical, snowflakes, workshop};
+use app::{App, snowflakes};
+use common::{Common, Gurus, Meshes, Painters};
+use common::gurus::{interact, physics};
 
 fn main() {
     // Logging setup
@@ -98,11 +101,11 @@ fn main() {
 
     let surface = factory.view_texture_as_render_target::<(R8_G8_B8_A8, Unorm)>(&tex, 0, None).unwrap();
     let mut applications: Vec<Box<App<_, _>>> = vec![
-        Box::new(halo::Halo::new()),
-        Box::new(home::Home::new()),
-        Box::new(lets_get_physical::LetsGetPhysical::new()),
+        // Box::new(halo::Halo::new()),
+        // Box::new(home::Home::new()),
+        // Box::new(lets_get_physical::LetsGetPhysical::new()),
         Box::new(snowflakes::Snowflakes::new(&mut factory).unwrap()),
-        Box::new(workshop::Workshop::new()),
+        // Box::new(workshop::Workshop::new()),
     ];
 
     // setup context
@@ -116,24 +119,52 @@ fn main() {
 
     if mock { window.show() }
 
+    // Setup Controllers
+    let primary = MappedController::new(primary());
+    let secondary = MappedController::new(secondary());
+
+    // Setup Common stuff
+    let meshes = Meshes::new(&mut factory);
+    let painters = Painters::new(&mut factory).unwrap();
+
     // Main loop
     vrctx.start();
     let mut running = true;
     while running {
-        let vrm = vrctx.sync();
-        let hmd = match vrm.hmd() {
+        let moment = vrctx.sync();
+
+        let hmd = match moment.hmd() {
             Some(h) => h.clone(),
             None => continue,
         };
 
+        // Update controllers
+        primary.update(&moment);
+        secondary.update(&moment);
+
         // Update context
-        running = !vrm.exit;
+        running = !moment.exit;
         ctx.left = hmd.left;
         ctx.right = hmd.right;
 
+        // Create Common
+        let common = Common {
+            gurus: Gurus {
+                interact: interact::InteractGuru::new(&primary, &secondary),
+                physics: physics::PhysicsGuru::new(),
+            },
+            meshes: meshes,
+            painters: painters,
+        };
+
         // Draw frame
-        for app in &mut applications {
-            app.draw(&mut ctx, &vrm);
+        let futures = applications.iter_mut().map(|app| app.update(&mut common)).collect();
+
+        // Resolve Gurus
+        let common_reply = common.resolve();
+
+        for f in futures {
+            f(&mut common_reply);
         }
 
         // Send instructions to OpenGL
@@ -141,7 +172,7 @@ fn main() {
         ctx.encoder.flush(&mut device);
 
         // Send resulting texture to VR device
-        vrm.submit(&mut vrctx);
+        moment.submit(&mut vrctx);
         if mock { window.swap_buffers().unwrap() }
 
         // Cleanup GFX data

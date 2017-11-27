@@ -1,3 +1,4 @@
+use std::boxed::FnBox;
 
 // Flight
 use flight::{PbrMesh, Error, load};
@@ -7,6 +8,8 @@ use flight::vr::VrMoment;
 // GFX
 use gfx;
 use app::App;
+
+use common::{Common, CommonReply};
 
 pub struct Snowflakes<R: gfx::Resources> {
     snowman: PbrMesh<R>,
@@ -24,5 +27,7 @@ impl<R: gfx::Resources> Snowflakes<R> {
 }
 
 impl<C: gfx::CommandBuffer<R>, R: gfx::Resources> App<C, R> for Snowflakes<R> {
-    fn draw(&mut self, ctx: &mut DrawParams<R, C>, vrm: &VrMoment) {}
+    fn update<'a, 'b>(&'a mut self, common: &'b mut Common<R>) -> Box<FnBox(&'a CommonReply<R>)> {
+        Box::new(|r| {})
+    }
 }

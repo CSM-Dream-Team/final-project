@@ -1,6 +1,6 @@
 use ncollide::query::{PointQuery, RayCast, RayIntersection, Ray};
 use nalgebra::{Point3, Vector3, Isometry3};
-use flight::vr::{Trackable, ViveController};
+use flight::vr::{Trackable, MappedController};
 use std::collections::BinaryHeap;
 use std::cmp::{Ord, PartialOrd, PartialEq, Ordering};
 use std::f32::INFINITY;
@@ -15,10 +15,10 @@ pub struct InteractGuru {
 
 impl InteractGuru {
     /// Create a new `InteractGuru` that checkes aganst the given controllers.
-    pub fn new(primary: &ViveController, secondary: &ViveController) -> InteractGuru {
+    pub fn new(primary: &MappedController, secondary: &MappedController) -> InteractGuru {
         InteractGuru {
             primary: ControllerGuru {
-                data: ViveController {
+                data: MappedController {
                     .. *primary
                 },
                 pointed_queries: BinaryHeap::new(),
@@ -28,7 +28,7 @@ impl InteractGuru {
                 index: 0,
             },
             secondary: ControllerGuru {
-                data: ViveController {
+                data: MappedController {
                     .. *secondary
                 },
                 pointed_queries: BinaryHeap::new(),
@@ -79,7 +79,7 @@ impl PartialOrd for InteractQuery {
 /// Answers queries about VR controller interactions.
 pub struct ControllerGuru {
     /// The current state of the controller.
-    pub data: ViveController,
+    pub data: MappedController,
     laser_toi: f32,
     pointed_queries: BinaryHeap<InteractQuery>,
     pointed_data: Vec<Option<RayHit>>,
@@ -234,5 +234,5 @@ pub struct ControllerReply {
     /// The length of the visual laser line.
     pub laser_toi: f32,
     /// The current state of the controller.
-    pub data: ViveController,
+    pub data: MappedController,
 }
