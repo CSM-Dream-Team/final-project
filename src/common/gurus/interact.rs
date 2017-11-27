@@ -209,7 +209,7 @@ impl ControllerGuru {
 
     /// Complete this guru's calculations, enabling it to answer all waiting
     /// questions.
-    pub fn finish(mut self) -> ControllerReply {
+    pub fn resolve(mut self) -> ControllerReply {
         while let Some(InteractQuery { stop: false, .. }) = self.pointed_queries.pop() {}
         for q in self.pointed_queries {
             self.pointed_data[q.i] = None;
