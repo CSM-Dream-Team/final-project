@@ -10,7 +10,6 @@ extern crate gfx;
 extern crate nalgebra;
 extern crate ncollide;
 extern crate nphysics3d;
-extern crate num_traits;
 extern crate glutin;
 extern crate gfx_device_gl;
 extern crate gfx_window_glutin;
@@ -24,9 +23,11 @@ use gfx::format::*;
 use gfx_device_gl::{NewTexture};
 use gfx::memory::Typed;
 use glutin::GlContext;
-use nalgebra::{Vector3};
+use nalgebra::{self as na, Vector3, Point3};
+use ncollide::shape::{Plane};
+use nphysics3d::object::{RigidBody};
 
-use flight::draw;
+use flight::{draw, Light};
 use flight::vr::*;
 
 mod app;
@@ -38,8 +39,12 @@ use app::{App, snowflakes};
 use common::{Common, Gurus, Meshes, Painters};
 use common::gurus::{interact, physics};
 
-// TODO: FIX THIS CRAP
-#[allow(mutable_transmutes)]
+pub const NEAR_PLANE: f64 = 0.1;
+pub const FAR_PLANE: f64 = 75.;
+pub const BACKGROUND: [f32; 4] = [0.529, 0.808, 0.980, 1.0];
+const PI: f32 = ::std::f32::consts::PI;
+const PI2: f32 = 2. * PI;
+
 fn main() {
     // Logging setup
     TermLogger::init(LogLevelFilter::Info, Config::default()).unwrap();
@@ -63,8 +68,8 @@ fn main() {
     };
 
     // Set clipping planes
-    vrctx.near = app::NEAR_PLANE;
-    vrctx.far = app::FAR_PLANE;
+    vrctx.near = NEAR_PLANE;
+    vrctx.far = FAR_PLANE;
 
     // Get some frame sizeing information
     let (render_width, render_height) = vrctx.retrieve_size();
@@ -129,7 +134,7 @@ fn main() {
     let mut secondary = MappedController::new(secondary());
 
     // Setup Common stuff
-    let mut meshes = Meshes::new(&mut factory);
+    let mut meshes = Meshes::new(&mut factory).unwrap();
     let mut painters = Painters::new(&mut factory).unwrap();
 
     // Main loop
@@ -174,6 +179,47 @@ fn main() {
             meshes: meshes,
             painters: painters,
         };
+
+         // Clear targets
+        common.draw_params.encoder.clear_depth(&common.draw_params.depth, FAR_PLANE as f32);
+        common.draw_params.encoder.clear(&common.draw_params.color, [BACKGROUND[0].powf(1. / 2.2), BACKGROUND[1].powf(1. / 2.2), BACKGROUND[2].powf(1. / 2.2), BACKGROUND[3]]);
+
+        // Configure lights
+        common.painters.pbr.cfg(|s| {
+            s.ambient(BACKGROUND);
+            s.lights(&[
+                Light {
+                    pos: moment.stage * Point3::new((0. * PI2 / 3.).sin() * 2., 4., (0. * PI2 / 3.).cos() * 2.),
+                    color: [1.0, 0.8, 0.8, 15.],
+                },
+                Light {
+                    pos: moment.stage * Point3::new((1. * PI2 / 3.).sin() * 2., 4., (1. * PI2 / 3.).cos() * 2.),
+                    color: [0.8, 1.0, 0.8, 15.],
+                },
+                Light {
+                    pos: moment.stage * Point3::new((2. * PI2 / 3.).sin() * 2., 4., (2. * PI2 / 3.).cos() * 2.),
+                    color: [0.8, 0.8, 1.0, 15.],
+                },
+                Light {
+                    pos: moment.stage * Point3::new(0., -8., 0.),
+                    color: [1.0, 1.0, 1.0, 110.],
+                },
+            ]);
+        });
+
+        // Draw controllers
+        for cont in moment.controllers() {
+            common.painters.pbr.draw(&mut common.draw_params, na::convert(cont.pose), &common.meshes.controller);
+        }
+
+        // Draw floor
+        let stage = na::try_convert(moment.stage).unwrap_or(na::one());
+        let floor = Plane::new(Vector3::y());
+        common.gurus.interact.primary.laser(&stage, &floor);
+        let mut floor_rb = RigidBody::new_static(floor, 0.1, 0.6);
+        floor_rb.set_margin(0.00001);
+        common.gurus.physics.body(floor_rb);
+        common.painters.pbr.draw(&mut common.draw_params, na::convert(stage), &common.meshes.floor);
 
         // Resolve Gurus
         // Draw frame

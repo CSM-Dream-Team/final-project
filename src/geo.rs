@@ -121,3 +121,19 @@ pub fn grid_lines(count: i32, size: Vector3<f32>) -> MeshSource<VertC, ()> {
         mat: (),
     }
 }
+
+pub fn plane(rad: f32) -> MeshSource<VertN, ()> {
+    MeshSource {
+        verts: vec![
+            VertN { pos: [ rad, 0.,  rad], norm: [0., 1., 0.] },
+            VertN { pos: [-rad, 0.,  rad], norm: [0., 1., 0.] },
+            VertN { pos: [-rad, 0., -rad], norm: [0., 1., 0.] },
+            VertN { pos: [ rad, 0.,  rad], norm: [0., 1., 0.] },
+            VertN { pos: [-rad, 0., -rad], norm: [0., 1., 0.] },
+            VertN { pos: [ rad, 0., -rad], norm: [0., 1., 0.] },
+        ],
+        inds: Indexing::All,
+        prim: Primitive::TriangleList,
+        mat: (),
+    }
+}

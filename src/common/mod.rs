@@ -3,7 +3,7 @@ pub mod gurus;
 use std::path::Path;
 
 use gfx;
-use nalgebra::Vector3;
+use nalgebra::{Vector3, Point2};
 
 use flight::{Error, load, PbrMesh, Texture};
 use flight::draw::{DrawParams, Painter, PbrMaterial, PbrStyle, SolidStyle, UnishadeStyle};
@@ -16,6 +16,7 @@ pub struct Meshes<R: gfx::Resources> {
     // UI Elements
     pub controller: PbrMesh<R>,
     pub grid_lines: Mesh<R, VertC, ()>,
+    pub floor: PbrMesh<R>,
 
     // Rays
     pub red_ray: Mesh<R, VertC, ()>,
@@ -70,15 +71,27 @@ fn load_simple_object<P, R, F>(f: &mut F, path: P, albedo: [u8; 4])
 }
 
 impl<R: gfx::Resources> Meshes<R> {
-    pub fn new<F: gfx::Factory<R>>(factory: &mut F) -> Meshes<R> {
-        Meshes {
-            controller: load_simple_object(factory,
-                                           "assets/controller.obj",
-                                           [0x80, 0x80, 0xFF, 0xFF]).unwrap(),
+    pub fn new<F: gfx::Factory<R>>(factory: &mut F) -> Result<Meshes<R>, Error> {
+        use gfx::format::*;
+        Ok(Meshes {
+            controller: load_simple_object(
+                factory,
+                "assets/controller.obj",
+                [0x80, 0x80, 0xFF, 0xFF])?,
             grid_lines: grid_lines(8, Vector3::new(8., 8., 8.)).upload(factory),
+            floor: plane(5.)
+                .with_tex(Point2::new(0., 0.))
+                .compute_tan()
+                .with_material(PbrMaterial {
+                    normal: Texture::<_, (R8_G8_B8_A8, Unorm)>::uniform_value(factory, [0x80, 0x80, 0xFF, 0xFF])?,
+                    albedo: Texture::<_, (R8_G8_B8_A8, Srgb)>::uniform_value(factory, [0xA0, 0xA0, 0xA0, 0xFF])?,
+                    metalness: Texture::<_, (R8, Unorm)>::uniform_value(factory, 0xFF)?,
+                    roughness: Texture::<_, (R8, Unorm)>::uniform_value(factory, 0x40)?,
+                })
+                .upload(factory),
             red_ray: make_ray([1., 0., 0.]).upload(factory),
             blue_ray: make_ray([0., 0., 1.]).upload(factory),
-        }
+        })
     }
 }
 
