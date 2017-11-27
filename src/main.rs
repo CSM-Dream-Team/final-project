@@ -16,7 +16,7 @@ extern crate gfx_device_gl;
 extern crate gfx_window_glutin;
 
 use simplelog::{Config, TermLogger, LogLevelFilter};
-use clap::{Arg, App};
+use clap::Arg;
 use gfx::{handle, Factory, texture, Device};
 use gfx::format::*;
 use gfx_device_gl::{NewTexture};
@@ -31,12 +31,14 @@ mod common;
 mod interact;
 mod geo;
 
+use app::{App, halo, home, lets_get_physical, snowflakes, workshop};
+
 fn main() {
     // Logging setup
     TermLogger::init(LogLevelFilter::Info, Config::default()).unwrap();
 
     // Command line arguments
-    let matches = App::new("VR")
+    let matches = clap::App::new("VR")
         .arg(Arg::with_name("mock")
              .short("m")
              .long("mock")
@@ -96,13 +98,13 @@ fn main() {
     let (.., depth) = factory.create_depth_stencil(render_width as u16, render_height as u16).unwrap();
 
     let surface = factory.view_texture_as_render_target::<(R8_G8_B8_A8, Unorm)>(&tex, 0, None).unwrap();
-    let mut application = match app::App::new(&mut factory) {
-        Ok(a) => a,
-        Err(e) => {
-            error!("Could not start application: {}", e);
-            return
-        },
-    };
+    let mut applications: Vec<Box<App<_, _>>> = vec![
+        Box::new(halo::Halo::new()),
+        Box::new(home::Home::new()),
+        Box::new(lets_get_physical::LetsGetPhysical::new()),
+        Box::new(snowflakes::Snowflakes::new(&mut factory).unwrap()),
+        Box::new(workshop::Workshop::new()),
+    ];
 
     // setup context
     let mut ctx = draw::DrawParams {
@@ -131,7 +133,9 @@ fn main() {
         ctx.right = hmd.right;
 
         // Draw frame
-        application.draw(&mut ctx, &vrm);
+        for app in &mut applications {
+            app.draw(&mut ctx, &vrm);
+        }
 
         // Send instructions to OpenGL
         // TODO: Move flush to separate thread

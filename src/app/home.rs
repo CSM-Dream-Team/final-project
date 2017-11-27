@@ -7,15 +7,15 @@ use flight::vr::VrMoment;
 use gfx;
 use app::App;
 
-pub struct Halo {}
+pub struct Home {}
 
-impl Halo {
-    pub fn new() -> Halo {
-        Halo {}
+impl Home {
+    pub fn new() -> Home {
+        Home {}
     }
 }
 
-impl<C: gfx::CommandBuffer<R>, R: gfx::Resources> App<C, R> for Halo {
+impl<C: gfx::CommandBuffer<R>, R: gfx::Resources> App<C, R> for Home {
     fn draw(&mut self, ctx: &mut DrawParams<R, C>, vrm: &VrMoment) {
 
     }
