@@ -189,7 +189,7 @@ fn main() {
                 let common_reply: &'static mut _ = unsafe { transmute(common_reply.as_ref().unwrap()) };
                 FnBox::call_box(f, (common_reply, ));
             }
-        };
+        }
         let common_reply = common_reply.unwrap();
 
         ctx = common_reply.draw_params;
