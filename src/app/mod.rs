@@ -3,7 +3,7 @@ use std::boxed::FnBox;
 use gfx;
 use common::{Common, CommonReply};
 
-// pub mod halo;
+pub mod halo;
 // pub mod home;
 // pub mod lets_get_physical;
 pub mod snowflakes;

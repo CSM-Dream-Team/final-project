@@ -23,9 +23,7 @@ use gfx::format::*;
 use gfx_device_gl::{NewTexture};
 use gfx::memory::Typed;
 use glutin::GlContext;
-use nalgebra::{self as na, Vector3, Point3};
-use ncollide::shape::{Plane};
-use nphysics3d::object::{RigidBody};
+use nalgebra::{Vector3, Point3};
 
 use flight::{draw, Light};
 use flight::vr::*;
@@ -35,7 +33,7 @@ pub mod common;
 pub mod geo;
 
 // use app::{App, halo, home, lets_get_physical, snowflakes, workshop};
-use app::{App, snowflakes};
+use app::{App, snowflakes, halo};
 use common::{Common, Gurus, Meshes, Painters};
 use common::gurus::{interact, physics};
 
@@ -111,7 +109,7 @@ fn main() {
 
     let surface = factory.view_texture_as_render_target::<(R8_G8_B8_A8, Unorm)>(&tex, 0, None).unwrap();
     let mut applications: Vec<Box<App<_, _>>> = vec![
-        // Box::new(halo::Halo::new()),
+        Box::new(halo::Halo::new()),
         // Box::new(home::Home::new()),
         // Box::new(lets_get_physical::LetsGetPhysical::new()),
         Box::new(snowflakes::Snowflakes::new(&mut factory).unwrap()),
@@ -206,19 +204,6 @@ fn main() {
          // Clear targets
         common.draw_params.encoder.clear_depth(&common.draw_params.depth, FAR_PLANE as f32);
         common.draw_params.encoder.clear(&common.draw_params.color, [BACKGROUND[0].powf(1. / 2.2), BACKGROUND[1].powf(1. / 2.2), BACKGROUND[2].powf(1. / 2.2), BACKGROUND[3]]);
-
-        // Draw controllers
-        for cont in moment.controllers() {
-            common.painters.pbr.draw(&mut common.draw_params, na::convert(cont.pose), &common.meshes.controller);
-        }
-
-        // Draw floor
-        let floor = Plane::new(Vector3::y());
-        common.gurus.interact.primary.laser(&na::one(), &floor);
-        let mut floor_rb = RigidBody::new_static(floor, 0.1, 0.6);
-        floor_rb.set_margin(0.00001);
-        common.gurus.physics.body(floor_rb);
-        common.painters.pbr.draw(&mut common.draw_params, na::one(), &common.meshes.floor);
 
         // Resolve Gurus
         // Draw frame

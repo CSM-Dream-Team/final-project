@@ -1,4 +1,5 @@
 use ncollide::query::{PointQuery, RayCast, RayIntersection, Ray};
+use ncollide::shape::Shape;
 use nalgebra::{Point3, Vector3, Isometry3};
 use flight::vr::{Trackable, MappedController};
 use std::collections::BinaryHeap;
@@ -90,10 +91,10 @@ pub struct ControllerGuru {
 impl ControllerGuru {
     /// Update the endpoint of the controller's visual laser line by providing a
     /// terminating surface.
-    pub fn laser<S: RayCast<Point3<f32>, Isometry3<f32>>>(
+    pub fn laser(
         &mut self,
         pos: &Isometry3<f32>,
-        shape: &S,
+        shape: &Shape<Point3<f32>, Isometry3<f32>>,
     ) {
         let ray = Ray::new(self.data.origin(), self.data.pointing());
         if let Some(t) = shape.toi_with_ray(pos, &ray, true) {
@@ -107,8 +108,8 @@ impl ControllerGuru {
     }
 
     fn pointing_partial(
-        &mut self, 
-        hit: Option<RayHit>, 
+        &mut self,
+        hit: Option<RayHit>,
         stops: bool
     )
         -> impl FnOnce(&InteractionReply)
@@ -135,13 +136,13 @@ impl ControllerGuru {
     /// Check if the controller is pointing at the given shape. The shape can
     /// optionally block line of sight, stopping more distant interactions from
     /// triggering.
-    /// 
+    ///
     /// Note that this function returns an in-progress answer which can only be
     /// completed once the `ControllerGuru` has finished.
-    pub fn pointing<S: RayCast<Point3<f32>, Isometry3<f32>>>(
+    pub fn pointing(
         &mut self,
         pos: &Isometry3<f32>,
-        shape: &S,
+        shape: &Shape<Point3<f32>, Isometry3<f32>>,
         stops: bool,
     )
         -> impl FnOnce(&InteractionReply)
@@ -159,13 +160,13 @@ impl ControllerGuru {
     /// Check if the controller is pointing at the given shape and update the
     /// visual laser line to terminate on its surface. The shape can optionally
     /// block line of sight, stopping more distant interactions from triggering.
-    /// 
+    ///
     /// Note that this function returns an in-progress answer which can only be
     /// completed once the `ControllerGuru` has finished.
-    pub fn pointing_laser<S: RayCast<Point3<f32>, Isometry3<f32>>>(
+    pub fn pointing_laser(
         &mut self,
         pos: &Isometry3<f32>,
-        shape: &S,
+        shape: &Shape<Point3<f32>, Isometry3<f32>>,
         stops: bool,
     )
         -> impl FnOnce(&InteractionReply)
@@ -197,10 +198,10 @@ impl ControllerGuru {
     }
 
     /// Check if the controller is touching the given shape.
-    pub fn touched<S: PointQuery<Point3<f32>, Isometry3<f32>>>(
+    pub fn touched(
         &mut self,
         pos: &Isometry3<f32>,
-        shape: &S,
+        shape: &Shape<Point3<f32>, Isometry3<f32>>,
     )
         -> bool
     {
