@@ -1,5 +1,5 @@
-use ncollide::query::{PointQuery, RayCast, RayIntersection, Ray};
 use ncollide::shape::Shape;
+use ncollide::query::{PointQuery, RayCast, RayIntersection, Ray};
 use nalgebra::{Point3, Vector3, Isometry3};
 use flight::vr::{Trackable, MappedController};
 use std::collections::BinaryHeap;
@@ -19,9 +19,7 @@ impl InteractGuru {
     pub fn new(primary: &MappedController, secondary: &MappedController) -> InteractGuru {
         InteractGuru {
             primary: ControllerGuru {
-                data: MappedController {
-                    .. *primary
-                },
+                data: MappedController { ..*primary },
                 pointed_queries: BinaryHeap::new(),
                 pointed_data: vec![None],
                 blocked: false,
@@ -29,9 +27,7 @@ impl InteractGuru {
                 index: 0,
             },
             secondary: ControllerGuru {
-                data: MappedController {
-                    .. *secondary
-                },
+                data: MappedController { ..*secondary },
                 pointed_queries: BinaryHeap::new(),
                 pointed_data: vec![None],
                 blocked: false,
@@ -110,7 +106,7 @@ impl ControllerGuru {
     fn pointing_partial(
         &mut self,
         hit: Option<RayHit>,
-        stops: bool
+        stops: bool,
     )
         -> impl FnOnce(&InteractionReply)
         -> Option<&RayHit>
@@ -126,11 +122,13 @@ impl ControllerGuru {
             self.pointed_data.push(Some(hit));
         }
         let controller_index = self.index;
-        move |reply| ([&reply.primary, &reply.secondary][controller_index])
+        move |reply| {
+            ([&reply.primary, &reply.secondary][controller_index])
                 .results
                 .get(index)
                 .map(|r| r.as_ref())
                 .unwrap_or(None)
+        }
     }
 
     /// Check if the controller is pointing at the given shape. The shape can
@@ -236,4 +234,31 @@ pub struct ControllerReply {
     pub laser_toi: f32,
     /// The current state of the controller.
     pub data: MappedController,
+}
+
+/// Represents something being grabbed
+pub struct GrabableState {
+    pub offset: Option<Isometry3<f32>>,
+}
+
+impl GrabableState {
+    pub fn new() -> Self {
+        GrabableState { offset: None }
+    }
+
+    pub fn update<'a>(&'a mut self,
+                      interact: &mut InteractGuru,
+                      pos: &Isometry3<f32>,
+                      shape: &Shape<Point3<f32>, Isometry3<f32>>)
+                      -> impl FnOnce(&InteractionReply) + 'a {
+        if interact.primary.data.trigger > 0.5 {
+            if interact.primary.touched(&pos, shape) {
+                self.offset = Some(interact.primary.data.pose.inverse() * pos);
+            }
+        } else {
+            self.offset = None;
+        }
+
+        |_| { self; }
+    }
 }
