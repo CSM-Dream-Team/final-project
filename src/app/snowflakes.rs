@@ -49,7 +49,7 @@ impl<R: gfx::Resources, C: gfx::CommandBuffer<R>> App<R, C> for Snowflakes<R> {
         let futures: Vec<_> = self.blocks
             .iter_mut()
             .map(|b| {
-                
+
                 (physics.body(b.clone()), b)
             })
             .collect();
