@@ -197,7 +197,7 @@ impl ControllerGuru {
 
     /// Check if the controller is touching the given shape.
     pub fn touched(
-        &mut self,
+        &self,
         pos: &Isometry3<f32>,
         shape: &Shape<Point3<f32>, Isometry3<f32>>,
     )
@@ -237,28 +237,46 @@ pub struct ControllerReply {
 }
 
 /// Represents something being grabbed
-pub struct GrabableState {
-    pub offset: Option<Isometry3<f32>>,
+#[derive(Clone)]
+pub enum GrabableState {
+    Held {
+        offset: Isometry3<f32>,
+    },
+    Pointed,
+    Free,
 }
 
 impl GrabableState {
     pub fn new() -> Self {
-        GrabableState { offset: None }
+        GrabableState::Free
     }
 
-    pub fn update<'a>(&'a mut self,
-                      interact: &mut InteractGuru,
-                      pos: &Isometry3<f32>,
-                      shape: &Shape<Point3<f32>, Isometry3<f32>>)
-                      -> impl FnOnce(&InteractionReply) + 'a {
-        if interact.primary.data.trigger > 0.5 {
-            if interact.primary.touched(&pos, shape) {
-                self.offset = Some(interact.primary.data.pose.inverse() * pos);
-            }
-        } else {
-            self.offset = None;
-        }
+    pub fn update(
+            &self,
+            interact: &mut ControllerGuru,
+            pos: &Isometry3<f32>,
+            shape: &Shape<Point3<f32>, Isometry3<f32>>)
+            -> impl FnOnce(&InteractionReply)
+            -> GrabableState
+    {
+        use self::GrabableState::*;
 
-        |_| { self; }
+        let next = match (self, interact.data.trigger > 0.5) {
+            (&Free, true) if interact.touched(&pos, shape) => Held {
+                offset: interact.data.pose.inverse() * pos
+            },
+            (&Held { offset }, true) => Held { offset },
+            _ => Free,
+        };
+
+        if let Held { .. } = next { interact.block_pointing(); }
+        let pointing = interact.pointing_laser(pos, shape, true);
+
+        |reply| {
+            match (pointing(reply), next) {
+                (Some(_), Free) => Pointed,
+                (_, out) => out,
+            }
+        }
     }
 }

@@ -19,6 +19,35 @@ pub struct Snowblock {
     grabbed: GrabableState,
 }
 
+impl Snowblock {
+    fn update<'a, R: gfx::Resources, C: gfx::CommandBuffer<R>>(
+        &'a mut self,
+        common: &mut Common<R, C>)
+        -> impl FnOnce(&mut CommonReply<R, C>, &PbrMesh<R>) + 'a
+    {
+        let phys = common.gurus.physics.body(self.body.clone());
+        let grab = self.grabbed.update(
+            &mut common.gurus.interact.primary,
+            self.body.position(),
+            self.body.shape().as_ref());
+
+        move |reply, mesh| {
+            self.grabbed = grab(&reply.reply.interact);
+            self.body = phys(&reply.reply.physics);
+            use self::GrabableState::*;
+            let pos = match self.grabbed {
+                Held { offset } => {
+                    let position = reply.reply.interact.primary.data.pose * offset;
+                    self.body.set_transformation(position);
+                    position
+                }
+                Free | Pointed => *self.body.position(),
+            };
+            reply.painters.pbr.draw(&mut reply.draw_params, na::convert(pos), mesh);
+        }
+    }
+}
+
 pub struct Snowflakes<R: gfx::Resources> {
     blocks: Vec<Snowblock>,
     snowman: PbrMesh<R>,
@@ -36,7 +65,7 @@ impl<R: gfx::Resources> Snowflakes<R> {
     }
 }
 
-impl<R: gfx::Resources, C: gfx::CommandBuffer<R>> App<R, C> for Snowflakes<R> {
+impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static> App<R, C> for Snowflakes<R> {
     fn update<'a>(
         &'a mut self,
         common: &mut Common<R, C>)
@@ -59,33 +88,12 @@ impl<R: gfx::Resources, C: gfx::CommandBuffer<R>> App<R, C> for Snowflakes<R> {
             }
         }
 
-        let physics = &mut common.gurus.physics;
-        let interact = &mut common.gurus.interact;
         let futures: Vec<_> = self.blocks
             .iter_mut()
-            .map(|s| {(
-                physics.body(s.body.clone()),
-                s.grabbed.update(interact, s.body.position(), s.body.shape().as_ref()),
-                s,
-            )})
+            .map(|s| s.update(common))
             .collect();
 
         let snow_block = &self.snow_block;
-        Box::new(move |r: &mut CommonReply<_, _>| for (phys_f, grabbed_f, block) in futures {
-            grabbed_f(&r.reply.interact);
-
-            let pos = match block.grabbed.offset {
-                Some(o) => {
-                    let position = r.reply.interact.primary.data.pose * o;
-                    block.body.set_transformation(position);
-                    position
-                }
-                None => *block.body.position(),
-            };
-
-            let body = phys_f(&r.reply.physics);
-            block.body = body;
-            r.painters.pbr.draw(&mut r.draw_params, na::convert(pos), snow_block);
-        })
+        Box::new(move |r: &mut CommonReply<R, C>| for block in futures { block(r, snow_block); })
     }
 }
