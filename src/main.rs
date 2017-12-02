@@ -210,7 +210,7 @@ fn main() {
         let mut common_reply;
         {
             let futures: Vec<_> = applications.iter_mut().map(|app| app.update(&mut common)).collect();
-            common_reply = common.resolve(dt.min(0.01) as f32);
+            common_reply = common.resolve(dt.min(0.1) as f32);
             for f in futures {
                 FnBox::call_box(f, (&mut common_reply, ));
             }

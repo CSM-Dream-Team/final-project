@@ -60,9 +60,9 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static> App<R, C> 
         self.blocks.append(&mut self.new_blocks);
 
         let block_shape = Cuboid::new(Vector3::new(0.15, 0.15, 0.3));
-        let add_future = GrabableState::new().update(
+        let add_future = GrabableState::default().update(
             &mut common.gurus.interact.primary,
-            &common.gurus.interact.secondary.data.pose,
+            common.gurus.interact.secondary.data.pose,
             &block_shape,
         );
 
@@ -79,7 +79,7 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static> App<R, C> 
                 g @ Held { .. } => new_blocks.push({
                     let mut body = RigidBody::new_dynamic(block_shape, 100., 0.0, 0.8);
                     body.set_margin(0.00001);
-                    Snowblock(GrabbablePhysicsState { body: body, grab: g })
+                    Snowblock(GrabbablePhysicsState::new(body, g, &r.reply.interact.primary.data))
                 }),
                 _ => (),
             }

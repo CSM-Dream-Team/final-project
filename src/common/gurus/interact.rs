@@ -26,7 +26,8 @@ impl InteractGuru {
                 data: MappedController { ..*primary },
                 pointed_queries: BinaryHeap::new(),
                 pointed_data: vec![None],
-                blocked: false,
+                point_blocked: false,
+                touch_blocked: false,
                 laser_toi: INFINITY,
                 index: 0,
             },
@@ -34,7 +35,8 @@ impl InteractGuru {
                 data: MappedController { ..*secondary },
                 pointed_queries: BinaryHeap::new(),
                 pointed_data: vec![None],
-                blocked: false,
+                point_blocked: false,
+                touch_blocked: false,
                 laser_toi: INFINITY,
                 index: 1,
             },
@@ -84,7 +86,8 @@ pub struct ControllerGuru {
     laser_toi: f32,
     pointed_queries: BinaryHeap<InteractQuery>,
     pointed_data: Vec<Option<RayHit>>,
-    blocked: bool,
+    point_blocked: bool,
+    touch_blocked: bool,
     index: usize,
 }
 
@@ -154,7 +157,7 @@ impl ControllerGuru {
         -> impl FnOnce(&InteractionReply)
         -> Option<&RayHit>
     {
-        let hit = if !self.blocked {
+        let hit = if !self.point_blocked {
             let ray = Ray::new(self.data.origin(), self.data.pointing());
             shape.toi_and_normal_with_ray(pos, &ray, true).map(|h| RayHit(h))
         } else {
@@ -179,7 +182,7 @@ impl ControllerGuru {
         -> Option<&RayHit>
     {
         let ray = Ray::new(self.data.origin(), self.data.pointing());
-        let hit = if !self.blocked {
+        let hit = if !self.point_blocked {
             let hit = shape.toi_and_normal_with_ray(pos, &ray, true);
             if let Some(ref hit) = hit {
                 self.laser_toi(hit.toi);
@@ -198,20 +201,36 @@ impl ControllerGuru {
     /// calls to `pointing` and`pointing_laser` (past and future) to return
     /// `None`.
     pub fn block_pointing(&mut self) {
-        self.blocked = true;
+        self.point_blocked = true;
         self.pointed_queries.clear();
         self.pointed_data.clear();
     }
 
-    /// Check if the controller is touching the given shape.
+    /// Blocks the controller from touching anything. This will force all calls
+    /// to `touch` (past and future) to return `false`.
+    pub fn block_touch(&mut self) {
+        self.touch_blocked = true;
+    }
+
+    /// Blocks the controller from touching or pointing at anything.
+    pub fn block(&mut self) {
+        self.block_pointing();
+        self.block_touch();
+    }
+
+    /// Check if the controller has not been blocked and is touching the given
+    /// shape.
     pub fn touched(
         &self,
         pos: &Isometry3<f32>,
         shape: &Shape<Point3<f32>, Isometry3<f32>>,
     )
+        -> impl FnOnce(&InteractionReply)
         -> bool
     {
-        shape.contains_point(pos, &self.data.origin())
+        let touched = !self.touch_blocked && shape.contains_point(pos, &self.data.origin());
+        let con = self.controller_reply();
+        move |reply| touched && con(reply).can_touch
     }
 
     /// Complete this guru's calculations, enabling it to answer all waiting
@@ -225,6 +244,7 @@ impl ControllerGuru {
             results: self.pointed_data,
             laser_toi: self.laser_toi,
             data: self.data,
+            can_touch: !self.touch_blocked,
         }
     }
 }
@@ -242,6 +262,7 @@ pub struct ControllerReply {
     pub laser_toi: f32,
     /// The current state of the controller.
     pub data: MappedController,
+    can_touch: bool,
 }
 
 /// Represents something being grabbed
@@ -249,41 +270,62 @@ pub struct ControllerReply {
 pub enum GrabableState {
     Held {
         offset: Isometry3<f32>,
+        lin_vel: Vector3<f32>,
+        ang_vel: Vector3<f32>,
     },
     Pointed,
     Free,
 }
 
-impl GrabableState {
-    pub fn new() -> Self {
+impl Default for GrabableState {
+    fn default() -> Self {
         GrabableState::Free
     }
+}
 
+impl GrabableState {
     pub fn update(
             &self,
             interact: &mut ControllerGuru,
-            pos: &Isometry3<f32>,
+            pos: Isometry3<f32>,
             shape: &Shape<Point3<f32>, Isometry3<f32>>)
             -> impl FnOnce(&InteractionReply)
             -> GrabableState
     {
         use self::GrabableState::*;
 
-        let next = match (self, interact.data.trigger > 0.5) {
-            (&Free, true) if interact.touched(&pos, shape) => Held {
-                offset: interact.data.pose.inverse() * pos
-            },
-            (&Held { offset }, true) => Held { offset },
-            _ => Free,
+        let down = interact.data.trigger > 0.5;
+        let pressed = down && interact.data.trigger - interact.data.trigger_delta < 0.5;
+        let (persist, touched) = if let (&Held { offset, .. }, true) = (self, down) {
+            (Some(offset), None)
+        } else {
+            (None, match (self, pressed) {
+                (&Free, true) | (&Pointed, true) => Some(interact.touched(&pos, shape)),
+                (&Held { .. }, _) => {
+                    interact.block();
+                    None
+                }
+                _ => None,
+            })
         };
+        let pointing = interact.pointing_laser(&pos, shape, true);
+        let con = interact.controller_reply();
 
-        if let Held { .. } = next { interact.block_pointing(); }
-        let pointing = interact.pointing_laser(pos, shape, true);
-
-        |reply| {
-            match (pointing(reply), next) {
-                (Some(_), Free) => Pointed,
-                (_, out) => out,
+        move |reply| {
+            let con = con(reply);
+            let ang_vel = con.data.ang_vel;
+            let mut lin_vel = con.data.lin_vel;
+            if let Some(offset) = persist {
+                lin_vel += ang_vel.cross(&offset.translation.vector);
+                Held { offset, lin_vel, ang_vel }
+            } else if touched.map(|t| t(reply)).unwrap_or(false) {
+                let offset = con.data.pose.inverse() * pos;
+                lin_vel += ang_vel.cross(&offset.translation.vector);
+                Held { offset, lin_vel, ang_vel }
+            } else if pointing(reply).is_some() {
+                Pointed
+            } else {
+                Free
             }
         }
     }
@@ -297,11 +339,17 @@ pub struct GrabbablePhysicsState {
 }
 
 impl GrabbablePhysicsState {
-    pub fn new(body: RigidBody<f32>) -> Self {
-        GrabbablePhysicsState {
-            grab: GrabableState::new(),
-            body: body,
+    pub fn new_free(body: RigidBody<f32>) -> Self {
+        GrabbablePhysicsState { grab: Default::default(), body }
+    }
+
+    pub fn new(mut body: RigidBody<f32>, grab: GrabableState, con: &MappedController) -> Self {
+        if let GrabableState::Held { offset, lin_vel, ang_vel } = grab {
+            body.set_transformation(con.pose * offset);
+            body.set_lin_vel(lin_vel);
+            body.set_ang_vel(ang_vel);
         }
+        GrabbablePhysicsState { grab, body }
     }
 
     pub fn update<'a, R: gfx::Resources, C: gfx::CommandBuffer<R>>(
@@ -314,7 +362,7 @@ impl GrabbablePhysicsState {
         let phys = physics.body(self.body.clone());
         let grab = self.grab.update(
             interact,
-            self.body.position(),
+            *self.body.position(),
             self.body.shape().as_ref());
 
         move |reply| {
@@ -322,15 +370,11 @@ impl GrabbablePhysicsState {
             self.body = phys(&reply.reply.physics);
             use self::GrabableState::*;
             match self.grab {
-                Held { offset } => {
+                Held { offset, lin_vel, ang_vel } => {
                     let position = reply.reply.interact.primary.data.pose * offset;
                     self.body.set_transformation(position);
-
-                    let ang_vel = reply.reply.interact.primary.data.ang_vel;
-                    let mut lin_vel = reply.reply.interact.primary.data.lin_vel;
-                    lin_vel += ang_vel.cross(&offset.translation.vector);
-                    self.body.set_ang_vel(ang_vel);
                     self.body.set_lin_vel(lin_vel);
+                    self.body.set_ang_vel(ang_vel);
 
                     position
                 }
