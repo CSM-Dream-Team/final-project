@@ -1,7 +1,11 @@
+use nalgebra::{Point3, Vector3, Isometry3};
 use ncollide::shape::Shape;
 use ncollide::query::{PointQuery, RayCast, RayIntersection, Ray};
-use nalgebra::{Point3, Vector3, Isometry3};
+use nphysics3d::object::RigidBody;
+use gfx;
 use flight::vr::{Trackable, MappedController};
+use common::{CommonReply};
+use super::physics::PhysicsGuru;
 use std::collections::BinaryHeap;
 use std::cmp::{Ord, PartialOrd, PartialEq, Ordering};
 use std::f32::INFINITY;
@@ -103,6 +107,12 @@ impl ControllerGuru {
         self.laser_toi = self.laser_toi.min(toi);
     }
 
+    /// Will get the reply for this controller from the complete interaction reply
+    pub fn controller_reply(&self) -> impl FnOnce(&InteractionReply) -> &ControllerReply {
+        let controller_index = self.index;
+        move |reply| [&reply.primary, &reply.secondary][controller_index]
+    }
+
     fn pointing_partial(
         &mut self,
         hit: Option<RayHit>,
@@ -121,14 +131,12 @@ impl ControllerGuru {
             });
             self.pointed_data.push(Some(hit));
         }
-        let controller_index = self.index;
-        move |reply| {
-            ([&reply.primary, &reply.secondary][controller_index])
-                .results
-                .get(index)
-                .map(|r| r.as_ref())
-                .unwrap_or(None)
-        }
+        let con = self.controller_reply();
+        move |reply| con(reply)
+            .results
+            .get(index)
+            .map(|r| r.as_ref())
+            .unwrap_or(None)
     }
 
     /// Check if the controller is pointing at the given shape. The shape can
@@ -276,6 +284,57 @@ impl GrabableState {
             match (pointing(reply), next) {
                 (Some(_), Free) => Pointed,
                 (_, out) => out,
+            }
+        }
+    }
+}
+
+/// Represents something being grabbed
+#[derive(Clone)]
+pub struct GrabbablePhysicsState {
+    pub grab: GrabableState,
+    pub body: RigidBody<f32>,
+}
+
+impl GrabbablePhysicsState {
+    pub fn new(body: RigidBody<f32>) -> Self {
+        GrabbablePhysicsState {
+            grab: GrabableState::new(),
+            body: body,
+        }
+    }
+
+    pub fn update<'a, R: gfx::Resources, C: gfx::CommandBuffer<R>>(
+        &'a mut self,
+        interact: &mut ControllerGuru,
+        physics: &mut PhysicsGuru)
+        -> impl FnOnce(&mut CommonReply<R, C>)
+        -> Isometry3<f32> + 'a
+    {
+        let phys = physics.body(self.body.clone());
+        let grab = self.grab.update(
+            interact,
+            self.body.position(),
+            self.body.shape().as_ref());
+
+        move |reply| {
+            self.grab = grab(&reply.reply.interact);
+            self.body = phys(&reply.reply.physics);
+            use self::GrabableState::*;
+            match self.grab {
+                Held { offset } => {
+                    let position = reply.reply.interact.primary.data.pose * offset;
+                    self.body.set_transformation(position);
+
+                    let ang_vel = reply.reply.interact.primary.data.ang_vel;
+                    let mut lin_vel = reply.reply.interact.primary.data.lin_vel;
+                    lin_vel += ang_vel.cross(&offset.translation.vector);
+                    self.body.set_ang_vel(ang_vel);
+                    self.body.set_lin_vel(lin_vel);
+
+                    position
+                }
+                Free | Pointed => *self.body.position(),
             }
         }
     }

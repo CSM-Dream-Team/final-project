@@ -12,37 +12,22 @@ use gfx;
 use app::App;
 
 use common::{Common, CommonReply};
-use common::gurus::interact::GrabableState;
+use common::gurus::interact::{GrabableState, GrabbablePhysicsState};
 
-pub struct Snowblock {
-    body: RigidBody<f32>,
-    grabbed: GrabableState,
-}
+pub struct Snowblock(GrabbablePhysicsState);
 
 impl Snowblock {
-    fn update<'a, R: gfx::Resources, C: gfx::CommandBuffer<R>>(
+    fn update<'a, R: gfx::Resources, C: gfx::CommandBuffer<R> + 'static>(
         &'a mut self,
         common: &mut Common<R, C>)
         -> impl FnOnce(&mut CommonReply<R, C>, &PbrMesh<R>) + 'a
     {
-        let phys = common.gurus.physics.body(self.body.clone());
-        let grab = self.grabbed.update(
+        let gp = self.0.update(
             &mut common.gurus.interact.primary,
-            self.body.position(),
-            self.body.shape().as_ref());
-
+            &mut common.gurus.physics,
+        );
         move |reply, mesh| {
-            self.grabbed = grab(&reply.reply.interact);
-            self.body = phys(&reply.reply.physics);
-            use self::GrabableState::*;
-            let pos = match self.grabbed {
-                Held { offset } => {
-                    let position = reply.reply.interact.primary.data.pose * offset;
-                    self.body.set_transformation(position);
-                    position
-                }
-                Free | Pointed => *self.body.position(),
-            };
+            let pos = gp(reply);
             reply.painters.pbr.draw(&mut reply.draw_params, na::convert(pos), mesh);
         }
     }
@@ -54,7 +39,6 @@ pub struct Snowflakes<R: gfx::Resources> {
     snowman: PbrMesh<R>,
     snow_block: PbrMesh<R>,
 }
-
 
 impl<R: gfx::Resources> Snowflakes<R> {
     pub fn new<F: gfx::Factory<R>>(factory: &mut F) -> Result<Self, Error> {
@@ -95,13 +79,13 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static> App<R, C> 
                 g @ Held { .. } => new_blocks.push({
                     let mut body = RigidBody::new_dynamic(block_shape, 100., 0.0, 0.8);
                     body.set_margin(0.00001);
-                    Snowblock { body: body, grabbed: g }
+                    Snowblock(GrabbablePhysicsState { body: body, grab: g })
                 }),
                 _ => (),
             }
             for block in futures { block(r, snow_block); }
             r.painters.pbr.draw(&mut r.draw_params, na::convert(
-                r.reply.interact.primary.data.pose
+                r.reply.interact.secondary.data.pose
             ), snow_block);
         })
     }
