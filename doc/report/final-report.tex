@@ -1,0 +1,81 @@
+\documentclass[conference,12pt]{IEEEtran}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{csquotes}
+\usepackage{biblatex}
+\usepackage{amsmath}
+\usepackage{minted}
+
+\MakeOuterQuote{"}
+\addbibresource{references.bib}
+
+\setminted{autogobble,python3,mathescape,fontsize=\footnotesize}
+\newcommand\tab[1][.5in]{\hspace*{#1}}
+\newcommand\name{VRsh}
+
+% TODO: better name
+\title{Final Project Report}
+\author{
+    \IEEEauthorblockN{
+        Jonathan Sumner Evans\IEEEauthorrefmark{1},
+        Robinson Merillat\IEEEauthorrefmark{2} and
+        Sam Sartor\IEEEauthorrefmark{3}
+    }
+    \IEEEauthorblockA{
+        Department of Computer Science,
+        Colorado School of Mines\\
+        Golden, Colorado\\
+        Email:
+            \IEEEauthorrefmark{1}jonathanevans@mines.edu,
+            \IEEEauthorrefmark{2}rdmerillat@mines.edu,
+            \IEEEauthorrefmark{3}ssartor@mines.edu
+    }
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+VR Technology has been developing rapidly in the 21st century. Current solutions
+such as Unity attempt to use old programming languages and paradigms to
+implement VR environments and thus limit developers' abilities to create new and
+unique environments. With every cutting edge technology, new paradigms and
+design patterns must be invented. In this paper, we discuss a new modular,
+immediate mode, promise-based application design philosophy suitable for
+implementing large virtual reality applications. We present a library which
+implements this design philosophy and a few case studies of this library in use.
+\end{abstract}
+
+\section{Introduction}
+\subsection{Reasons for Exploring Alternative Application Design Philosophies}
+\begin{itemize}
+    \item Frame Rate
+    \item 3D Environment
+\end{itemize}
+% TODO: something about our goals
+
+\section{Failed Attempts Leading to Flight}
+\subsection{Entity Component System}
+
+\section{Flight}
+
+\subsection{Language}
+\subsection{Dependencies}
+\subsection{Modular}
+\subsection{Immediate Mode}
+\subsection{Promise-Based}
+
+\section{Case Studies}
+\subsection{Let's Get Physical and Snowflakes --- Physics}
+\subsection{Workbench --- SOMETHING} % TODO
+\subsection{{\name} --- Global User Interface}
+
+\section{Comparison to Alternative Libraries}
+\subsection{A-Frame}
+
+\section{Conclusion}
+
+\printbibliography
+
+\end{document}
