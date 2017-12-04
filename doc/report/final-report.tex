@@ -1,4 +1,6 @@
+% vim: spell spelllang=en_us
 \documentclass[conference,12pt]{IEEEtran}
+\usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
 \usepackage{csquotes}
@@ -7,6 +9,7 @@
 \usepackage{minted}
 
 \MakeOuterQuote{"}
+
 \addbibresource{references.bib}
 
 \setminted{autogobble,python3,mathescape,fontsize=\footnotesize}
@@ -15,13 +18,13 @@
 
 % TODO: better name
 \title{Final Project Report}
-\author{
-    \IEEEauthorblockN{
+\author{%
+    \IEEEauthorblockN{%
         Jonathan Sumner Evans\IEEEauthorrefmark{1},
-        Robinson Merillat\IEEEauthorrefmark{2} and
+        Robinson Merillat\IEEEauthorrefmark{2}, and
         Sam Sartor\IEEEauthorrefmark{3}
     }
-    \IEEEauthorblockA{
+    \IEEEauthorblockA{%
         Department of Computer Science,
         Colorado School of Mines\\
         Golden, Colorado\\
@@ -37,45 +40,132 @@
 \maketitle
 
 \begin{abstract}
-VR Technology has been developing rapidly in the 21st century. Current solutions
-such as Unity attempt to use old programming languages and paradigms to
-implement VR environments and thus limit developers' abilities to create new and
-unique environments. With every cutting edge technology, new paradigms and
-design patterns must be invented. In this paper, we discuss a new modular,
-immediate mode, promise-based application design philosophy suitable for
-implementing large virtual reality applications. We present a library which
-implements this design philosophy and a few case studies of this library in use.
+    Virtual Reality (VR) Technology has been developing rapidly over the past
+    decade. Current solutions such as Unity attempt to use old programming
+    languages and paradigms to implement VR environments and thus limit
+    developers' abilities to create new and unique environments. With every
+    cutting edge technology, new paradigms and design patterns must be invented.
+    In this paper, we discuss a new modular, immediate mode, promise-based
+    application design philosophy (PBIM) suitable for implementing large virtual
+    reality applications. We present a library which implements this design
+    philosophy and a few case studies of this library in use.
 \end{abstract}
 
 \section{Introduction}
-\subsection{Reasons for Exploring Alternative Application Design Philosophies}
-\begin{itemize}
-    \item Frame Rate
-    \item 3D Environment
-\end{itemize}
-% TODO: something about our goals
+The Virtual Reality (VR) market is growing rapidly. The International Data
+Corporation (IDC) projects that revenues for the combined Augmented Reality (AR)
+and Virtual Reality markets will grow from \$5.2 billion in 2016 to more than
+\$162 billion in 2020~\cite{IDC:2016:VR-industry}. This flourishing new industry
+has created an exciting  new field of Software Engineering with great potential
+for revolutionary new design paradigms and program architectures.
 
-\section{Failed Attempts Leading to Flight}
+Most current frameworks and libraries attempt to apply old design paradigms and
+program architectures that are well-suited for 2D user interfaces and rendering
+3D environments to a flat screen to virtual reality. Although these endeavors
+have been successful, they do not fully explore potential new design paradigms
+and program architectures.
+
+Our goal was to develop innovative environments with % TODO: something here
+We wanted to use a modern, fast, and usable framework to create these virtual
+reality applications. After analyzing the current solutions, realized that the
+current methods had many drawbacks. We will examine them in turn.
+
+\subsection{Frame Rate}
+Virtual Reality requires a very high frame rate. A virtual reality program must
+be capable of generating 90 frames per second (fps). Because there are two eyes,
+and thus two screens to render to, the effective required frame rate is 180fps.
+Achieving this frame rate is resource intensive and requires highly efficient
+and optimized code. Additionally, multithreading is imperative so that
+long-running processes can occur without blocking the user interface. This is
+unlike a traditional desktop user interface where blocking the UI process for a
+second does not have a major affect on the usability of the program.
+
+\subsection{3D Environment}
+% TODO: not just a projection onto 2D screen
+
+\subsection{Programmability}
+% TODO:
+
+\subsection{Open Source}
+% TODO: because it should be
+
+% TODO: Some sort of transition from talking about the drawbacks to this
+We chose to take a step back from the predominant design philosophies and
+explore alternative architectures.
+
+In this paper, we present a new program architecture and user interface design
+paradigm which builds on and combines concepts from many previous architectures.
+
+\section{Evolution of PBIM}
+% TODO: Give brief overview of our "adventures in VR library design"
+
 \subsection{Entity Component System}
+% TODO:
+
+\subsection{React-Like Architecture}
+% TODO:
+
+\section{Promise-Based Immediate Mode (PBIM)}
+% TODO: describe general ideals of our architecture (programming language and
+% implementation agnostic)
+
+\subsection{Promise-Based}
+% TODO: describe why this is cool
+
+\subsection{Immediate Mode}
+% TODO: describe why this is cool
 
 \section{Flight}
+% TODO: this section should describe the implementation of PBIM (or whatever we
+% call it)
+Flight is our implementation this new PBIM design philosophy. It is written in
+Rust and is designed to be highly modular. It implements the PBIM design
+philosophy using Rust \texttt{FnOnce} closures and resolves state using a
+\textit{guru} system.
 
 \subsection{Language}
+% TODO: why Rust?
+
 \subsection{Dependencies}
+% TODO: WebVR, nalgebra, gfx
+
 \subsection{Modular}
-\subsection{Immediate Mode}
+% TODO:
+
 \subsection{Promise-Based}
+% TODO: describe how we use FnOnces
+
+\subsection{Immediate Mode}
+% TODO: describe how we did this (update function)
+
+\subsection{Gurus} % TODO: maybe lump this in with something else?
+% TODO: describe how the gurus help resolve things
+
+% TODO: add subsubsections about the various gurus?
 
 \section{Case Studies}
+% TODO: Explain that we were creating these applications for a VR independent
+% study.
+
 \subsection{Let's Get Physical and Snowflakes --- Physics}
+% TODO: Describe how physics, spawning, etc. works in Immediate Mode & Physics
+% guru
+
 \subsection{Workbench --- SOMETHING} % TODO
+% TODO: Describe how it is used to resolve what is being pointed at.
+
 \subsection{{\name} --- Global User Interface}
+% TODO: Describe how we are using it to make the torus thing
 
 \section{Comparison to Alternative Libraries}
+% TODO: Overview of the types of alternatives
+
 \subsection{A-Frame}
+% TODO: Describe why it sucks compared to Flight
 
 \section{Conclusion}
+% TODO: Conclude (duh)
 
-\printbibliography
+{\printbibliography}
 
 \end{document}
