@@ -8,6 +8,8 @@
 \usepackage{amsmath}
 \usepackage{minted}
 \usepackage[inline]{enumitem}
+\usepackage{amsthm}
+\usepackage{mdframed}
 
 \MakeOuterQuote{"}
 
@@ -16,6 +18,7 @@
 \setminted{autogobble,python3,mathescape,fontsize=\footnotesize}
 \newcommand\tab[1][.5in]{\hspace*{#1}}
 \newcommand\name{VRsh}
+\newtheorem{definition}{Definition}
 
 % TODO: better name
 \title{Final Project Report}
@@ -71,6 +74,7 @@ approach to virtual reality development. Specifically, we require that this
 system meets the following criteria.
 
 \subsection{Performant}
+% TODO: add citations about frame rate's affects on health in here
 Virtual Reality requires a very high frame rate. A virtual reality program must
 be capable of generating 90 frames per second (fps); thus the effective required
 frame rate is 180fps.  Achieving this frame rate is resource intensive and
@@ -80,23 +84,46 @@ interface. This is unlike a traditional desktop user interface where blocking
 the UI process for a second does not have a major affect on the usability of the
 program.
 
-\subsection{Volumetric}
-Another requirement is to allow volumetric, rather than merely planar, user
-interface elements. A \textit{Planar UI} is a user interface where components
-are primarily organized along a 2D surface. All desktop toolkits utilize this
-model and many virtual reality environments use this model as well. A
-\textit{Volumetric UI} is a user interface in which components are organized
-within a 3D space.
+\subsection{Natural User Interface}
+A \textit{natural user interface} is an interface that can be used without the
+need for a controller~\cite{Wimmers:2015:VR:Natural-UI}. Although current VR
+systems utilize hand-held controllers, they emulate this goal much better than
+desktop, mobile, and web applications. For our discussion of these natural user
+interfaces, we define the following terms.
 
-Because Virtual Reality environments are inherently 3D, they make Volumetric UI
-convenient and practical for the first time. A UI element's depth and location
-in space can represent more than just a visual effect. Allowing creation of
-inherently Volumetric UI elements rather than restricting ourselves to Planar UI
-placed into a 3D environment is high priority.
+\begin{definition}
+    A {\normalfont\text{planar UI}} is a user interface where components are
+    organized along a 2D surface.
+\end{definition}
+
+\begin{definition}
+    A {\normalfont\text{spacial UI}} is a user interface where components are
+    organized within a 3D space.
+\end{definition}
+
+% TODO: better word than uniform?
+\begin{definition}
+    A {\normalfont\text{uniform UI}} element is a user interface element where
+    the functionality of the element depends on at most 2 dimensions.
+\end{definition}
+
+\begin{definition}
+    A {\normalfont\text{volumetric UI}} element is a user interface element
+    where the functionality of the element depends on 3 dimensions.
+\end{definition}
+
+All of these user interfaces and user interface elements can be natural user
+interfaces. For example, a physical-word planar UI would be a painter's palate.
+Spacial UI is found in <TODO>.  Uniform UIs are found in the physical world in
+the form of levers and sliders. An example of volumetric UI in the physical
+world is <TODO>.
+
+Because Virtual Reality environments are inherently 3D, they make spacial UI and
+volumetric UI elements convenient and practical for the first time. Thus, the
+ability to create spacial UI and volumetric UI elements rather than merely to
+planar UI and uniform UI is a high priority.
 
 \subsection{Programmable}
-% TODO: software API, not editor like Unity
-
 We need a framework that prioritizes application development over game
 development---a software development kit first and foremost. Features such as
 character rigging, pathfinding, and high-fidelity materials are not necessary
