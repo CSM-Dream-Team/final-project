@@ -7,6 +7,7 @@
 \usepackage{biblatex}
 \usepackage{amsmath}
 \usepackage{minted}
+\usepackage[inline]{enumitem}
 
 \MakeOuterQuote{"}
 
@@ -45,10 +46,10 @@
     languages and paradigms to implement VR environments and thus limit
     developers' abilities to create new and unique environments. With every
     cutting edge technology, new paradigms and design patterns must be invented.
-    In this paper, we discuss a new deferred immediate mode (DIM) application
+    In this paper, we discuss a deferred immediate mode (DIM) application
     architecture suitable for implementing large virtual reality applications.
-    We present a library which implements this architecture and a few case
-    studies of this library in use.
+    We present a library which utilizes this architecture and a few case studies
+    of this library in use.
 \end{abstract}
 
 \section{Introduction}
@@ -65,12 +66,16 @@ program architectures that are well-suited for 2D user interfaces and rendering
 have been successful, they do not fully explore potential new design paradigms
 and program architectures.
 
-Our goal was to develop innovative environments with % TODO: something here
-We wanted to use a modern, fast, and usable framework to create these virtual
-reality applications. After analyzing the current solutions, realized that the
-current methods had many drawbacks. We will examine them in turn.
+Our goal was to
+\begin{enumerate*}[label=\alph*)]
+    \item explore and find a generally applicable system for developing virtual
+        reality applications and
+    \item explore systems for interacting with a VR environment
+\end{enumerate*}.  We wanted a modern, fast, and practical framework to create
+virtual reality applications. We developed our approach to meet the following
+requirements.
 
-\subsection{Frame Rate}
+\subsection{Performant}
 Virtual Reality requires a very high frame rate. A virtual reality program must
 be capable of generating 90 frames per second (fps). Because there are two eyes,
 and thus two screens to render to, the effective required frame rate is 180fps.
@@ -80,14 +85,19 @@ long-running processes can occur without blocking the user interface. This is
 unlike a traditional desktop user interface where blocking the UI process for a
 second does not have a major affect on the usability of the program.
 
-\subsection{3D Environment}
+\subsection{Volumetric}
 % TODO: not just a projection onto 2D screen
+% TODO: 3D UI rather than 2D things in 3D
+% TODO: Volumetric as first class elements
 
-\subsection{Programmability}
-% TODO:
+\subsection{Programmable}
+% TODO: software API, not editor like Unity
 
-\subsection{Open Source}
-% TODO: because it should be
+\subsection{Flexible}
+% TODO: can do anything
+
+\subsection{Modular}
+% TODO: 
 
 % TODO: Some sort of transition from talking about the drawbacks to this
 We chose to take a step back from the predominant design philosophies and
