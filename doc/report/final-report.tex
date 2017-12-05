@@ -57,7 +57,7 @@ The Virtual Reality (VR) market is growing rapidly. The International Data
 Corporation (IDC) projects that revenues for the combined Augmented Reality (AR)
 and Virtual Reality markets will grow from \$5.2 billion in 2016 to more than
 \$162 billion in 2020~\cite{IDC:2016:VR-industry}. This flourishing new industry
-has created an exciting  new field of Software Engineering with great potential
+has created an exciting new field of Software Engineering with great potential
 for revolutionary new design paradigms and program architectures.
 
 Most current frameworks and libraries attempt to apply old design paradigms and
@@ -66,29 +66,33 @@ program architectures that are well-suited for 2D user interfaces and rendering
 have been successful, they do not fully explore potential new design paradigms
 and program architectures.
 
-Our goal was to
-\begin{enumerate*}[label=\alph*)]
-    \item explore and find a generally applicable system for developing virtual
-        reality applications and
-    \item explore systems for interacting with a VR environment
-\end{enumerate*}.  We wanted a modern, fast, and practical framework to create
-virtual reality applications. We developed our approach to meet the following
-requirements.
+Our goal is to find a system that provides a modern, fast, and practical
+approach to virtual reality development. Specifically, we require that this
+system meets the following criteria.
 
 \subsection{Performant}
 Virtual Reality requires a very high frame rate. A virtual reality program must
-be capable of generating 90 frames per second (fps). Because there are two eyes,
-and thus two screens to render to, the effective required frame rate is 180fps.
-Achieving this frame rate is resource intensive and requires highly efficient
-and optimized code. Additionally, multithreading is imperative so that
-long-running processes can occur without blocking the user interface. This is
-unlike a traditional desktop user interface where blocking the UI process for a
-second does not have a major affect on the usability of the program.
+be capable of generating 90 frames per second (fps); thus the effective required
+frame rate is 180fps.  Achieving this frame rate is resource intensive and
+requires highly efficient and optimized code. Additionally, multithreading is
+imperative so that long-running processes can occur without blocking the user
+interface. This is unlike a traditional desktop user interface where blocking
+the UI process for a second does not have a major affect on the usability of the
+program.
 
 \subsection{Volumetric}
-% TODO: not just a projection onto 2D screen
-% TODO: 3D UI rather than 2D things in 3D
-% TODO: Volumetric as first class elements
+Another requirement is to allow volumetric, rather than merely planar, user
+interface elements. A \textit{Planar UI} is a user interface where components
+are primarily organized along a 2D surface. All desktop toolkits utilize this
+model and many virtual reality environments use this model as well. A
+\textit{Volumetric UI} is a user interface in which components are organized
+within a 3D space.
+
+Because Virtual Reality environments are inherently 3D, they make Volumetric UI
+convenient and practical for the first time. A UI element's depth and location
+in space can represent more than just a visual effect. Allowing creation of
+inherently Volumetric UI elements rather than restricting ourselves to Planar UI
+placed into a 3D environment is high priority.
 
 \subsection{Programmable}
 % TODO: software API, not editor like Unity
@@ -99,10 +103,18 @@ second does not have a major affect on the usability of the program.
 \subsection{Modular}
 % TODO: 
 
-% TODO: Some sort of transition from talking about the drawbacks to this
+% TODO: Some sort of transition
 We chose to take a step back from the predominant design philosophies and
 explore alternative architectures.
 
+% TODO:
+% Specifically, our approach to meet the following requirements.
+
+% \begin{enumerate*}[label=\alph*)]
+%     \item explore and find a generally applicable system for developing virtual
+%         reality applications and
+%     \item explore systems for interacting with a VR environment
+% \end{enumerate*}. 
 In this paper, we present a new program architecture and user interface design
 paradigm which builds on and combines concepts from many previous architectures.
 
