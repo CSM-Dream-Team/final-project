@@ -45,10 +45,10 @@
     languages and paradigms to implement VR environments and thus limit
     developers' abilities to create new and unique environments. With every
     cutting edge technology, new paradigms and design patterns must be invented.
-    In this paper, we discuss a new modular, immediate mode, promise-based
-    application design philosophy (PBIM) suitable for implementing large virtual
-    reality applications. We present a library which implements this design
-    philosophy and a few case studies of this library in use.
+    In this paper, we discuss a new deferred immediate mode (DIM) application
+    architecture suitable for implementing large virtual reality applications.
+    We present a library which implements this architecture and a few case
+    studies of this library in use.
 \end{abstract}
 
 \section{Introduction}
@@ -96,7 +96,7 @@ explore alternative architectures.
 In this paper, we present a new program architecture and user interface design
 paradigm which builds on and combines concepts from many previous architectures.
 
-\section{Evolution of PBIM}
+\section{Evolution of Deferred Immediate Mode}
 % TODO: Give brief overview of our "adventures in VR library design"
 
 \subsection{Entity Component System}
@@ -104,27 +104,30 @@ paradigm which builds on and combines concepts from many previous architectures.
 
 \subsection{React-Like Architecture}
 % TODO:
+% TODO: mention A-Frame
 
-\section{Promise-Based Immediate Mode (PBIM)}
+\subsection{Event Tree}
+
+\section{Deferred Immediate Mode}
 % TODO: describe general ideals of our architecture (programming language and
 % implementation agnostic)
 
-\subsection{Promise-Based}
+\subsection{Deferred}
 % TODO: describe why this is cool
 
 \subsection{Immediate Mode}
 % TODO: describe why this is cool
 
 \section{Flight}
-% TODO: this section should describe the implementation of PBIM (or whatever we
+% TODO: this section should describe the implementation of DIM (or whatever we
 % call it)
-Flight is our implementation this new PBIM design philosophy. It is written in
-Rust and is designed to be highly modular. It implements the PBIM design
-philosophy using Rust \texttt{FnOnce} closures and resolves state using a
+Flight is our implementation of a VR UI library using the DIM architecture. It
+is written in Rust and is designed to be highly modular. It implements the DIM
+architecture using Rust \texttt{FnOnce} closures and resolves state using a
 \textit{guru} system.
 
 \subsection{Language}
-% TODO: why Rust?
+% TODO: why Rust? Type system.
 
 \subsection{Dependencies}
 % TODO: WebVR, nalgebra, gfx
@@ -132,7 +135,7 @@ philosophy using Rust \texttt{FnOnce} closures and resolves state using a
 \subsection{Modular}
 % TODO:
 
-\subsection{Promise-Based}
+\subsection{Deferred}
 % TODO: describe how we use FnOnces
 
 \subsection{Immediate Mode}
