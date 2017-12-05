@@ -40,6 +40,7 @@ use common::gurus::{interact, physics};
 pub const NEAR_PLANE: f64 = 0.1;
 pub const FAR_PLANE: f64 = 75.;
 pub const BACKGROUND: [f32; 4] = [0.529, 0.808, 0.980, 1.0];
+pub const MAX_STEP: f64 = 0.02;
 const PI: f32 = ::std::f32::consts::PI;
 const PI2: f32 = 2. * PI;
 
@@ -129,7 +130,9 @@ fn main() {
 
     // Setup Controllers
     let mut primary = MappedController::new(primary());
+    primary.max_step = MAX_STEP;
     let mut secondary = MappedController::new(secondary());
+    secondary.max_step = MAX_STEP;
 
     // Setup Common stuff
     let mut meshes = Meshes::new(&mut factory).unwrap();
@@ -195,7 +198,7 @@ fn main() {
             draw_params: ctx,
             gurus: Gurus {
                 interact: interact::InteractGuru::new(&primary, &secondary),
-                physics: physics::PhysicsGuru::new(Vector3::new(0., -9.81, 0.)),
+                physics: physics::PhysicsGuru::new(Vector3::new(0., -5., 0.)),
             },
             meshes: meshes,
             painters: painters,
@@ -210,7 +213,7 @@ fn main() {
         let mut common_reply;
         {
             let futures: Vec<_> = applications.iter_mut().map(|app| app.update(&mut common)).collect();
-            common_reply = common.resolve(dt.min(0.1) as f32);
+            common_reply = common.resolve(dt.min(MAX_STEP) as f32);
             for f in futures {
                 FnBox::call_box(f, (&mut common_reply, ));
             }
