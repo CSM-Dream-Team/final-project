@@ -33,7 +33,7 @@ pub mod common;
 pub mod geo;
 
 // use app::{App, halo, home, lets_get_physical, snowflakes, workshop};
-use app::{App, snowflakes, halo};
+use app::{App, halo, lets_get_physical, snowflakes};
 use common::{Common, Gurus, Meshes, Painters};
 use common::gurus::{interact, physics};
 
@@ -112,7 +112,7 @@ fn main() {
     let mut applications: Vec<Box<App<_, _>>> = vec![
         Box::new(halo::Halo::new()),
         // Box::new(home::Home::new()),
-        // Box::new(lets_get_physical::LetsGetPhysical::new()),
+        Box::new(lets_get_physical::LetsGetPhysical::new(&mut factory).unwrap()),
         Box::new(snowflakes::Snowflakes::new(&mut factory).unwrap()),
         // Box::new(workshop::Workshop::new()),
     ];
