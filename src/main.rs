@@ -36,7 +36,7 @@ pub mod geo;
 pub mod ui;
 
 // use app::{App, halo, home, lets_get_physical, snowflakes, workshop};
-use app::{App, snowflakes, halo, settings};
+use app::{App, snowflakes, halo, lets_get_physical, settings};
 use common::{Common, Gurus, Meshes, Painters};
 use common::gurus::{interact, physics};
 
@@ -114,9 +114,9 @@ fn main() {
     let surface = factory.view_texture_as_render_target::<(R8_G8_B8_A8, Unorm)>(&tex, 0, None).unwrap();
     let speed = Rc::new(Cell::new(1.));
     let mut applications: Vec<Box<App<_, _>>> = vec![
-        Box::new(halo::Halo::new()),
+        Box::new(halo::Halo::new(&mut factory).unwrap()),
         // Box::new(home::Home::new()),
-        // Box::new(lets_get_physical::LetsGetPhysical::new()),
+        Box::new(lets_get_physical::LetsGetPhysical::new(&mut factory).unwrap()),
         Box::new(snowflakes::Snowflakes::new(&mut factory).unwrap()),
         // Box::new(workshop::Workshop::new()),
         Box::new(settings::Settings::new(speed.clone())),
