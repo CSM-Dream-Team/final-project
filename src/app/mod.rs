@@ -8,6 +8,7 @@ pub mod halo;
 pub mod lets_get_physical;
 pub mod snowflakes;
 // pub mod workshop;
+pub mod settings;
 
 pub trait App<R: gfx::Resources, C: gfx::CommandBuffer<R>> {
     fn update<'a>(&'a mut self, common: &mut Common<R, C>) -> Box<FnBox(&mut CommonReply<R, C>) + 'a>;
