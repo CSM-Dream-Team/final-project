@@ -110,7 +110,7 @@ fn main() {
 
     let surface = factory.view_texture_as_render_target::<(R8_G8_B8_A8, Unorm)>(&tex, 0, None).unwrap();
     let mut applications: Vec<Box<App<_, _>>> = vec![
-        Box::new(halo::Halo::new()),
+        Box::new(halo::Halo::new(&mut factory).unwrap()),
         // Box::new(home::Home::new()),
         // Box::new(lets_get_physical::LetsGetPhysical::new()),
         Box::new(snowflakes::Snowflakes::new(&mut factory).unwrap()),
