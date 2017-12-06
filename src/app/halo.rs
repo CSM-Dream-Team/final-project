@@ -1,8 +1,11 @@
 use std::boxed::FnBox;
 
-use nalgebra::{self as na, Vector3, Similarity3, Isometry3, Translation3};
+use nalgebra::{self as na, Vector3, Similarity3, Isometry3, Translation3, UnitQuaternion};
 use ncollide::shape::{Plane, Cylinder};
 use nphysics3d::object::RigidBody;
+
+// Flight
+use flight::{PbrMesh, Error, load};
 
 // GFX
 use gfx;
@@ -10,17 +13,19 @@ use app::App;
 
 use common::{Common, CommonReply};
 
-pub struct Halo {
+pub struct Halo<R: gfx::Resources> {
+    halo_mesh: PbrMesh<R>,
 }
 
-
-impl Halo {
-    pub fn new() -> Self {
-        Halo { }
+impl<R: gfx::Resources> Halo<R> {
+    pub fn new<F: gfx::Factory<R>>(factory: &mut F) -> Result<Self, Error> {
+        Ok(Halo { 
+            halo_mesh: load::object_directory(factory, "assets/halo/")?,
+        })
     }
 }
 
-impl<R: gfx::Resources, C: gfx::CommandBuffer<R>> App<R, C> for Halo {
+impl<R: gfx::Resources, C: gfx::CommandBuffer<R>> App<R, C> for Halo<R> {
     fn update<'a>(&'a mut self, common: &mut Common<R, C>) -> Box<FnBox(&mut CommonReply<R, C>) + 'a>
     {
         // Draw controllers
@@ -45,21 +50,29 @@ impl<R: gfx::Resources, C: gfx::CommandBuffer<R>> App<R, C> for Halo {
         );
 
         Box::new(move |r: &mut CommonReply<_, _>| {
-            let color = if let Some(_) = torus(&mut r.reply.interact) {
-                &r.meshes.red_ray
-            } else {
-                &r.meshes.blue_ray
-            };
+            // let color = if let Some(_) = torus(&mut r.reply.interact) {
+            //     &r.meshes.red_ray
+            // } else {
+            //     &r.meshes.blue_ray
+            // };
 
-            let toi = r.reply.interact.primary.laser_toi.max(0.01).min(20.);
-            r.painters.solid.draw(&mut r.draw_params, na::convert(
-                Similarity3::from_isometry(r.reply.interact.primary.data.pose, toi)
-            ), color);
+            // let toi = r.reply.interact.primary.laser_toi.max(0.01).min(20.);
+            // r.painters.solid.draw(&mut r.draw_params, na::convert(
+            //     Similarity3::from_isometry(r.reply.interact.primary.data.pose, toi)
+            // ), color);
 
-            let toi = r.reply.interact.secondary.laser_toi.max(0.01).min(20.);
-            r.painters.solid.draw(&mut r.draw_params, na::convert(
-                Similarity3::from_isometry(r.reply.interact.secondary.data.pose, toi)
-            ), &r.meshes.blue_ray);
+            // let toi = r.reply.interact.secondary.laser_toi.max(0.01).min(20.);
+            // r.painters.solid.draw(&mut r.draw_params, na::convert(
+            //     Similarity3::from_isometry(r.reply.interact.secondary.data.pose, toi)
+            // ), &r.meshes.blue_ray);
+
+            r.painters.pbr.draw(&mut r.draw_params, na::convert(
+                Similarity3::from_parts(
+                    Translation3::new(0., 2.5, 0.), 
+                    UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 0.),
+                    1.
+                )
+            ), &self.halo_mesh);
         })
     }
 }
