@@ -19,7 +19,7 @@ pub struct Halo<R: gfx::Resources> {
 
 impl<R: gfx::Resources> Halo<R> {
     pub fn new<F: gfx::Factory<R>>(factory: &mut F) -> Result<Self, Error> {
-        Ok(Halo { 
+        Ok(Halo {
             halo_mesh: load::object_directory(factory, "assets/halo/")?,
         })
     }
@@ -50,25 +50,10 @@ impl<R: gfx::Resources, C: gfx::CommandBuffer<R>> App<R, C> for Halo<R> {
         );
 
         Box::new(move |r: &mut CommonReply<_, _>| {
-            // let color = if let Some(_) = torus(&mut r.reply.interact) {
-            //     &r.meshes.red_ray
-            // } else {
-            //     &r.meshes.blue_ray
-            // };
-
-            // let toi = r.reply.interact.primary.laser_toi.max(0.01).min(20.);
-            // r.painters.solid.draw(&mut r.draw_params, na::convert(
-            //     Similarity3::from_isometry(r.reply.interact.primary.data.pose, toi)
-            // ), color);
-
-            // let toi = r.reply.interact.secondary.laser_toi.max(0.01).min(20.);
-            // r.painters.solid.draw(&mut r.draw_params, na::convert(
-            //     Similarity3::from_isometry(r.reply.interact.secondary.data.pose, toi)
-            // ), &r.meshes.blue_ray);
-
+            let _torus = torus(&r.reply.interact);
             r.painters.pbr.draw(&mut r.draw_params, na::convert(
                 Similarity3::from_parts(
-                    Translation3::new(0., 2.5, 0.), 
+                    Translation3::new(0., 2.5, 0.),
                     UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 0.),
                     0.5
                 )

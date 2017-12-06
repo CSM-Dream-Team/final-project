@@ -16,8 +16,6 @@ extern crate gfx_window_glutin;
 
 use std::boxed::FnBox;
 use std::time::Instant;
-use std::cell::Cell;
-use std::rc::Rc;
 use simplelog::{Config, TermLogger, LogLevelFilter};
 use clap::Arg;
 use gfx::{handle, Factory, texture, Device};
@@ -37,7 +35,7 @@ pub mod ui;
 
 // use app::{App, halo, home, lets_get_physical, snowflakes, workshop};
 use app::{App, snowflakes, halo, lets_get_physical, settings};
-use common::{Common, Gurus, Meshes, Painters};
+use common::{Common, Gurus, Meshes, Painters, Meta};
 use common::gurus::{interact, physics};
 
 pub const NEAR_PLANE: f64 = 0.1;
@@ -112,14 +110,13 @@ fn main() {
     let (.., depth) = factory.create_depth_stencil(render_width as u16, render_height as u16).unwrap();
 
     let surface = factory.view_texture_as_render_target::<(R8_G8_B8_A8, Unorm)>(&tex, 0, None).unwrap();
-    let speed = Rc::new(Cell::new(1.));
     let mut applications: Vec<Box<App<_, _>>> = vec![
         Box::new(halo::Halo::new(&mut factory).unwrap()),
         // Box::new(home::Home::new()),
         Box::new(lets_get_physical::LetsGetPhysical::new(&mut factory).unwrap()),
         Box::new(snowflakes::Snowflakes::new(&mut factory).unwrap()),
         // Box::new(workshop::Workshop::new()),
-        Box::new(settings::Settings::new(speed.clone())),
+        Box::new(settings::Settings::new()),
     ];
 
     // setup context
@@ -207,6 +204,9 @@ fn main() {
             },
             meshes: meshes,
             painters: painters,
+            meta: Meta {
+                physics_speed: 1.,
+            },
         };
 
          // Clear targets
@@ -218,7 +218,8 @@ fn main() {
         let mut common_reply;
         {
             let futures: Vec<_> = applications.iter_mut().map(|app| app.update(&mut common)).collect();
-            common_reply = common.resolve((dt * speed.get() as f64).min(MAX_STEP) as f32);
+            let speed = common.meta.physics_speed;
+            common_reply = common.resolve((dt * speed as f64).min(MAX_STEP) as f32);
             for f in futures {
                 FnBox::call_box(f, (&mut common_reply, ));
             }

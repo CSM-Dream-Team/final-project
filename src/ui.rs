@@ -17,17 +17,19 @@ pub struct Slider {
     pub position: Isometry3<f32>,
     pub thickness: f32,
     pub length: f32,
+    pub manip_length: f32,
     grab: GrabableState,
     mode: SliderMode,
 }
 
 impl Slider {
-    pub fn new(position: Isometry3<f32>, thickness: f32, length: f32, value: f32) -> Self {
+    pub fn new(position: Isometry3<f32>, thickness: f32, length: f32, manip_length: f32, value: f32) -> Self {
         Slider {
             value: value,
             position,
             thickness,
             length,
+            manip_length,
             grab: Default::default(),
             mode: SliderMode::Unheld,
         }
@@ -45,8 +47,7 @@ impl Slider {
         use interact::GrabableState::*;
 
         let con = controller.controller_reply();
-        let rad = self.thickness / 2.;
-        let scaled = Vector3::new(rad, rad, self.length / 2.);
+        let scaled = Vector3::new(self.thickness / 2., self.thickness / 2., self.length / 2.);
         let grab = self.grab.update(
             controller,
             self.position,
@@ -60,25 +61,25 @@ impl Slider {
 
             let next_pos = (inv * con.data.origin())[2];
 
-            let slider_r_frac = 0.5 / 10.;
-            let cap = 0.3 / 10. + slider_r_frac;
-            let true_len = self.length * (1. - 2. * cap);
-            let slider_r = slider_r_frac * self.length;
+            let cap = (0.6 / 10.) * self.length;
+            let true_len = self.length - cap - self.manip_length;
+            let slider_r = self.manip_length / 2.;
 
             let next_val = ((next_pos / true_len) + 0.5).max(0.).min(1.);
             let current_pos = (self.value - 0.5) * true_len;
 
-            let scaling_transform = Transform3::from_matrix_unchecked(
-                Matrix4::from_diagonal(&Vector4::new(rad, rad, self.length / 2., 1.))
-            );
             reply.painters.pbr.draw(
                 &mut reply.draw_params,
-                self.position * scaling_transform,
+                self.position * Transform3::from_matrix_unchecked(
+                    Matrix4::from_diagonal(&Vector4::new(self.thickness / 2., self.thickness / 2., self.length / 10., 1.))
+                ),
                 &reply.meshes.slider_frame,
             );
             reply.painters.pbr.draw(
                 &mut reply.draw_params,
-                self.position * Translation3::new(0., 0., current_pos) * scaling_transform,
+                self.position * Translation3::new(0., 0., current_pos) * Transform3::from_matrix_unchecked(
+                    Matrix4::from_diagonal(&Vector4::new(self.thickness / 2., self.thickness / 2., self.manip_length, 1.))
+                ),
                 &reply.meshes.slider_control,
             );
 

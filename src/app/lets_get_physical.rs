@@ -1,6 +1,6 @@
 use std::boxed::FnBox;
 
-use nalgebra::{self as na, Vector3, Isometry3, Translation3, Similarity3, UnitQuaternion};
+use nalgebra::{self as na, Vector3, Isometry3};
 use ncollide::shape::{ShapeHandle, Compound, Cuboid, Cylinder};
 use nphysics3d::object::RigidBody;
 
