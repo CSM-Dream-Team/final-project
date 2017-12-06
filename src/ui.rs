@@ -78,7 +78,7 @@ impl Slider {
             reply.painters.pbr.draw(
                 &mut reply.draw_params,
                 self.position * Translation3::new(0., 0., current_pos) * Transform3::from_matrix_unchecked(
-                    Matrix4::from_diagonal(&Vector4::new(self.thickness / 2., self.thickness / 2., self.manip_length, 1.))
+                    Matrix4::from_diagonal(&Vector4::new(self.thickness / 2., self.thickness / 2., self.manip_length / 2., 1.))
                 ),
                 &reply.meshes.slider_control,
             );

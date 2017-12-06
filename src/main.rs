@@ -128,6 +128,10 @@ fn main() {
         right: Default::default(),
     };
 
+    let mut meta = Meta {
+        physics_speed: 1.,
+    };
+
     if mock { window.show() }
 
     // Setup Controllers
@@ -202,11 +206,9 @@ fn main() {
                 interact: interact::InteractGuru::new(&primary, &secondary),
                 physics: physics::PhysicsGuru::new(Vector3::new(0., -5., 0.)),
             },
-            meshes: meshes,
-            painters: painters,
-            meta: Meta {
-                physics_speed: 1.,
-            },
+            meshes,
+            painters,
+            meta,
         };
 
          // Clear targets
@@ -228,6 +230,7 @@ fn main() {
         ctx = common_reply.draw_params;
         meshes = common_reply.meshes;
         painters = common_reply.painters;
+        meta = common_reply.meta;
 
         // Send instructions to OpenGL
         // TODO: Move flush to separate thread
