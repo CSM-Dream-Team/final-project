@@ -17,6 +17,8 @@ pub struct Meshes<R: gfx::Resources> {
     pub controller: PbrMesh<R>,
     pub grid_lines: Mesh<R, VertC, ()>,
     pub floor: PbrMesh<R>,
+    pub slider_control: PbrMesh<R>,
+    pub slider_frame: PbrMesh<R>,
 
     // Rays
     pub red_ray: Mesh<R, VertC, ()>,
@@ -89,6 +91,14 @@ impl<R: gfx::Resources> Meshes<R> {
                     roughness: Texture::<_, (R8, Unorm)>::uniform_value(factory, 0x40)?,
                 })
                 .upload(factory),
+            slider_control: load_simple_object(
+                factory,
+                "assets/slider/control.obj",
+                [0x80, 0x80, 0xFF, 0xFF])?,
+            slider_frame: load_simple_object(
+                factory,
+                "assets/slider/control.obj",
+                [0xFF, 0x80, 0x80, 0xFF])?,
             red_ray: make_ray([1., 0., 0.]).upload(factory),
             blue_ray: make_ray([0., 0., 1.]).upload(factory),
         })
