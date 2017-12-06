@@ -1,7 +1,7 @@
 use flight::vr::Trackable;
 use interact::{ControllerGuru, GrabableState};
 use common::CommonReply;
-use nalgebra::{Matrix4, Isometry3, Vector3, Translation3, Transform3};
+use nalgebra::{Matrix4, Vector4, Isometry3, Vector3, Translation3, Transform3};
 use ncollide::shape::{Cuboid};
 use gfx;
 
@@ -68,7 +68,9 @@ impl Slider {
             let next_val = ((next_pos / true_len) + 0.5).max(0.).min(1.);
             let current_pos = (self.value - 0.5) * true_len;
 
-            let scaling_transform = Transform3::from_matrix_unchecked(Matrix4::from_scaled_axis(scaled));
+            let scaling_transform = Transform3::from_matrix_unchecked(
+                Matrix4::from_diagonal(&Vector4::new(rad, rad, self.length / 2., 1.))
+            );
             reply.painters.pbr.draw(
                 &mut reply.draw_params,
                 self.position * scaling_transform,
@@ -77,7 +79,7 @@ impl Slider {
             reply.painters.pbr.draw(
                 &mut reply.draw_params,
                 self.position * Translation3::new(0., 0., current_pos) * scaling_transform,
-                &reply.meshes.slider_frame,
+                &reply.meshes.slider_control,
             );
 
             self.mode = match (self.mode, &self.grab) {

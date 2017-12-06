@@ -97,7 +97,7 @@ impl<R: gfx::Resources> Meshes<R> {
                 [0x80, 0x80, 0xFF, 0xFF])?,
             slider_frame: load_simple_object(
                 factory,
-                "assets/slider/control.obj",
+                "assets/slider/frame.obj",
                 [0xFF, 0x80, 0x80, 0xFF])?,
             red_ray: make_ray([1., 0., 0.]).upload(factory),
             blue_ray: make_ray([0., 0., 1.]).upload(factory),
