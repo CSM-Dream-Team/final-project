@@ -2,6 +2,7 @@ use nalgebra::{self as na, Matrix3, Point3, Vector3, Isometry3};
 use ncollide::shape::Shape;
 use ncollide::query::{PointQuery, RayCast, RayIntersection, Ray};
 use nphysics3d::object::RigidBody;
+use nphysics3d::volumetric::InertiaTensor;
 use gfx;
 use flight::vr::{Trackable, MappedController};
 use common::{CommonReply};
@@ -316,7 +317,8 @@ impl GrabableState {
             let ang_vel = con.data.ang_vel;
             let mut lin_vel = con.data.lin_vel;
             if let Some(offset) = persist {
-                lin_vel += ang_vel.cross(&offset.translation.vector);
+                let com = *self.body.center_of_mass();
+                lin_vel += ang_vel.cross(&(con.data.origin() - com));
                 Held { offset, lin_vel, ang_vel }
             } else if touched.map(|t| t(reply)).unwrap_or(false) {
                 let offset = con.data.pose.inverse() * pos;
@@ -351,10 +353,12 @@ fn displace_tensor(disp: Vector3<f32>, mass: f32, tensor: &mut Matrix3<f32>) {
 impl GrabbablePhysicsState {
     fn ballerina_factor(&self, displace: Vector3<f32>, spin: Vector3<f32>) -> Vector3<f32> {
         if let Some(mass) = self.body.mass() {
-            let inv_post_tensor = self.body.inv_inertia();
-            let mut pre_tensor = inv_post_tensor.try_inverse().unwrap();
-            displace_tensor(displace, mass, &mut pre_tensor);
-            inv_post_tensor * (pre_tensor * spin)
+            let inv_cm_tensor = self.body.inv_inertia();
+            let cm_tensor = inv_cm_tensor.try_inverse().unwrap_or(na::zero());
+            let dir = spin.normalize();
+            let cm_inertia = dir.dot(&(cm_tensor * dir));
+            let hand_inertia = cm_inertia +  mass * na::norm_squared(&dir.cross(&displace));
+            spin * hand_inertia / cm_inertia
         } else {
             spin
         }
@@ -385,14 +389,17 @@ impl GrabbablePhysicsState {
             interact,
             *self.body.position(),
             self.body.shape().as_ref());
+        let con = interact.controller_reply();
 
         move |reply| {
+            let con = con(&reply.reply.interact);
             let next_grab = grab(&reply.reply.interact);
             self.body = phys(&reply.reply.physics);
+
             use self::GrabableState::*;
             let pos = match (&next_grab, &self.grab) {
                 (&Held { offset, lin_vel, ang_vel }, _) => {
-                    let position = reply.reply.interact.primary.data.pose * offset;
+                    let position = con.data.pose * offset;
                     self.body.set_transformation(position);
                     self.body.set_lin_vel(lin_vel);
                     self.body.set_ang_vel(ang_vel);
@@ -401,13 +408,15 @@ impl GrabbablePhysicsState {
                 },
                 (_, &Held { offset, ang_vel, .. }) => {
                     // Just released, effective moment of interia changes
+                    let pos = *self.body.position();
+                    let com = *self.body.center_of_mass();
                     let ang_vel = self.ballerina_factor(
-                        offset.translation.vector,
+                        con.data.origin() - com,
                         ang_vel,
                     );
                     self.body.set_ang_vel(ang_vel);
 
-                    *self.body.position()
+                    pos
                 },
                 _ => *self.body.position(),
             };
