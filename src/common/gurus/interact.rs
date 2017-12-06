@@ -1,4 +1,4 @@
-use nalgebra::{Point3, Vector3, Isometry3};
+use nalgebra::{self as na, Matrix3, Point3, Vector3, Isometry3};
 use ncollide::shape::Shape;
 use ncollide::query::{PointQuery, RayCast, RayIntersection, Ray};
 use nphysics3d::object::RigidBody;
@@ -338,7 +338,28 @@ pub struct GrabbablePhysicsState {
     pub body: RigidBody<f32>,
 }
 
+fn displace_tensor(disp: Vector3<f32>, mass: f32, tensor: &mut Matrix3<f32>) {
+    let d_sq = na::norm_squared(&disp);
+    for i in 0..3 {
+        for j in 0..3 {
+            let rr = disp[i] * disp[j];
+            tensor[(i, j)] += mass * (if i == j { d_sq } else { 0. } - rr)
+        }
+    }
+}
+
 impl GrabbablePhysicsState {
+    fn ballerina_factor(&self, displace: Vector3<f32>, spin: Vector3<f32>) -> Vector3<f32> {
+        if let Some(mass) = self.body.mass() {
+            let inv_post_tensor = self.body.inv_inertia();
+            let mut pre_tensor = inv_post_tensor.try_inverse().unwrap();
+            displace_tensor(displace, mass, &mut pre_tensor);
+            inv_post_tensor * (pre_tensor * spin)
+        } else {
+            spin
+        }
+    }
+
     pub fn new_free(body: RigidBody<f32>) -> Self {
         GrabbablePhysicsState { grab: Default::default(), body }
     }
@@ -366,20 +387,32 @@ impl GrabbablePhysicsState {
             self.body.shape().as_ref());
 
         move |reply| {
-            self.grab = grab(&reply.reply.interact);
+            let next_grab = grab(&reply.reply.interact);
             self.body = phys(&reply.reply.physics);
             use self::GrabableState::*;
-            match self.grab {
-                Held { offset, lin_vel, ang_vel } => {
+            let pos = match (&next_grab, &self.grab) {
+                (&Held { offset, lin_vel, ang_vel }, _) => {
                     let position = reply.reply.interact.primary.data.pose * offset;
                     self.body.set_transformation(position);
                     self.body.set_lin_vel(lin_vel);
                     self.body.set_ang_vel(ang_vel);
 
                     position
-                }
-                Free | Pointed => *self.body.position(),
-            }
+                },
+                (_, &Held { offset, ang_vel, .. }) => {
+                    // Just released, effective moment of interia changes
+                    let ang_vel = self.ballerina_factor(
+                        offset.translation.vector,
+                        ang_vel,
+                    );
+                    self.body.set_ang_vel(ang_vel);
+
+                    *self.body.position()
+                },
+                _ => *self.body.position(),
+            };
+            self.grab = next_grab;
+            pos
         }
     }
 }

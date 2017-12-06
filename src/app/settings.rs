@@ -30,9 +30,9 @@ impl Settings {
                 1.,
             ),
             length: Slider::new(Isometry3::from_parts(
-                    Translation3::new(0., 1.5, 0.),
+                    Translation3::new(0.5, 1.5, -0.5),
                     UnitQuaternion::rotation_between(
-                        &Vector3::new(0., 0.5, 1.),
+                        &Vector3::new(0., 0., 1.),
                         &Vector3::new(1., 1., 1.),
                     ).unwrap(),
                 ),
