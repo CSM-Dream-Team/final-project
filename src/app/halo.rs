@@ -70,7 +70,7 @@ impl<R: gfx::Resources, C: gfx::CommandBuffer<R>> App<R, C> for Halo<R> {
                 Similarity3::from_parts(
                     Translation3::new(0., 2.5, 0.), 
                     UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 0.),
-                    1.
+                    0.5
                 )
             ), &self.halo_mesh);
         })
