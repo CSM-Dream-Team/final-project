@@ -28,7 +28,7 @@ impl PhysicsGuru {
     }
 
     pub fn resolve(mut self, dt: f32) -> PhysicsReply {
-        self.world.step(dt);
+        if dt > ::std::f32::EPSILON { self.world.step(dt) }
         PhysicsReply { _me: (), }
     }
 }

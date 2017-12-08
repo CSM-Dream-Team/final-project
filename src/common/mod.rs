@@ -41,11 +41,16 @@ pub struct GuruReply {
     pub physics: physics::PhysicsReply,
 }
 
+pub struct Meta {
+    pub physics_speed: f32,
+}
+
 pub struct Common<R: gfx::Resources, C: gfx::CommandBuffer<R>> {
     pub draw_params: DrawParams<R, C>,
     pub gurus: Gurus,
     pub painters: Painters<R>,
     pub meshes: Meshes<R>,
+    pub meta: Meta,
 }
 
 pub struct CommonReply<R: gfx::Resources, C: gfx::CommandBuffer<R>> {
@@ -53,6 +58,7 @@ pub struct CommonReply<R: gfx::Resources, C: gfx::CommandBuffer<R>> {
     pub reply: GuruReply,
     pub painters: Painters<R>,
     pub meshes: Meshes<R>,
+    pub meta: Meta,
 }
 
 fn load_simple_object<P, R, F>(f: &mut F, path: P, albedo: [u8; 4])
@@ -135,6 +141,7 @@ impl<R: gfx::Resources, C: gfx::CommandBuffer<R>> Common<R, C> {
             },
             painters: self.painters,
             meshes: self.meshes,
+            meta: self.meta,
         }
     }
 }
