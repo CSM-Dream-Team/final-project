@@ -20,7 +20,6 @@
 \newcommand\name{VRsh}
 \newtheorem{definition}{Definition}
 
-% TODO: better name
 \title{Final Project Report}
 \author{%
     \IEEEauthorblockN{%
@@ -155,7 +154,6 @@ allowing extensibility via addition of self-containing modules.
 
 \begin{center}***\end{center}
 
-% TODO: Some sort of transition
 Given these criteria, we evaluate current program architectures including entity
 component systems, React-like architectures, and event tree architectures in
 Section~\ref{sec:evolution}. We also describe how these architectures influenced
@@ -194,15 +192,32 @@ Section~\ref{sec:case-studies} and conclude in Section~\ref{sec:conclusion}.
 % TODO: this section should describe the implementation of DIM (or whatever we
 % call it)
 Flight is our implementation of a VR UI library using the DIM architecture. It
-is written in Rust and is designed to be highly modular. It implements the DIM
-architecture using Rust \texttt{FnOnce} closures and resolves state using a
-\textit{guru} system.
+is written in Rust and is designed to be highly modular. It uses Rust
+\texttt{FnOnce} closures to implement the deferred aspect of the DIM
+architecture and resolves state using a \textit{guru} system.
 
 \subsection{Language}
 % TODO: why Rust? Type system.
+We chose to implement Flight in Rust for a few reasons.
+\begin{enumerate}
+    \item \textbf{Performance}: % TODO: ...
+    \item \textbf{Type System}: % TODO: ...
+    % TODO: more stuff here
+\end{enumerate}
 
 \subsection{Dependencies}
-% TODO: WebVR, nalgebra, gfx
+The Rust dependency manager, Cargo, allows programmers to easy include
+third-party libraries from \url{https://crates.io}. To avoid duplicating work
+by other programmers, we utilized a few external libraries for Flight. The main
+dependencies are listed below.
+\begin{itemize}
+    \item \textbf{\texttt{WebVR}}: an OpenVR wrapper built by Mozilla for the
+        Servo browser.
+    \item \textbf{\texttt{nalgebra}}: library for geometric/volumetric
+        operations and queries.
+    \item \textbf{\texttt{gfx}}: % TODO:
+    % TODO: more dependencies?
+\end{itemize}
 
 \subsection{Modular}
 % TODO:
