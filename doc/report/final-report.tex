@@ -50,8 +50,8 @@
     cutting edge technology, new paradigms and design patterns must be invented.
     In this paper, we discuss a deferred immediate mode (DIM) application
     architecture suitable for implementing large virtual reality applications.
-    We present a library which utilizes this architecture and a few case studies
-    of this library in use.
+    We present a UI library which utilizes this architecture and a few case
+    studies of this library in use.
 \end{abstract}
 
 \section{Introduction}
@@ -62,11 +62,13 @@ and Virtual Reality markets will grow from \$5.2 billion in 2016 to more than
 has created an exciting new field of Software Engineering with great potential
 for revolutionary new design paradigms and program architectures.
 
+% TODO: a bit repetitive here
 Most current frameworks and libraries attempt to apply old design paradigms and
-program architectures that are well-suited for 2D user interfaces and rendering
-3D environments to a flat screen to virtual reality. Although these endeavors
-have been successful, they do not fully explore potential new design paradigms
-and program architectures.
+program architectures to virtual reality. While these paradigms and
+architectures are well-suited for 2D user interfaces and rendering 3D
+environments to a flat screen, they are not designed with VR in mind. Although
+endeavors to adapt these old patterns to VR have been successful, they do not
+fully explore the potential for new design paradigms and program architectures.
 
 Our goal is to find a system that provides a modern, fast, and practical
 approach to virtual reality development. Specifically, we require that this
@@ -110,7 +112,37 @@ environments are inherently 3D, they make spacial UI convenient and practical
 for the first time. Thus, the ability to create spacial UI rather than merely to
 planar UI is a high priority.
 
-\subsection{Programmable}
+\subsection{Flexible}
+% TODO: can do anything, infinite possible applications -> need to be expandable
+Computer software is used to solve a variety of unique problems which in turn
+require a variety of user interface solutions. Thus, a good user interface
+toolkit must be general enough to accommodate the goals of the developers
+writing the software. The desktop, mobile, and web application fields already
+have general purpose user interface toolkits. The virtual reality field needs
+the same.
+
+% TODO: integrate this in somehow
+General, not opinionated, not bloated % <- maybe make these+Modular the sections?
+In other words, an architecture must not be opinionated about which types of
+application should be created with it.
+
+% TODO: something about why WE need this
+
+\subsection{Modular}
+A direct result of flexibility is modularity---a flexible architecture cannot be
+a monolith.
+
+% TODO: don't want pathfinding, etc if we don't need it
+don't care if you integrate a ton of things, just don't want them to get in the
+way, be compartmentalized
+
+
+Many current VR architectures have features such as pathfinding and
+character rigging baked in which must be included even if they are not used. We
+want an architecture which has a minimal feature set baked in while still
+allowing extensibility via addition of self-containing modules.
+
+\subsection{Programmable}% integrate this above
 % TODO: better intro sentence? (I've been putting the "we need X" towards the
 % end of the section the paragraph)
 % TODO: this seems to intersect a lot with the next two sections.
@@ -121,23 +153,6 @@ for non-entertainment software. For example, existing frameworks for classical
 application development (e.g.\ HTML and GTK) do not include any of these
 features. The easy programmatic definition and use of user interface components
 must take priority.
-
-\subsection{Flexible}
-% TODO: can do anything, infinite possible applications -> need to be expandable
-As evidenced by the massive breadth of desktop, mobile, and web applications,
-the number of software applications is nearly infinite. The virtual reality
-field is no different, and VR application architectures must be scalable,
-adaptable, and <TODO> in order to enable this diversity. In other words, an
-architecture must not be opinionated about which types of application should be
-created with it. % TODO: something about why WE need this
-
-\subsection{Modular}
-% TODO: don't want pathfinding, etc if we don't need it
-A direct result of flexibility is modularity---a flexible architecture cannot be
-a monolith. Many current VR architectures have features such as pathfinding and
-character rigging baked in which must be included even if they are not used. We
-want an architecture which has a minimal feature set baked in while still
-allowing extensibility via addition of self-containing modules.
 
 \begin{center}***\end{center}
 
