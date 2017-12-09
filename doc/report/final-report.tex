@@ -45,7 +45,7 @@
 \begin{abstract}
     Virtual Reality (VR) Technology has been developing rapidly over the past
     decade. Current solutions such as Unity attempt to use old programming
-    languages and paradigms to implement VR environments and thus limit
+    languages and paradigms to implement VR applications and thus limit
     developers' abilities to create new and unique environments. With every
     cutting edge technology, new paradigms and design patterns must be invented.
     In this paper, we discuss a deferred immediate mode (DIM) application
@@ -86,7 +86,7 @@ the UI process for a second does not have a major affect on the usability of the
 program. These factors require a VR framework that is highly performant and
 multi-threadable.
 
-\subsection{Natural User Interface}
+\subsection{Natural}
 A \textit{natural user interface} is an interface that can be used without the
 need for a controller~\cite{Wimmers:2015:VR:Natural-UI}. Although current VR
 systems utilize hand-held controllers, they emulate this goal much better than
@@ -117,42 +117,29 @@ planar UI is a high priority.
 Computer software is used to solve a variety of unique problems which in turn
 require a variety of user interface solutions. Thus, a good user interface
 toolkit must be general enough to accommodate the goals of the developers
-writing the software. The desktop, mobile, and web application fields already
-have general purpose user interface toolkits. The virtual reality field needs
-the same.
-
-% TODO: integrate this in somehow
-General, not opinionated, not bloated % <- maybe make these+Modular the sections?
-In other words, an architecture must not be opinionated about which types of
-application should be created with it.
-
+writing the software. Most importantly, such a toolkit must not be opinionated
+about which types of application should be created with it. The desktop, mobile,
+and web application fields already have general purpose user interface toolkits
+(e.g.\ HTML and GTK). The virtual reality field needs the same.
 % TODO: something about why WE need this
 
 \subsection{Modular}
 A direct result of flexibility is modularity---a flexible architecture cannot be
-a monolith.
+a monolith. Many current VR libraries include features such as pathfinding and
+character rigging which must be included even if they are not used. This is not
+modular and most non-entertainment software does not require any of these
+features.
 
-% TODO: don't want pathfinding, etc if we don't need it
-don't care if you integrate a ton of things, just don't want them to get in the
-way, be compartmentalized
+From a software engineering standpoint, a good UI library must allow the
+programmer to integrate any number of components, but these components should
+be add-ons, not dependencies. Additionally, these components should be
+compartmentalized and not interfere with one another. This library design
+promotes good software engineering practices including the UNIX philosophy ("do
+one thing and do it well") and the open/closed principle ("software entities
+should be open for extension but closed to modification").
 
-
-Many current VR architectures have features such as pathfinding and
-character rigging baked in which must be included even if they are not used. We
-want an architecture which has a minimal feature set baked in while still
+Our goal is find a framework that has a minimal feature set baked in while still
 allowing extensibility via addition of self-containing modules.
-
-\subsection{Programmable}% integrate this above
-% TODO: better intro sentence? (I've been putting the "we need X" towards the
-% end of the section the paragraph)
-% TODO: this seems to intersect a lot with the next two sections.
-We need a framework that prioritizes application development over game
-development---a software development kit first and foremost. Features such as
-character rigging, pathfinding, and high-fidelity materials are not necessary
-for non-entertainment software. For example, existing frameworks for classical
-application development (e.g.\ HTML and GTK) do not include any of these
-features. The easy programmatic definition and use of user interface components
-must take priority.
 
 \begin{center}***\end{center}
 
@@ -168,6 +155,13 @@ Section~\ref{sec:case-studies} and conclude in Section~\ref{sec:conclusion}.
 
 \section{Evolution of Deferred Immediate Mode}\label{sec:evolution}
 % TODO: Give brief overview of our "adventures in VR library design"
+We researched many current VR software architectures to find one which suited
+our needs. All of them had many advantages but also many disadvantages. In this
+section we describe a variety of libraries and evaluate their ability to
+accomplish our goals as described in the previous section.
+
+\subsection{Unity}
+% TODO:
 
 \subsection{Entity Component System}
 % TODO:
