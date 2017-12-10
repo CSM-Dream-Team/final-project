@@ -39,20 +39,24 @@
 }
 
 \begin{document}
-
-\maketitle
-
-\begin{abstract}
-    Virtual Reality (VR) Technology has been developing rapidly over the past
-    decade. Current solutions such as Unity attempt to use old programming
-    languages and paradigms to implement VR applications and thus limit
-    developers' abilities to create new and unique environments. With every
-    cutting edge technology, new paradigms and design patterns must be invented.
-    In this paper, we discuss a deferred immediate mode (DIM) application
-    architecture suitable for implementing large virtual reality applications.
-    We present a UI library which utilizes this architecture and a few case
-    studies of this library in use.
-\end{abstract}
+\twocolumn[
+    \begin{@twocolumnfalse}
+    \maketitle
+    \end{@twocolumnfalse}
+    \begin{abstract}
+        Virtual Reality (VR) Technology has been developing rapidly over the
+        past decade. Current solutions such as Unity attempt to use old
+        programming languages and paradigms to implement VR applications and
+        thus limit developers' abilities to create new and unique environments.
+        With every cutting edge technology, new paradigms and design patterns
+        must be invented.  In this paper, we discuss a deferred immediate mode
+        (DIM) application architecture suitable for implementing large virtual
+        reality applications.  We present a UI library which utilizes this
+        architecture and a few case studies of this library in use.
+    \end{abstract}
+    \bigskip
+    \bigskip
+]
 
 \section{Introduction}
 The Virtual Reality (VR) market is growing rapidly. The International Data
@@ -103,7 +107,7 @@ interfaces, we define the following terms.
     organized within a 3D space.
 \end{definition}
 
-% TODO: s/environment/application in a lot of places
+% TODO: s/environment/application in a lot of places?
 
 Both planar and spacial user interfaces are effective in virtual reality
 applications. This cannot be said of applications that use traditional
@@ -120,8 +124,8 @@ toolkit must be general enough to accommodate the goals of the developers
 writing the software. Most importantly, such a toolkit must not be opinionated
 about which types of application should be created with it. The desktop, mobile,
 and web application fields already have general purpose user interface toolkits
-(e.g.\ HTML and GTK). The virtual reality field needs the same.
-% TODO: something about why WE need this
+(e.g.\ HTML and GTK). We need a UI library for VR which is equally
+general-purpose.
 
 \subsection{Modular}
 A direct result of flexibility is modularity---a flexible architecture cannot be
@@ -138,19 +142,19 @@ promotes good software engineering practices including the UNIX philosophy ("do
 one thing and do it well") and the open/closed principle ("software entities
 should be open for extension but closed to modification").
 
-Our goal is find a framework that has a minimal feature set baked in while still
-allowing extensibility via addition of self-containing modules.
+We need a framework that has a minimal feature set baked in while still allowing
+extensibility via the addition of self-contained modules.
 
 \begin{center}***\end{center}
 
-Given these criteria, we evaluate current program architectures including entity
-component systems, React-like architectures, and event tree architectures in
-Section~\ref{sec:evolution}. We also describe how these architectures influenced
-our deferred immediate mode architecture which we formally present in
-Section~\ref{sec:dim}. In Section~\ref{sec:flight} we describe Flight---an
-implementation of a VR UI library using the referred immediate mode
-architecture. Then we present three case studies of Flight and the deferred
-immediate mode architecture in use in real applications in
+Given these criteria, we evaluate current program architectures and UI libraries
+including Unity, entity component systems, React-like architectures, and event
+tree architectures in Section~\ref{sec:evolution}. We also describe how these
+architectures influenced our deferred immediate mode architecture which we
+formally present in Section~\ref{sec:dim}. In Section~\ref{sec:flight} we
+describe Flight---an implementation of a VR UI library using the deferred
+immediate mode architecture. Then we present three case studies of Flight and
+the deferred immediate mode architecture in use in real applications in
 Section~\ref{sec:case-studies} and conclude in Section~\ref{sec:conclusion}.
 
 \section{Evolution of Deferred Immediate Mode}\label{sec:evolution}
@@ -161,7 +165,12 @@ section we describe a variety of libraries and evaluate their ability to
 accomplish our goals as described in the previous section.
 
 \subsection{Unity}
-% TODO:
+The Unity game engine has been used to create many VR applications
+% TODO: add citations of VR applications that were built using Unity
+
+% TODO: advantage:
+% TODO:         existing ecosystem
+
 
 \subsection{Entity Component System}
 % TODO:
@@ -195,11 +204,13 @@ architecture and resolves state using a \textit{guru} system.
 \subsection{Language}
 % TODO: why Rust? Type system.
 We chose to implement Flight in Rust for a few reasons.
-\begin{enumerate}
-    \item \textbf{Performance}: % TODO: ...
-    \item \textbf{Type System}: % TODO: ...
-    % TODO: more stuff here
-\end{enumerate}
+\subsubsection{Performance}
+% TODO: ...
+
+\subsubsection{Type System}
+% TODO: ...
+
+% TODO: more stuff here
 
 \subsection{Dependencies}
 The Rust dependency manager, Cargo, allows programmers to easy include
