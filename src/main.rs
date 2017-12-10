@@ -13,6 +13,10 @@ extern crate nphysics3d;
 extern crate glutin;
 extern crate gfx_device_gl;
 extern crate gfx_window_glutin;
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
+extern crate serde_json;
 
 use std::boxed::FnBox;
 use std::time::Instant;
