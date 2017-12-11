@@ -68,6 +68,12 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
     fn update<'b>(&'b mut self,
                   common: &mut Common<R, C>)
                   -> Box<FnBox(&mut CommonReply<R, C>) + 'b> {
+        // Reset if you throw it off the platform.
+        if self.grabbable_state.body.position().translation.vector.y < 10. {
+            self.grabbable_state.body.set_transformation(
+                Isometry3::new(Vector3::new(0., 2., 0.), na::zero()));
+        }
+
         let gp = self.grabbable_state.update(&mut common.gurus.interact.primary,
                                              &mut common.gurus.physics);
 

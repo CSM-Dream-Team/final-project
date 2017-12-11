@@ -43,6 +43,7 @@ pub struct SnowflakeState {
 pub struct Snowflakes<R: gfx::Resources> {
     blocks: Vec<Snowblock>,
     new_blocks: Vec<Snowblock>,
+    remove_blocks: Vec<usize>,
     snowman: PbrMesh<R>,
     snow_block: PbrMesh<R>,
 }
@@ -52,6 +53,7 @@ impl<R: gfx::Resources> Snowflakes<R> {
         Ok(Snowflakes {
             blocks: Vec::new(),
             new_blocks: Vec::new(),
+            remove_blocks: Vec::new(),
             snowman: load::object_directory(factory, "assets/snowman/")?,
             snow_block: load::object_directory(factory, "assets/snow-block/")?,
         })
@@ -89,6 +91,14 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
         // Add the old blocks
         self.blocks.append(&mut self.new_blocks);
 
+        {
+            // Remove blocks that have been thrown off the platform.
+            for remove in self.remove_blocks.iter() {
+                self.blocks.remove(*remove);
+            }
+            self.remove_blocks.clear();
+        }
+
         // Snowmen
         let snowman_shapes = vec![
             (Isometry3::new(Vector3::new(0., 0.22, 0.), na::zero()), ShapeHandle::new(Ball::new(0.26))),
@@ -113,9 +123,16 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
                                                          common.gurus.interact.secondary.data.pose,
                                                          &block_shape);
 
+        let remove_blocks = &mut self.remove_blocks;
         let futures: Vec<_> = self.blocks
             .iter_mut()
-            .map(|s| s.update(common))
+            .enumerate()
+            .map(|(i, s)| {
+                if s.0.body.position().translation.vector.y < 10. {
+                    remove_blocks.push(i);
+                }
+                s.update(common)
+            })
             .collect();
 
         // Render snow blocks
