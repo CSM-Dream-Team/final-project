@@ -81,33 +81,34 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
 
         // Setup toggle futures
         let toggles = vec![
-            Translation3::new(2., 1., 0.),
-            Translation3::new(-2., 1., 0.),
+            ("lets_get_physical", Translation3::new(2., 1., 0.)),
+            ("snowflakes", Translation3::new(-2., 1., 0.)),
         ];
         let toggle_box_shape = Cuboid::new(Vector3::new(0.5, 0.5, 0.5));
-        let toggle_futures: Vec<_> = toggles.iter().map(|t| {
+        let toggle_futures: Vec<_> = toggles.into_iter().flat_map(|(app, trans)| {
             // Draw the toggles
             let quat = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 0.);
             common.painters.solid.draw(&mut common.draw_params,
-                                       na::convert(Similarity3::from_parts(*t, quat, 0.5)),
+                                       na::convert(Similarity3::from_parts(trans, quat, 0.5)),
                                        &common.meshes.wire_box);
 
             // Return the future
-            common.gurus.interact.primary.pointing_laser(&Isometry3::from_parts(*t, na::one()),
-                                                         &toggle_box_shape, true)
+            vec![
+                (app,
+                 common.gurus.interact.primary.pointing_laser(&Isometry3::from_parts(trans, na::one()),
+                                                              &toggle_box_shape, true)),
+                (app,
+                 common.gurus.interact.secondary.pointing_laser(&Isometry3::from_parts(trans, na::one()),
+                                                                &toggle_box_shape, true))
+            ]
         }).collect();
 
         Box::new(move |r: &mut CommonReply<_, _>| {
             let _torus = torus(&r.reply.interact);
 
             // Do the toggles
-            for (i, f) in toggle_futures.into_iter().enumerate() {
+            for (app, f) in toggle_futures.into_iter() {
                 if f(&r.reply.interact).is_some() {
-                    let app = match i {
-                        0 => "lets_get_physical",
-                        1 => "snowflakes",
-                        _ => panic!("Invalid application match"),
-                    };
                     let current_value = match r.meta.active_apps.get(app) {
                         Some(v) => *v,
                         None => false,
