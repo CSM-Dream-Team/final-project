@@ -23,7 +23,7 @@ extern crate serde;
 extern crate serde_derive;
 extern crate serde_json;
 
-use std::fs::File;
+use std::fs::{self, File};
 use std::boxed::FnBox;
 use std::time::Instant;
 use std::path::PathBuf;
@@ -103,7 +103,6 @@ fn main() {
     // Window manager stuff
     let mut events_loop = glutin::EventsLoop::new();
     let window_builder = glutin::WindowBuilder::new()
-        .with_visibility(false)
         .with_dimensions(render_width, render_height)
         .with_title("Mock OpenVR Display");
     let context = glutin::ContextBuilder::new();
@@ -152,6 +151,7 @@ fn main() {
     ];
 
     // Load from the applications
+    fs::create_dir_all("states").unwrap();
     for app in applications.iter_mut() {
         if let Ok(mut file) = File::open(app.1.clone()) {
             let mut deserializer = Deserializer::new(IoRead::new(file));
@@ -234,7 +234,7 @@ fn main() {
         }
 
         // Update context
-        running.store(false, Ordering::SeqCst);
+        running.store(!moment.exit, Ordering::SeqCst);
         ctx.left = hmd.left;
         ctx.right = hmd.right;
 
@@ -295,7 +295,7 @@ fn main() {
     vrctx.stop();
 
     for app in applications.iter_mut() {
-        let mut file = File::open(&app.1).unwrap();
+        let mut file = File::create(&app.1).unwrap();
         let mut serializer = Serializer::new(file);
         app.0.se_state(&mut serializer).unwrap();
     }
