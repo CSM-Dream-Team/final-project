@@ -29,6 +29,7 @@ impl Snowblock {
          -> impl FnOnce(&mut CommonReply<R, C>, &PbrMesh<R>) + 'a {
         let gp = self.0.update(&mut common.gurus.interact,
                                &mut common.gurus.physics,
+                               Isometry3::identity(),
                                yank_speed);
         move |reply, mesh| {
             let pos = gp(reply);

@@ -5,7 +5,7 @@ use serde::{self, Serialize, Deserialize};
 use serde_json::{Deserializer, Serializer, Error as JsonError};
 use serde_json::de::IoRead as JsonRead;
 
-use nalgebra::{self as na, Vector3, Isometry3};
+use nalgebra::{self as na, Vector3, Isometry3, Translation3, UnitQuaternion};
 use ncollide::shape::{ShapeHandle, Compound, Cuboid, Cylinder};
 use nphysics3d::object::RigidBody;
 
@@ -80,6 +80,13 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
 
         let gp = self.grabbable_state.update(&mut common.gurus.interact,
                                              &mut common.gurus.physics,
+                                             Isometry3::from_parts(
+                                                 Translation3::new(0., 0., -0.2),
+                                                 UnitQuaternion::rotation_between(
+                                                     &Vector3::new(0., -1., 0.),
+                                                     &Vector3::new(0., 0., -1.),
+                                                 ).unwrap(),
+                                             ),
                                              0.2 / common.meta.physics_speed);
 
         let mjolnir = &self.mjolnir;

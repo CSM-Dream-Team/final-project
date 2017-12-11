@@ -551,7 +551,9 @@ impl GrabbablePhysicsState {
         &'a mut self,
         interact: &mut InteractGuru,
         physics: &mut PhysicsGuru,
-        yank_speed: f32)
+        inv_yank_offset: Isometry3<f32>,
+        yank_speed: f32,
+    )
         -> impl FnOnce(&mut CommonReply<R, C>)
         -> Isometry3<f32> + 'a
     {
@@ -560,7 +562,7 @@ impl GrabbablePhysicsState {
             interact,
             *self.body.position(),
             self.body.shape().as_ref(),
-            Isometry3::identity(),
+            inv_yank_offset,
             yank_speed,
         );
 
