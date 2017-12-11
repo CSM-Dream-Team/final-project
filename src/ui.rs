@@ -46,7 +46,7 @@ impl Slider {
         use self::SliderMode::*;
         use interact::GrabableState::*;
 
-        let con = controller.controller_reply();
+        let ind = controller.index();
         let scaled = Vector3::new(self.thickness / 2., self.thickness / 2., self.length / 2.);
         let grab = self.grab.update(
             controller,
@@ -57,7 +57,7 @@ impl Slider {
 
         move |reply| {
             self.grab = grab(&reply.reply.interact);
-            let con = con(&reply.reply.interact);
+            let con = ind.reply(&reply.reply.interact);
 
             let next_pos = (inv * con.data.origin())[2];
 

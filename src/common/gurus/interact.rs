@@ -1,4 +1,4 @@
-use nalgebra::{Point3, Vector3, Isometry3};
+use nalgebra::{Point3, Vector3, Isometry3, Translation3};
 use ncollide::shape::Shape;
 use ncollide::query::{PointQuery, RayCast, RayIntersection, Ray};
 use nphysics3d::object::RigidBody;
@@ -79,6 +79,22 @@ impl PartialOrd for InteractQuery {
     }
 }
 
+#[derive(PartialEq, Eq, Copy, Clone)]
+pub struct ControllerIndex(u8);
+
+impl ControllerIndex {
+    pub fn primary() -> Self { ControllerIndex(0) }
+    pub fn secondary() -> Self { ControllerIndex(1) }
+
+    pub fn guru(self, guru: &mut InteractGuru) -> &mut ControllerGuru {
+        [&mut guru.primary, &mut guru.secondary][self.0 as usize]
+    }
+
+    pub fn reply(self, reply: &InteractionReply) -> &ControllerReply {
+        [&reply.primary, &reply.secondary][self.0 as usize]
+    }
+}
+
 /// Answers queries about VR controller interactions.
 pub struct ControllerGuru {
     /// The current state of the controller.
@@ -88,7 +104,7 @@ pub struct ControllerGuru {
     pointed_data: Vec<Option<RayHit>>,
     point_blocked: bool,
     touch_blocked: bool,
-    index: usize,
+    index: u8,
 }
 
 impl ControllerGuru {
@@ -110,10 +126,9 @@ impl ControllerGuru {
         self.laser_toi = self.laser_toi.min(toi);
     }
 
-    /// Will get the reply for this controller from the complete interaction reply
-    pub fn controller_reply(&self) -> impl FnOnce(&InteractionReply) -> &ControllerReply {
-        let controller_index = self.index;
-        move |reply| [&reply.primary, &reply.secondary][controller_index]
+    /// Use to get reply object
+    pub fn index(&self) -> ControllerIndex {
+        ControllerIndex(self.index)
     }
 
     fn pointing_partial(
@@ -134,8 +149,8 @@ impl ControllerGuru {
             });
             self.pointed_data.push(Some(hit));
         }
-        let con = self.controller_reply();
-        move |reply| con(reply)
+        let ind = self.index();
+        move |reply| ind.reply(reply)
             .results
             .get(index)
             .map(|r| r.as_ref())
@@ -229,8 +244,8 @@ impl ControllerGuru {
         -> bool
     {
         let touched = !self.touch_blocked && shape.contains_point(pos, &self.data.origin());
-        let con = self.controller_reply();
-        move |reply| touched && con(reply).can_touch
+        let ind = self.index();
+        move |reply| touched && ind.reply(reply).can_touch
     }
 
     /// Complete this guru's calculations, enabling it to answer all waiting
@@ -263,6 +278,167 @@ pub struct ControllerReply {
     /// The current state of the controller.
     pub data: MappedController,
     can_touch: bool,
+}
+
+pub const YANK_SPEED: f32 = 1.2;
+pub const YANK_DIFFICULTY: f32 = 1.0;
+
+#[derive(Eq, PartialEq, Copy, Clone)]
+pub enum MoveableIntention {
+    Move,
+    Manipulate,
+    Free,
+}
+
+#[derive(Clone)]
+pub enum Moveable {
+    Grabbed {
+        inv_offset: Isometry3<f32>,
+        index: ControllerIndex,
+        intent: MoveableIntention,
+    },
+    Yanked {
+        progress: f32,
+        start: Isometry3<f32>,
+        index: ControllerIndex,
+    },
+    Free,
+
+}
+
+pub struct MoveData {
+    pub intent: MoveableIntention,
+    pub fixed: Option<Fixed>,
+}
+
+pub struct Fixed {
+    pub by: ControllerIndex,
+    pub pos: Isometry3<f32>,
+    pub lin_vel: Vector3<f32>,
+    pub ang_vel: Vector3<f32>,
+}
+
+impl Moveable {
+    pub fn update<'a>(
+        &'a mut self,
+        interact: &mut InteractGuru,
+        pos: Isometry3<f32>,
+        shape: &Shape<Point3<f32>, Isometry3<f32>>,
+        inv_yank_offset: Isometry3<f32>,
+    )
+        -> impl FnOnce(&InteractionReply)
+        -> MoveData + 'a
+    {
+        use self::Moveable::*;
+        use self::MoveableIntention as Mi;
+
+        let cons: Vec<_> = (&[ControllerIndex::primary(), ControllerIndex::secondary()])
+            .into_iter()
+            .map(|&con| {
+                let guru = con.guru(interact);
+                (con, guru.pointing_laser(&pos, shape, true), guru.touched(&pos, shape))
+            }).collect();
+
+        move |reply| {
+            match self {
+                &mut Free => {
+                    for (ind, pointed, touched) in cons
+                        .into_iter()
+                        .map(|(i, p, t)| (i, p(reply), t(reply)))
+                    {
+                        let con = ind.reply(reply);
+                        if let (Some(_), true) = (pointed, con.data.menu) {
+                            *self = Yanked {
+                                index: ind,
+                                progress: 0.,
+                                start: pos,
+                            };
+                            break
+                        }
+                        if con.data.trigger > 0.5 {
+                            if touched {
+                                *self = Grabbed {
+                                    index: ind,
+                                    inv_offset: con.data.pose.inverse() * pos,
+                                    intent: Mi::Manipulate,
+                                };
+                                break
+                            }
+                        }
+                    }
+                },
+                &mut Yanked { progress, index, start } => {
+                    if progress + YANK_SPEED > 1. {
+                        *self = Grabbed {
+                            index: index,
+                            inv_offset: inv_yank_offset,
+                            intent: Mi::Move,
+                        };
+                    } else {
+                        *self = Yanked {
+                            progress: progress + YANK_SPEED,
+                            start: start,
+                            index: index,
+                        };
+                    }
+                },
+                &mut Grabbed { index, .. } => {
+                    if index.reply(reply).data.trigger < 0.5 {
+                        *self = Free;
+                    }
+                },
+            };
+            match self {
+                &mut Grabbed { index, inv_offset, intent } => {
+                    let con = index.reply(reply);
+                    let ang_vel = con.data.ang_vel;
+                    let mut lin_vel = con.data.lin_vel;
+                    lin_vel += ang_vel.cross(&inv_offset.translation.vector);
+
+                    return MoveData {
+                        intent: intent,
+                        fixed: Some(Fixed {
+                            by: index,
+                            pos: con.data.pose() * inv_offset,
+                            lin_vel: lin_vel,
+                            ang_vel: ang_vel,
+                        }),
+                    };
+                },
+                &mut Yanked { progress, index, .. } => {
+                    let con = index.reply(reply);
+                    let mut dp = YANK_SPEED / (1. - progress + YANK_SPEED);
+                    dp = dp.min(1.).max(0.);
+                    let dest = con.data.pose() * inv_yank_offset;
+                    let next = Isometry3::from_parts(
+                        Translation3::from_vector(
+                            pos.translation.vector * (1. - dp) + dest.translation.vector * dp
+                        ),
+                        pos.rotation.slerp(&dest.rotation, dp),
+                    );
+
+                    let delta = pos.inverse() * next;
+                    let lin_vel = delta.translation.vector / con.data.dt as f32;
+                    let ang_vel = delta.rotation.scaled_axis() / con.data.dt as f32;
+
+                    return MoveData {
+                        intent: Mi::Move,
+                        fixed: Some(Fixed {
+                            by: index,
+                            pos: next,
+                            lin_vel: lin_vel,
+                            ang_vel: ang_vel,
+                        }),
+                    };
+                },
+                _ => (),
+            }
+            MoveData {
+                intent: Mi::Free,
+                fixed: None,
+            }
+        }
+    }
 }
 
 /// Represents something being grabbed
@@ -309,10 +485,10 @@ impl GrabableState {
             })
         };
         let pointing = interact.pointing_laser(&pos, shape, true);
-        let con = interact.controller_reply();
+        let ind = interact.index();
 
         move |reply| {
-            let con = con(reply);
+            let con = ind.reply(reply);
             let ang_vel = con.data.ang_vel;
             let mut lin_vel = con.data.lin_vel;
             if let Some(offset) = persist {
