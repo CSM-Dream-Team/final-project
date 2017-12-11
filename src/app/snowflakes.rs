@@ -69,10 +69,10 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
     }
 
     fn de_state(&mut self, deserializer: &mut Deserializer<JsonRead<Re>>) -> Result<(), JsonError> {
-// Clear all of the current state
+        // Clear all of the current state
         self.blocks.clear();
 
-// Read in the new block locations
+        // Read in the new block locations
         let state = SnowflakeState::deserialize(deserializer)?;
         self.new_blocks = state.block_locations.iter().map(|l| {
             let block_shape = Cuboid::new(Vector3::new(0.15, 0.15, 0.3));

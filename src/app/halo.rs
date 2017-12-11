@@ -6,7 +6,7 @@ use serde_json::{Deserializer, Serializer, Error as JsonError};
 use serde_json::de::IoRead as JsonRead;
 
 use nalgebra::{self as na, Vector3, Similarity3, Isometry3, Translation3, UnitQuaternion};
-use ncollide::shape::{Plane, Cylinder};
+use ncollide::shape::{ShapeHandle, Cuboid, Cylinder};
 use nphysics3d::object::RigidBody;
 
 // Flight
@@ -53,9 +53,10 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
         }
 
         // Draw floor
-        let floor = Plane::new(Vector3::y());
-        common.gurus.interact.primary.laser(&na::one(), &floor);
-        let mut floor_rb = RigidBody::new_static(floor, 0.1, 0.6);
+        let floor_shape = Cuboid::new(Vector3::new(5., 1., 5.));
+        common.gurus.interact.primary.laser(&na::one(), &floor_shape);
+        let mut floor_rb = RigidBody::new_static(floor_shape, 0.1, 0.6);
+        floor_rb.set_translation(Translation3::new(0., -1., 0.));
         floor_rb.set_margin(0.00001);
         common.gurus.physics.body(floor_rb);
         common.painters.pbr.draw(&mut common.draw_params, na::one(), &common.meshes.floor);
