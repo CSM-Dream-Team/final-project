@@ -25,6 +25,8 @@ extern crate serde_json;
 
 use std::fs::{self, File};
 use std::boxed::FnBox;
+use std::collections::HashMap;
+use std::collections::hash_map::Entry;
 use std::time::Instant;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -135,27 +137,31 @@ fn main() {
     let (.., depth) = factory.create_depth_stencil(render_width as u16, render_height as u16).unwrap();
 
     let surface = factory.view_texture_as_render_target::<(R8_G8_B8_A8, Unorm)>(&tex, 0, None).unwrap();
-    let mut applications: Vec<(Box<App<_, _, _, _>>, _)> = vec![
-        (Box::new(halo::Halo::new(&mut factory).unwrap()),
-        PathBuf::from("states/halo.json")),
+    let mut applications: Vec<(_, Box<App<_, _, _, _>>, _)> = vec![
+        ("halo",
+         Box::new(halo::Halo::new(&mut factory).unwrap()),
+         PathBuf::from("states/halo.json")),
 
-        (Box::new(lets_get_physical::LetsGetPhysical::new(&mut factory).unwrap()),
-        PathBuf::from("states/lets_get_physical.json")),
+        ("lets_get_physical",
+         Box::new(lets_get_physical::LetsGetPhysical::new(&mut factory).unwrap()),
+         PathBuf::from("states/lets_get_physical.json")),
 
-        (Box::new(snowflakes::Snowflakes::new(&mut factory).unwrap()),
-        PathBuf::from("states/snowflakes.json")),
+        ("snowflakes",
+         Box::new(snowflakes::Snowflakes::new(&mut factory).unwrap()),
+         PathBuf::from("states/snowflakes.json")),
 
         // Box::new(workshop::Workshop::new()),
-        (Box::new(settings::Settings::new()),
-        PathBuf::from("states/settings.json")),
+        ("settings",
+         Box::new(settings::Settings::new()),
+         PathBuf::from("states/settings.json")),
     ];
 
     // Load from the applications
     fs::create_dir_all("states").unwrap();
     for app in applications.iter_mut() {
-        if let Ok(mut file) = File::open(app.1.clone()) {
+        if let Ok(mut file) = File::open(app.2.clone()) {
             let mut deserializer = Deserializer::new(IoRead::new(file));
-            app.0.de_state(&mut deserializer).unwrap();
+            app.1.de_state(&mut deserializer).unwrap();
         }
     }
 
@@ -170,7 +176,12 @@ fn main() {
 
     let mut meta = Meta {
         physics_speed: 1.,
+        active_apps: HashMap::new(),
     };
+    meta.active_apps.insert("halo".to_owned(), true);
+    meta.active_apps.insert("lets_get_physical".to_owned(), true);
+    meta.active_apps.insert("snowflakes".to_owned(), true);
+    meta.active_apps.insert("settings".to_owned(), true);
 
     if mock { window.show() }
 
@@ -258,7 +269,13 @@ fn main() {
         // Draw frame
         let mut common_reply;
         {
-            let futures: Vec<_> = applications.iter_mut().map(|app| app.0.update(&mut common)).collect();
+            let mut active_apps = common.meta.active_apps.clone();
+            let futures: Vec<_> = applications.iter_mut()
+                .filter(|app| match active_apps.entry(app.0.to_owned()){
+                    Entry::Occupied(e) => *e.get(),
+                    _ => false,
+                })
+                .map(|app| app.1.update(&mut common)).collect();
             let speed = common.meta.physics_speed;
             common_reply = common.resolve((dt * speed as f64).min(MAX_STEP) as f32);
             for f in futures {
@@ -295,8 +312,8 @@ fn main() {
     vrctx.stop();
 
     for app in applications.iter_mut() {
-        let mut file = File::create(&app.1).unwrap();
+        let mut file = File::create(&app.2).unwrap();
         let mut serializer = Serializer::new(file);
-        app.0.se_state(&mut serializer).unwrap();
+        app.1.se_state(&mut serializer).unwrap();
     }
 }

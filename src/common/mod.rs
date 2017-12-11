@@ -1,5 +1,6 @@
 pub mod gurus;
 
+use std::collections::HashMap;
 use std::path::Path;
 
 use gfx;
@@ -43,6 +44,7 @@ pub struct GuruReply {
 
 pub struct Meta {
     pub physics_speed: f32,
+    pub active_apps: HashMap<String, bool>,
 }
 
 pub struct Common<R: gfx::Resources, C: gfx::CommandBuffer<R>> {
