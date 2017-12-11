@@ -79,7 +79,7 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
         state.serialize(serializer)
     }
 
-    fn de_state(&mut self, deserializer: Deserializer<JsonRead<Re>>) -> Result<(), JsonError> {
+    fn de_state(&mut self, deserializer: &mut Deserializer<JsonRead<Re>>) -> Result<(), JsonError> {
         // TODO
         Ok(())
     }

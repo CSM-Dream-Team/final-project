@@ -19,5 +19,5 @@ pub trait App<R: gfx::Resources, C: gfx::CommandBuffer<R>, W: Write, Re: Read> {
     fn update<'a>(&'a mut self, common: &mut Common<R, C>) -> Box<FnBox(&mut CommonReply<R, C>) + 'a>;
 
     fn se_state(&self, serializer: &mut Serializer<W>) -> Result<<&mut Serializer<W> as serde::Serializer>::Ok, Error>;
-    fn de_state(&mut self, deserializer: Deserializer<JsonRead<Re>>) -> Result<(), Error>;
+    fn de_state(&mut self, deserializer: &mut Deserializer<JsonRead<Re>>) -> Result<(), Error>;
 }

@@ -144,7 +144,7 @@ fn main() {
     for app in applications.iter_mut() {
         let mut file = File::open(app.1.clone()).unwrap();
         let mut deserializer = Deserializer::new(IoRead::new(file));
-        app.0.de_state(deserializer).unwrap();
+        app.0.de_state(&mut deserializer).unwrap();
     }
 
     // setup context

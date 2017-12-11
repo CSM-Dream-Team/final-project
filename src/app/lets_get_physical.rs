@@ -22,7 +22,6 @@ use common::gurus::interact::GrabbablePhysicsState;
 pub struct LetsGetPhysical<R: gfx::Resources> {
     mjolnir: PbrMesh<R>,
     grabbable_state: GrabbablePhysicsState,
-    save_state: LetsGetPhysicalState,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -45,7 +44,6 @@ impl<R: gfx::Resources> LetsGetPhysical<R> {
         Ok(LetsGetPhysical {
             mjolnir: load::object_directory(factory, "assets/hammer/")?,
             grabbable_state: GrabbablePhysicsState::new_free(mjolnir_body),
-            save_state: LetsGetPhysicalState { location: location },
         })
     }
 }
@@ -55,11 +53,16 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
     fn se_state(&self,
                 serializer: &mut Serializer<W>)
                 -> Result<<&mut Serializer<W> as serde::Serializer>::Ok, JsonError> {
-        self.save_state.serialize(serializer)
+        let state = LetsGetPhysicalState {
+            location: *self.grabbable_state.body.position(),
+        };
+        state.serialize(serializer)
     }
 
-    fn de_state(&mut self, deserializer: Deserializer<JsonRead<Re>>) -> Result<(), JsonError> {
-        self.save_state.deserialize(deserializer)
+    fn de_state(&mut self, deserializer: &mut Deserializer<JsonRead<Re>>) -> Result<(), JsonError> {
+        let state = LetsGetPhysicalState::deserialize(deserializer)?;
+        self.grabbable_state.body.set_transformation(state.location);
+        Ok(())
     }
 
     fn update<'b>(&'b mut self,
