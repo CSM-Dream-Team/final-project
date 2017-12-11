@@ -298,7 +298,6 @@ pub enum Moveable {
     },
     Yanked {
         progress: f32,
-        start: Isometry3<f32>,
         index: ControllerIndex,
     },
     Free,
@@ -347,7 +346,7 @@ impl Moveable {
         use self::Moveable::*;
         use self::MoveableIntention as Mi;
 
-        let solid = match self { 
+        let solid = match self {
             &mut Free => true,
             &mut Yanked { index, ..} | &mut Grabbed { index, .. } => {
                 index.guru(interact).block();
@@ -375,7 +374,6 @@ impl Moveable {
                             *self = Yanked {
                                 index: ind,
                                 progress: 0.,
-                                start: pos,
                             };
                             break
                         }
@@ -389,13 +387,12 @@ impl Moveable {
                         }
                     }
                 },
-                &mut Yanked { progress, index, start } => {
+                &mut Yanked { progress, index } => {
                     if progress + d_yank > 1. && !index.reply(reply).data.menu {
                         *self = Free;
                     } else {
                         *self = Yanked {
                             progress: (progress + d_yank).min(1.),
-                            start: start,
                             index: index,
                         };
                     }

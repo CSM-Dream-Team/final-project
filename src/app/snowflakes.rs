@@ -120,15 +120,15 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
             common.gurus.physics.body(body);
 
             (&[ControllerIndex::primary(), ControllerIndex::secondary()]).iter()
-                .map(|&index| {
+                .filter_map(|&index| {
                     let con = index.guru(&mut common.gurus.interact);
-                    (
+                    if con.data.menu { Some((
                         index,
                         con.pointing_laser(
                             &Isometry3::from_parts(loc, na::one()),
                             &snowman_shape,
                             true),
-                    )
+                    )) } else { None }
                 }).collect::<Vec<_>>()
         }).collect::<Vec<_>>();
 
@@ -166,7 +166,6 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
                         body,
                         mov: Moveable::Yanked {
                             progress: 0.,
-                            start: na::one(),
                             index: index,
                         },
                     })
@@ -174,9 +173,6 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
             for block in futures {
                 block(r, snow_block);
             }
-            r.painters.pbr.draw(&mut r.draw_params,
-                                na::convert(r.reply.interact.secondary.data.pose),
-                                snow_block);
         })
     }
 }
