@@ -129,7 +129,7 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
             .enumerate()
             .map(|(i, s)| {
                 // TODO: this doesn't work with alternate gravity
-                if s.0.body.position().translation.vector.y < 10. {
+                if s.0.body.position().translation.vector.y < -10. {
                     remove_blocks.push(i);
                 }
                 s.update(common)

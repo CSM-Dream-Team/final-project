@@ -74,7 +74,7 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
                   -> Box<FnBox(&mut CommonReply<R, C>) + 'b> {
         // Reset if you throw it off the platform.
         // TODO: this doesn't work with alternate gravity
-        if self.grabbable_state.body.position().translation.vector.y < 10. {
+        if self.grabbable_state.body.position().translation.vector.y < -10. {
             self.grabbable_state = spawn_mjolnir();
         }
 

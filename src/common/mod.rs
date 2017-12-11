@@ -87,7 +87,7 @@ impl<R: gfx::Resources> Meshes<R> {
                 "assets/controller.obj",
                 [0x80, 0x80, 0xFF, 0xFF])?,
             grid_lines: grid_lines(8, Vector3::new(8., 8., 8.)).upload(factory),
-            floor: plane(3.)
+            floor: plane(2.5)
                 .with_tex(Point2::new(0., 0.))
                 .compute_tan()
                 .with_material(PbrMaterial {
