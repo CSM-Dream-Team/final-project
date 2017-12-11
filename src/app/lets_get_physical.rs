@@ -79,7 +79,8 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
         }
 
         let gp = self.grabbable_state.update(&mut common.gurus.interact,
-                                             &mut common.gurus.physics);
+                                             &mut common.gurus.physics,
+                                             0.2 / common.meta.physics_speed);
 
         let mjolnir = &self.mjolnir;
         Box::new(move |r: &mut CommonReply<R, C>| {

@@ -24,10 +24,11 @@ pub struct Snowblock(GrabbablePhysicsState);
 impl Snowblock {
     fn update<'a, R: gfx::Resources, C: gfx::CommandBuffer<R> + 'static>
         (&'a mut self,
-         common: &mut Common<R, C>)
+         common: &mut Common<R, C>, yank_speed: f32)
          -> impl FnOnce(&mut CommonReply<R, C>, &PbrMesh<R>) + 'a {
         let gp = self.0.update(&mut common.gurus.interact,
-                               &mut common.gurus.physics);
+                               &mut common.gurus.physics,
+                               yank_speed);
         move |reply, mesh| {
             let pos = gp(reply);
             reply.painters.pbr.draw(&mut reply.draw_params, na::convert(pos), mesh);
@@ -132,7 +133,8 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
                 if s.0.body.position().translation.vector.y < -10. {
                     remove_blocks.push(i);
                 }
-                s.update(common)
+                let yank_speed = 0.2 / common.meta.physics_speed;
+                s.update(common, yank_speed)
             })
             .collect();
 

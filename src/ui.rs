@@ -56,6 +56,7 @@ impl Slider {
                     &Vector3::new(0., 1., 0.),
                 ).unwrap(),
             ),
+            0.2,
         );
 
 

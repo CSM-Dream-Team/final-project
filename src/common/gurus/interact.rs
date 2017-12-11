@@ -282,7 +282,6 @@ pub struct ControllerReply {
     can_touch: bool,
 }
 
-pub const YANK_SPEED: f32 = 0.2;
 pub const YANK_DIFFICULTY: f32 = 1.0;
 
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
@@ -340,6 +339,7 @@ impl Moveable {
         pos: Isometry3<f32>,
         shape: &Shape<Point3<f32>, Isometry3<f32>>,
         inv_yank_offset: Isometry3<f32>,
+        yank_speed: f32,
     )
         -> impl FnOnce(&InteractionReply)
         -> MoveData + 'a
@@ -361,7 +361,7 @@ impl Moveable {
                 (con, guru.pointing_laser(&pos, shape, solid), guru.touched(&pos, shape))
             }).collect();
 
-        let d_yank = interact.dt as f32 / YANK_SPEED;
+        let d_yank = interact.dt as f32 / yank_speed;
 
         move |reply| {
             match self {
@@ -553,7 +553,8 @@ impl GrabbablePhysicsState {
     pub fn update<'a, R: gfx::Resources, C: gfx::CommandBuffer<R>>(
         &'a mut self,
         interact: &mut InteractGuru,
-        physics: &mut PhysicsGuru)
+        physics: &mut PhysicsGuru,
+        yank_speed: f32)
         -> impl FnOnce(&mut CommonReply<R, C>)
         -> Isometry3<f32> + 'a
     {
@@ -563,6 +564,7 @@ impl GrabbablePhysicsState {
             *self.body.position(),
             self.body.shape().as_ref(),
             Isometry3::identity(),
+            yank_speed,
         );
 
         let body = &mut self.body;
