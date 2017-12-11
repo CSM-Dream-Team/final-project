@@ -6,7 +6,7 @@ use serde_json::{Deserializer, Serializer, Error as JsonError};
 use serde_json::de::IoRead as JsonRead;
 
 use nalgebra::{self as na, Vector3, Similarity3, Isometry3, Translation3, UnitQuaternion};
-use ncollide::shape::{ShapeHandle, Cuboid, Cylinder};
+use ncollide::shape::{Cuboid, Cylinder};
 use nphysics3d::object::RigidBody;
 
 // Flight
@@ -37,7 +37,7 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
         state.serialize(serializer)
     }
 
-    fn de_state(&mut self, deserializer: &mut Deserializer<JsonRead<Re>>) -> Result<(), JsonError> {
+    fn de_state(&mut self, _deserializer: &mut Deserializer<JsonRead<Re>>) -> Result<(), JsonError> {
         // TODO
         Ok(())
     }
@@ -79,6 +79,16 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
                     0.5
                 )
             ), &self.halo_mesh);
+
+            for con in &[&r.reply.interact.primary, &r.reply.interact.secondary] {
+                r.painters.solid.draw(&mut r.draw_params, na::convert(
+                    Similarity3::from_isometry(
+                        con.data.pose,
+                        con.laser_toi.max(0.01).min(10.),
+                    )
+                ), if con.laser_toi == ::std::f32::INFINITY { &r.meshes.blue_ray } else { &r.meshes.red_ray });
+
+            }
         })
     }
 }

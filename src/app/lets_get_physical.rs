@@ -78,7 +78,7 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
             self.grabbable_state = spawn_mjolnir();
         }
 
-        let gp = self.grabbable_state.update(&mut common.gurus.interact.primary,
+        let gp = self.grabbable_state.update(&mut common.gurus.interact,
                                              &mut common.gurus.physics);
 
         let mjolnir = &self.mjolnir;

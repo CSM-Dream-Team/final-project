@@ -43,9 +43,9 @@ impl Settings {
                 1.,
             ),
             length: Slider::new(Isometry3::from_parts(
-                    Translation3::new(0., 1.5, 0.),
+                    Translation3::new(0.5, 1.5, -0.5),
                     UnitQuaternion::rotation_between(
-                        &Vector3::new(0., 0.5, 1.),
+                        &Vector3::new(0., 0., 1.),
                         &Vector3::new(1., 1., 1.),
                     ).unwrap(),
                 ),
@@ -85,8 +85,8 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
                   common: &mut Common<R, C>)
                   -> Box<FnBox(&mut CommonReply<R, C>) + 'b> {
         self.speed.length = 0.2 + 0.6 * self.length.value;
-        let speed = self.speed.update(&mut common.gurus.interact.primary);
-        let length = self.length.update(&mut common.gurus.interact.primary);
+        let speed = self.speed.update(&mut common.gurus.interact);
+        let length = self.length.update(&mut common.gurus.interact);
 
         Box::new(move |r: &mut CommonReply<_, _>| {
             r.meta.physics_speed = speed(r);

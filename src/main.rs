@@ -242,7 +242,7 @@ fn main() {
         let mut common = Common {
             draw_params: ctx,
             gurus: Gurus {
-                interact: interact::InteractGuru::new(&primary, &secondary),
+                interact: interact::InteractGuru::new(&primary, &secondary, dt),
                 physics: physics::PhysicsGuru::new(Vector3::new(0., -5., 0.)),
             },
             meshes,
