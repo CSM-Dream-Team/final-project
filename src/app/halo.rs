@@ -83,7 +83,7 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
         // Setup toggle futures
         let toggles = vec![
             ("lets_get_physical", Translation3::new(2., 1., 0.)),
-            ("snowflakes", Translation3::new(-2., 1., 0.)),
+            ("snowflakes", Translation3::new(0., 1., 2.)),
         ];
         let toggle_box_shape = Cuboid::new(Vector3::new(0.25, 0.25, 0.25));
         let toggle_futures: Vec<_> = toggles.into_iter().flat_map(|(app, trans)| {
@@ -108,14 +108,13 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
                 let con = i.reply(&r.reply.interact);
                 if f(&r.reply.interact).is_some() && con.data.trigger > 0.5 &&
                     con.data.trigger - con.data.trigger_delta < 0.5 {
-                    let current_value = match r.meta.active_apps.get_mut(app) {
+                    match r.meta.active_apps.get_mut(app) {
                         Some(v) => {
                             *v = !*v;
                             *v
                         },
                         None => false,
                     };
-                    println!("{}: {}", app, current_value);
                 }
             }
 
