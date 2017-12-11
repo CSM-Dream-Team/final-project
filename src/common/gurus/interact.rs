@@ -347,11 +347,12 @@ impl Moveable {
         use self::Moveable::*;
         use self::MoveableIntention as Mi;
 
+        let solid = if let &mut Moveable::Free = self { true } else { false };
         let cons: Vec<_> = (&[ControllerIndex::primary(), ControllerIndex::secondary()])
             .into_iter()
             .map(|&con| {
                 let guru = con.guru(interact);
-                (con, guru.pointing_laser(&pos, shape, true), guru.touched(&pos, shape))
+                (con, guru.pointing_laser(&pos, shape, solid), guru.touched(&pos, shape))
             }).collect();
 
         let d_yank = interact.dt as f32 / YANK_SPEED;
@@ -462,6 +463,7 @@ impl Moveable {
 
 /// Represents something being grabbed
 #[derive(Clone)]
+#[deprecated(note="Please use 'Moveable'")]
 pub enum GrabableState {
     Held {
         offset: Isometry3<f32>,
@@ -472,12 +474,14 @@ pub enum GrabableState {
     Free,
 }
 
+#[allow(deprecated)]
 impl Default for GrabableState {
     fn default() -> Self {
         GrabableState::Free
     }
 }
 
+#[allow(deprecated)]
 impl GrabableState {
     pub fn update(
             &self,
@@ -529,51 +533,42 @@ impl GrabableState {
 /// Represents something being grabbed
 #[derive(Clone)]
 pub struct GrabbablePhysicsState {
-    pub grab: GrabableState,
+    pub mov: Moveable,
     pub body: RigidBody<f32>,
 }
 
 impl GrabbablePhysicsState {
     pub fn new_free(body: RigidBody<f32>) -> Self {
-        GrabbablePhysicsState { grab: Default::default(), body }
-    }
-
-    pub fn new(mut body: RigidBody<f32>, grab: GrabableState, con: &MappedController) -> Self {
-        if let GrabableState::Held { offset, lin_vel, ang_vel } = grab {
-            body.set_transformation(con.pose * offset);
-            body.set_lin_vel(lin_vel);
-            body.set_ang_vel(ang_vel);
-        }
-        GrabbablePhysicsState { grab, body }
+        GrabbablePhysicsState { mov: Default::default(), body }
     }
 
     pub fn update<'a, R: gfx::Resources, C: gfx::CommandBuffer<R>>(
         &'a mut self,
-        interact: &mut ControllerGuru,
+        interact: &mut InteractGuru,
         physics: &mut PhysicsGuru)
         -> impl FnOnce(&mut CommonReply<R, C>)
         -> Isometry3<f32> + 'a
     {
         let phys = physics.body(self.body.clone());
-        let grab = self.grab.update(
+        let mov = self.mov.update(
             interact,
             *self.body.position(),
-            self.body.shape().as_ref());
+            self.body.shape().as_ref(),
+            Isometry3::identity(),
+        );
 
+        let body = &mut self.body;
         move |reply| {
-            self.grab = grab(&reply.reply.interact);
-            self.body = phys(&reply.reply.physics);
-            use self::GrabableState::*;
-            match self.grab {
-                Held { offset, lin_vel, ang_vel } => {
-                    let position = reply.reply.interact.primary.data.pose * offset;
-                    self.body.set_transformation(position);
-                    self.body.set_lin_vel(lin_vel);
-                    self.body.set_ang_vel(ang_vel);
-
-                    position
+            let mov_data = mov(&reply.reply.interact);
+            *body = phys(&reply.reply.physics);
+            match mov_data.fixed {
+                Some(Fixed { pos, lin_vel, ang_vel, .. }) => {
+                    body.set_transformation(pos);
+                    body.set_lin_vel(lin_vel);
+                    body.set_ang_vel(ang_vel);
+                    pos
                 }
-                Free | Pointed => *self.body.position(),
+                None => *body.position(),
             }
         }
     }

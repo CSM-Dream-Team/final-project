@@ -23,7 +23,7 @@ impl Snowblock {
         -> impl FnOnce(&mut CommonReply<R, C>, &PbrMesh<R>) + 'a
     {
         let gp = self.0.update(
-            &mut common.gurus.interact.primary,
+            &mut common.gurus.interact,
             &mut common.gurus.physics,
         );
         move |reply, mesh| {
@@ -79,7 +79,7 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static> App<R, C> 
                 g @ Held { .. } => new_blocks.push({
                     let mut body = RigidBody::new_dynamic(block_shape, 100., 0.0, 0.8);
                     body.set_margin(0.00001);
-                    Snowblock(GrabbablePhysicsState::new(body, g, &r.reply.interact.primary.data))
+                    Snowblock(GrabbablePhysicsState::new_free(body))
                 }),
                 _ => (),
             }

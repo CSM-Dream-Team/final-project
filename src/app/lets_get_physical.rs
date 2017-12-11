@@ -49,7 +49,7 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static> App<R, C> 
         -> Box<FnBox(&mut CommonReply<R, C>) + 'a>
     {
         let gp = self.grabbable_state.update(
-            &mut common.gurus.interact.primary,
+            &mut common.gurus.interact,
             &mut common.gurus.physics,
         );
 
