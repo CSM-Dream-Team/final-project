@@ -5,7 +5,7 @@ use serde::{self, Serialize, Deserialize};
 use serde_json::{Deserializer, Serializer, Error as JsonError};
 use serde_json::de::IoRead as JsonRead;
 
-use nalgebra::{self as na, Vector3, Isometry3};
+use nalgebra::{self as na, Vector3, Isometry3, Translation3};
 use ncollide::shape::Cuboid;
 use nphysics3d::object::RigidBody;
 
@@ -86,8 +86,19 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
     fn update<'b>(&'b mut self,
                   common: &mut Common<R, C>)
                   -> Box<FnBox(&mut CommonReply<R, C>) + 'b> {
+        // Add the old blocks
         self.blocks.append(&mut self.new_blocks);
 
+        // Render the snowmen
+        let snowmen_locations = vec![Translation3::new(2., 0., 2.),
+                                     Translation3::new(-2., 0., 2.),
+                                     Translation3::new(-2., 0., -2.),
+                                     Translation3::new(2., 0., -2.)];
+        for loc in snowmen_locations {
+            common.painters.pbr.draw(&mut common.draw_params, na::convert(loc), &self.snowman);
+        }
+
+        // Setup blocks & futures
         let block_shape = Cuboid::new(Vector3::new(0.15, 0.15, 0.3));
         let add_future = GrabableState::default().update(&mut common.gurus.interact.primary,
                                                          common.gurus.interact.secondary.data.pose,
@@ -98,6 +109,7 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
             .map(|s| s.update(common))
             .collect();
 
+        // Render snow blocks
         let snow_block = &self.snow_block;
         let new_blocks = &mut self.new_blocks;
         Box::new(move |r: &mut CommonReply<R, C>| {

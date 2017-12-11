@@ -27,6 +27,8 @@ use std::fs::File;
 use std::boxed::FnBox;
 use std::time::Instant;
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 
 use simplelog::{Config, TermLogger, LogLevelFilter};
 use clap::Arg;
@@ -74,6 +76,13 @@ fn main() {
              .help("Use mock VR API"))
         .get_matches();
     let mock = matches.is_present("mock");
+
+    // Handle Ctrl+C
+    let running = Arc::new(AtomicBool::new(true));
+    let r = running.clone();
+    ctrlc::set_handler(move || {
+        r.store(false, Ordering::SeqCst);
+    }).expect("Error setting Ctrl-C handler");
 
     // VR init
     let mut vrctx = match if mock { VrContext::mock() } else { VrContext::new() } {
@@ -150,15 +159,6 @@ fn main() {
         }
     }
 
-    // Handle Ctrl+C
-    ctrlc::set_handler(move || {
-        for app in applications.iter_mut() {
-            let mut file = File::open(&app.1).unwrap();
-            let mut serializer = Serializer::new(file);
-            app.0.se_state(&mut serializer).unwrap();
-        }
-    }).expect("Error setting Ctrl-C handler");
-
     // setup context
     let mut ctx = draw::DrawParams {
         encoder: factory.create_command_buffer().into(),
@@ -209,9 +209,8 @@ fn main() {
 
     // Main loop
     vrctx.start();
-    let mut running = true;
     let mut last_time: Option<Instant> = None;
-    while running {
+    while running.load(Ordering::SeqCst) {
         // Calculate dt
         let dt = if let Some(last) = last_time {
             let elapsed = last.elapsed();
@@ -235,7 +234,7 @@ fn main() {
         }
 
         // Update context
-        running = !moment.exit;
+        running.store(false, Ordering::SeqCst);
         ctx.left = hmd.left;
         ctx.right = hmd.right;
 
@@ -288,7 +287,7 @@ fn main() {
             match event {
                 // process events here
                 glutin::Event::WindowEvent { event: glutin::WindowEvent::Closed, .. } =>
-                    running = false,
+                    running.store(false, Ordering::SeqCst),
                 _ => ()
             }
         });
