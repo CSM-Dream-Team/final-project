@@ -18,6 +18,7 @@ use gfx;
 use app::App;
 
 use common::{Common, CommonReply, Meta};
+use interact::ControllerIndex;
 
 pub struct Halo<R: gfx::Resources> {
     halo_mesh: PbrMesh<R>,
@@ -84,37 +85,37 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
             ("lets_get_physical", Translation3::new(2., 1., 0.)),
             ("snowflakes", Translation3::new(-2., 1., 0.)),
         ];
-        let toggle_box_shape = Cuboid::new(Vector3::new(0.5, 0.5, 0.5));
+        let toggle_box_shape = Cuboid::new(Vector3::new(0.25, 0.25, 0.25));
         let toggle_futures: Vec<_> = toggles.into_iter().flat_map(|(app, trans)| {
             // Draw the toggles
-            let quat = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 0.);
             common.painters.solid.draw(&mut common.draw_params,
-                                       na::convert(Similarity3::from_parts(trans, quat, 0.5)),
+                                       na::convert(Similarity3::from_parts(trans, na::one(), 0.5)),
                                        &common.meshes.wire_box);
 
             // Return the future
-            vec![
-                (app,
-                 common.gurus.interact.primary.pointing_laser(&Isometry3::from_parts(trans, na::one()),
-                                                              &toggle_box_shape, true)),
-                (app,
-                 common.gurus.interact.secondary.pointing_laser(&Isometry3::from_parts(trans, na::one()),
-                                                                &toggle_box_shape, true))
-            ]
+            (&[ControllerIndex::primary(), ControllerIndex::secondary()]).into_iter().map(|&idx| {
+                (app, idx,
+                 idx.guru(&mut common.gurus.interact).pointing_laser(&Isometry3::from_parts(trans, na::one()),
+                                                                     &toggle_box_shape, true))
+            }).collect::<Vec<_>>()
         }).collect();
 
         Box::new(move |r: &mut CommonReply<_, _>| {
             let _torus = torus(&r.reply.interact);
 
             // Do the toggles
-            for (app, f) in toggle_futures.into_iter() {
-                if f(&r.reply.interact).is_some() {
-                    let current_value = match r.meta.active_apps.get(app) {
-                        Some(v) => *v,
+            for (app, i, f) in toggle_futures.into_iter() {
+                let con = i.reply(&r.reply.interact);
+                if f(&r.reply.interact).is_some() && con.data.trigger > 0.5 &&
+                    con.data.trigger - con.data.trigger_delta < 0.5 {
+                    let current_value = match r.meta.active_apps.get_mut(app) {
+                        Some(v) => {
+                            *v = !*v;
+                            *v
+                        },
                         None => false,
                     };
                     println!("{}: {}", app, current_value);
-                    r.meta.active_apps.entry(app.to_owned()).or_insert(!current_value);
                 }
             }
 
