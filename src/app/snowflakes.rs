@@ -63,12 +63,23 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
     fn se_state(&self,
                 serializer: &mut Serializer<W>)
                 -> Result<<&mut Serializer<W> as serde::Serializer>::Ok, JsonError> {
-        let state = SnowflakeState { block_locations: Vec::new() };
+        let block_locations = self.blocks.iter().map(|b| *b.0.body.position()).collect();
+        let state = SnowflakeState { block_locations: block_locations };
         state.serialize(serializer)
     }
 
     fn de_state(&mut self, deserializer: &mut Deserializer<JsonRead<Re>>) -> Result<(), JsonError> {
-        // TODO
+        // Clear all of the current state
+        self.blocks.clear();
+
+        // Read in the new block locations
+        let state = SnowflakeState::deserialize(deserializer)?;
+        self.new_blocks = state.block_locations.iter().map(|l| {
+            let block_shape = Cuboid::new(Vector3::new(0.15, 0.15, 0.3));
+            let mut body = RigidBody::new_dynamic(block_shape, 100., 0.0, 0.8);
+            body.set_transformation(*l);
+            Snowblock(GrabbablePhysicsState::new_free(body))
+        }).collect();
         Ok(())
     }
 

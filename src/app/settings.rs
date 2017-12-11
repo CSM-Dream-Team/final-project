@@ -63,24 +63,21 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
     fn se_state(&self,
                 serializer: &mut Serializer<W>)
                 -> Result<<&mut Serializer<W> as serde::Serializer>::Ok, JsonError> {
-        let translation = Translation3::new(0., 1.5, 0.);
-        let speed_quaternion = UnitQuaternion::rotation_between(&Vector3::new(0., 0., 1.),
-                                                                &Vector3::new(1., 1., 1.));
-
-        let length_quaternion = UnitQuaternion::rotation_between(&Vector3::new(0., 0.5, 1.),
-                                                                 &Vector3::new(1., 1., 1.));
-
         let state = SettingsState {
             speed: self.speed.value,
             length: self.length.value,
-            speed_slider_pos: Isometry3::from_parts(translation, speed_quaternion.unwrap()),
-            length_slider_pos: Isometry3::from_parts(translation, length_quaternion.unwrap()),
+            speed_slider_pos: self.speed.position,
+            length_slider_pos: self.length.position,
         };
         state.serialize(serializer)
     }
 
     fn de_state(&mut self, deserializer: &mut Deserializer<JsonRead<Re>>) -> Result<(), JsonError> {
-        // TODO
+        let state = SettingsState::deserialize(deserializer)?;
+        self.speed.value = state.speed;
+        self.length.value = state.length;
+        self.speed.position = state.speed_slider_pos;
+        self.length.position = state.length_slider_pos;
         Ok(())
     }
 
