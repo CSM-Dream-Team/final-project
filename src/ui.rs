@@ -1,6 +1,6 @@
 use interact::{InteractGuru, Moveable, MoveableIntention};
 use common::CommonReply;
-use nalgebra::{Matrix4, Vector4, Isometry3, Vector3, Translation3, Transform3};
+use nalgebra::{Matrix4, Vector4, Isometry3, Vector3, Translation3, Transform3, UnitQuaternion};
 use ncollide::shape::{Cuboid};
 use gfx;
 
@@ -49,9 +49,14 @@ impl Slider {
             interact,
             self.position,
             &Cuboid::new(scaled),
-            Isometry3::identity(),
+            Isometry3::from_parts(
+                Translation3::new(0., 0., -self.thickness / 2.),
+                UnitQuaternion::rotation_between(
+                    &Vector3::new(0., 0., 1.),
+                    &Vector3::new(0., 1., 0.),
+                ).unwrap(),
+            ),
         );
-        let inv = self.position.inverse();
 
 
         let mode = &mut self.mode;
@@ -69,12 +74,11 @@ impl Slider {
             if let Some(fix) = mov_data.fixed {
                 if mov_data.intent == MoveableIntention::Manipulate {
 
-                    let next_pos = (inv * fix.location())[2];
+                    let next_pos = fix.inv_offset.inverse().translation.vector[2];
                     let slider_r = manip_length / 2.;
                     let next_val = ((next_pos / true_len) + 0.5).max(0.).min(1.);
                     let current_pos = (*value - 0.5) * true_len;
 
-                    println!("c: {:0.3} n: {:0.3}", current_pos, next_pos);
                     match (*mode, (current_pos - next_pos).abs() < slider_r) {
                         (Unheld, true) => *mode = Sliding,
                         (Unheld, false) => *mode = Moving,

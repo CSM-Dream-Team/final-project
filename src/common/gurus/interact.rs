@@ -125,7 +125,7 @@ impl ControllerGuru {
 
     /// Update the length of controller's visual laser line.
     pub fn laser_toi(&mut self, toi: f32) {
-        self.laser_toi = self.laser_toi.min(toi);
+        if toi >= 0. { self.laser_toi = self.laser_toi.min(toi); }
     }
 
     /// Use to get reply object
@@ -295,7 +295,6 @@ pub enum MoveableIntention {
 #[derive(Debug, Clone)]
 pub enum Moveable {
     Grabbed {
-        inv_offset: Isometry3<f32>,
         index: ControllerIndex,
     },
     Yanked {
@@ -323,6 +322,7 @@ pub struct MoveData {
 pub struct Fixed {
     pub by: ControllerIndex,
     pub pos: Isometry3<f32>,
+    pub inv_offset: Isometry3<f32>,
     pub lin_vel: Vector3<f32>,
     pub ang_vel: Vector3<f32>,
 }
@@ -376,7 +376,6 @@ impl Moveable {
                             if touched {
                                 *self = Grabbed {
                                     index: ind,
-                                    inv_offset: con.data.pose.inverse() * pos,
                                 };
                                 break
                             }
@@ -384,11 +383,11 @@ impl Moveable {
                     }
                 },
                 &mut Yanked { progress, index, start } => {
-                    if progress + d_yank > 1. {
+                    if progress + d_yank > 1. && !index.reply(reply).data.menu {
                         *self = Free;
                     } else {
                         *self = Yanked {
-                            progress: progress + d_yank,
+                            progress: (progress + d_yank).min(1.),
                             start: start,
                             index: index,
                         };
@@ -401,8 +400,9 @@ impl Moveable {
                 },
             };
             match self {
-                &mut Grabbed { index, inv_offset } => {
+                &mut Grabbed { index } => {
                     let con = index.reply(reply);
+                    let inv_offset = con.data.pose.inverse() * pos; // TODO: Do we have to invert?
                     let ang_vel = con.data.ang_vel;
                     let mut lin_vel = con.data.lin_vel;
                     lin_vel += ang_vel.cross(&inv_offset.translation.vector);
@@ -411,7 +411,8 @@ impl Moveable {
                         intent: Mi::Manipulate,
                         fixed: Some(Fixed {
                             by: index,
-                            pos: con.data.pose() * inv_offset,
+                            pos: con.data.pose_delta * pos,
+                            inv_offset: inv_offset,
                             lin_vel: lin_vel,
                             ang_vel: ang_vel,
                         }),
@@ -419,15 +420,20 @@ impl Moveable {
                 },
                 &mut Yanked { progress, index, .. } => {
                     let con = index.reply(reply);
+
+                    let next = if progress < 1. {
                     let mut dp = d_yank / (1. - progress + d_yank);
-                    dp = dp.min(1.).max(0.);
-                    let dest = con.data.pose() * inv_yank_offset;
-                    let next = Isometry3::from_parts(
-                        Translation3::from_vector(
-                            pos.translation.vector * (1. - dp) + dest.translation.vector * dp
-                        ),
-                        pos.rotation.slerp(&dest.rotation, dp),
-                    );
+                        dp = dp.min(1.).max(0.);
+                        let dest = con.data.pose() * inv_yank_offset;
+                        Isometry3::from_parts(
+                            Translation3::from_vector(
+                                pos.translation.vector * (1. - dp) + dest.translation.vector * dp
+                            ),
+                            pos.rotation.slerp(&dest.rotation, dp),
+                        )
+                    } else {
+                        con.data.pose() * inv_yank_offset
+                    };
 
                     let delta = pos.inverse() * next;
                     let lin_vel = delta.translation.vector / con.data.dt as f32;
@@ -438,6 +444,7 @@ impl Moveable {
                         fixed: Some(Fixed {
                             by: index,
                             pos: next,
+                            inv_offset: con.data.pose.inverse() * pos,
                             lin_vel: lin_vel,
                             ang_vel: ang_vel,
                         }),

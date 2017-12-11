@@ -58,6 +58,16 @@ impl<R: gfx::Resources, C: gfx::CommandBuffer<R>> App<R, C> for Halo<R> {
                     0.5
                 )
             ), &self.halo_mesh);
+
+            for con in &[&r.reply.interact.primary, &r.reply.interact.secondary] {
+                r.painters.solid.draw(&mut r.draw_params, na::convert(
+                    Similarity3::from_isometry(
+                        con.data.pose,
+                        con.laser_toi.max(0.01).min(10.),
+                    )
+                ), if con.laser_toi == ::std::f32::INFINITY { &r.meshes.blue_ray } else { &r.meshes.red_ray });
+
+            }
         })
     }
 }
