@@ -5,29 +5,41 @@
 extern crate log;
 extern crate simplelog;
 extern crate clap;
+
 extern crate flight;
-extern crate gfx;
+
 extern crate nalgebra;
 extern crate ncollide;
 extern crate nphysics3d;
+
 extern crate glutin;
+extern crate gfx;
 extern crate gfx_device_gl;
 extern crate gfx_window_glutin;
+
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
 
+use std::fs::File;
 use std::boxed::FnBox;
 use std::time::Instant;
+use std::path::PathBuf;
+
 use simplelog::{Config, TermLogger, LogLevelFilter};
 use clap::Arg;
+
 use gfx::{handle, Factory, texture, Device};
 use gfx::format::*;
 use gfx_device_gl::{NewTexture};
 use gfx::memory::Typed;
 use glutin::GlContext;
+
 use nalgebra::{Vector3, Point3};
+
+use serde_json::{Serializer, Deserializer};
+use serde_json::de::{IoRead};
 
 use flight::{draw, Light};
 use flight::vr::*;
@@ -114,14 +126,26 @@ fn main() {
     let (.., depth) = factory.create_depth_stencil(render_width as u16, render_height as u16).unwrap();
 
     let surface = factory.view_texture_as_render_target::<(R8_G8_B8_A8, Unorm)>(&tex, 0, None).unwrap();
-    let mut applications: Vec<Box<App<_, _>>> = vec![
-        Box::new(halo::Halo::new(&mut factory).unwrap()),
-        // Box::new(home::Home::new()),
-        Box::new(lets_get_physical::LetsGetPhysical::new(&mut factory).unwrap()),
-        Box::new(snowflakes::Snowflakes::new(&mut factory).unwrap()),
+    let mut applications: Vec<(Box<App<_, _, _, _>>, _)> = vec![
+        (Box::new(halo::Halo::new(&mut factory).unwrap()),
+        PathBuf::from("states/halo.json")),
+
+        (Box::new(lets_get_physical::LetsGetPhysical::new(&mut factory).unwrap()),
+        PathBuf::from("states/lets_get_physical.json")),
+
+        (Box::new(snowflakes::Snowflakes::new(&mut factory).unwrap()),
+        PathBuf::from("states/snowflakes.json")),
+
         // Box::new(workshop::Workshop::new()),
-        Box::new(settings::Settings::new()),
+        (Box::new(settings::Settings::new()),
+        PathBuf::from("states/settings.json")),
     ];
+
+    for app in applications.iter_mut() {
+        let mut file = File::open(app.1.clone()).unwrap();
+        let mut deserializer = Deserializer::new(IoRead::new(file));
+        app.0.de_state(deserializer).unwrap();
+    }
 
     // setup context
     let mut ctx = draw::DrawParams {
@@ -223,7 +247,7 @@ fn main() {
         // Draw frame
         let mut common_reply;
         {
-            let futures: Vec<_> = applications.iter_mut().map(|app| app.update(&mut common)).collect();
+            let futures: Vec<_> = applications.iter_mut().map(|app| app.0.update(&mut common)).collect();
             let speed = common.meta.physics_speed;
             common_reply = common.resolve((dt * speed as f64).min(MAX_STEP) as f32);
             for f in futures {
@@ -258,4 +282,10 @@ fn main() {
         });
     }
     vrctx.stop();
+
+    for app in applications.iter_mut() {
+        let mut file = File::open(&app.1).unwrap();
+        let mut serializer = Serializer::new(file);
+        app.0.se_state(&mut serializer).unwrap();
+    }
 }
