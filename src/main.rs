@@ -156,15 +156,6 @@ fn main() {
          PathBuf::from("states/settings.json")),
     ];
 
-    // Load from the applications
-    fs::create_dir_all("states").unwrap();
-    for app in applications.iter_mut() {
-        if let Ok(mut file) = File::open(app.2.clone()) {
-            let mut deserializer = Deserializer::new(IoRead::new(file));
-            app.1.de_state(&mut deserializer).unwrap();
-        }
-    }
-
     // setup context
     let mut ctx = draw::DrawParams {
         encoder: factory.create_command_buffer().into(),
@@ -182,6 +173,15 @@ fn main() {
     meta.active_apps.insert("lets_get_physical".to_owned(), true);
     meta.active_apps.insert("snowflakes".to_owned(), true);
     meta.active_apps.insert("settings".to_owned(), true);
+
+    // Load from the applications
+    fs::create_dir_all("states").unwrap();
+    for app in applications.iter_mut() {
+        if let Ok(mut file) = File::open(app.2.clone()) {
+            let mut deserializer = Deserializer::new(IoRead::new(file));
+            app.1.de_state(&mut deserializer, &mut meta).unwrap();
+        }
+    }
 
     if mock { window.show() }
 
@@ -314,6 +314,6 @@ fn main() {
     for app in applications.iter_mut() {
         let mut file = File::create(&app.2).unwrap();
         let mut serializer = Serializer::new(file);
-        app.1.se_state(&mut serializer).unwrap();
+        app.1.se_state(&mut serializer, &mut meta).unwrap();
     }
 }

@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::io::{Read, Write};
 use std::boxed::FnBox;
 
@@ -16,14 +17,16 @@ use flight::{PbrMesh, Error, load};
 use gfx;
 use app::App;
 
-use common::{Common, CommonReply};
+use common::{Common, CommonReply, Meta};
 
 pub struct Halo<R: gfx::Resources> {
     halo_mesh: PbrMesh<R>,
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct HaloState {}
+pub struct HaloState {
+    pub active_apps: HashMap<String, bool>,
+}
 
 impl<R: gfx::Resources> Halo<R> {
     pub fn new<F: gfx::Factory<R>>(factory: &mut F) -> Result<Self, Error> {
@@ -32,13 +35,16 @@ impl<R: gfx::Resources> Halo<R> {
 }
 
 impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, Re: Read> App<R, C, W, Re> for Halo<R> {
-    fn se_state(&self, serializer: &mut Serializer<W>) -> Result<<&mut Serializer<W> as serde::Serializer>::Ok, JsonError> {
-        let state = HaloState{};
+    fn se_state(&self, serializer: &mut Serializer<W>, meta: &mut Meta) -> Result<<&mut Serializer<W> as serde::Serializer>::Ok, JsonError> {
+        let state = HaloState {
+            active_apps: meta.active_apps.clone(),
+        };
         state.serialize(serializer)
     }
 
-    fn de_state(&mut self, deserializer: &mut Deserializer<JsonRead<Re>>) -> Result<(), JsonError> {
+    fn de_state(&mut self, deserializer: &mut Deserializer<JsonRead<Re>>, meta: &mut Meta) -> Result<(), JsonError> {
         let state = HaloState::deserialize(deserializer)?;
+        meta.active_apps = state.active_apps;
         Ok(())
     }
 
@@ -72,6 +78,8 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
             .pointing_laser(&Isometry3::from_parts(Translation3::new(0., 3., 0.), na::one()),
                             &torus,
                             true);
+
+        // Draw toggles
 
         Box::new(move |r: &mut CommonReply<_, _>| {
             let _torus = torus(&r.reply.interact);

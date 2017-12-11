@@ -16,7 +16,7 @@ use flight::{PbrMesh, Error, load};
 use gfx;
 use app::App;
 
-use common::{Common, CommonReply};
+use common::{Common, CommonReply, Meta};
 use common::gurus::interact::{GrabableState, GrabbablePhysicsState};
 
 pub struct Snowblock(GrabbablePhysicsState);
@@ -63,14 +63,14 @@ impl<R: gfx::Resources> Snowflakes<R> {
 impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, Re: Read> App<R, C, W, Re>
     for Snowflakes<R> {
     fn se_state(&self,
-                serializer: &mut Serializer<W>)
+                serializer: &mut Serializer<W>, _: &mut Meta)
                 -> Result<<&mut Serializer<W> as serde::Serializer>::Ok, JsonError> {
         let block_locations = self.blocks.iter().map(|b| *b.0.body.position()).collect();
         let state = SnowflakeState { block_locations: block_locations };
         state.serialize(serializer)
     }
 
-    fn de_state(&mut self, deserializer: &mut Deserializer<JsonRead<Re>>) -> Result<(), JsonError> {
+    fn de_state(&mut self, deserializer: &mut Deserializer<JsonRead<Re>>, _: &mut Meta) -> Result<(), JsonError> {
         // Clear all of the current state
         self.blocks.clear();
 

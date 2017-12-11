@@ -12,7 +12,7 @@ use gfx;
 use app::App;
 use ui::Slider;
 
-use common::{Common, CommonReply};
+use common::{Common, CommonReply, Meta};
 
 pub struct Settings {
     pub speed: Slider,
@@ -61,7 +61,7 @@ impl Settings {
 impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, Re: Read> App<R, C, W, Re>
     for Settings {
     fn se_state(&self,
-                serializer: &mut Serializer<W>)
+                serializer: &mut Serializer<W>, _: &mut Meta)
                 -> Result<<&mut Serializer<W> as serde::Serializer>::Ok, JsonError> {
         let state = SettingsState {
             speed: self.speed.value,
@@ -72,7 +72,7 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
         state.serialize(serializer)
     }
 
-    fn de_state(&mut self, deserializer: &mut Deserializer<JsonRead<Re>>) -> Result<(), JsonError> {
+    fn de_state(&mut self, deserializer: &mut Deserializer<JsonRead<Re>>, _: &mut Meta) -> Result<(), JsonError> {
         let state = SettingsState::deserialize(deserializer)?;
         self.speed.value = state.speed;
         self.length.value = state.length;

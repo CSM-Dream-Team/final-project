@@ -16,7 +16,7 @@ use flight::{PbrMesh, Error, load};
 use gfx;
 use app::App;
 
-use common::{Common, CommonReply};
+use common::{Common, CommonReply, Meta};
 use common::gurus::interact::GrabbablePhysicsState;
 
 pub struct LetsGetPhysical<R: gfx::Resources> {
@@ -55,7 +55,7 @@ impl<R: gfx::Resources> LetsGetPhysical<R> {
 impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, Re: Read> App<R, C, W, Re>
     for LetsGetPhysical<R> {
     fn se_state(&self,
-                serializer: &mut Serializer<W>)
+                serializer: &mut Serializer<W>, _: &mut Meta)
                 -> Result<<&mut Serializer<W> as serde::Serializer>::Ok, JsonError> {
         let state = LetsGetPhysicalState {
             location: *self.grabbable_state.body.position(),
@@ -63,7 +63,7 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
         state.serialize(serializer)
     }
 
-    fn de_state(&mut self, deserializer: &mut Deserializer<JsonRead<Re>>) -> Result<(), JsonError> {
+    fn de_state(&mut self, deserializer: &mut Deserializer<JsonRead<Re>>, _: &mut Meta) -> Result<(), JsonError> {
         let state = LetsGetPhysicalState::deserialize(deserializer)?;
         self.grabbable_state.body.set_transformation(state.location);
         Ok(())
