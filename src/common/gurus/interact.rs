@@ -306,6 +306,12 @@ pub enum Moveable {
 
 }
 
+impl Default for Moveable {
+    fn default() -> Self {
+        Moveable::Free
+    }
+}
+
 pub struct MoveData {
     pub intent: MoveableIntention,
     pub fixed: Option<Fixed>,
@@ -316,6 +322,12 @@ pub struct Fixed {
     pub pos: Isometry3<f32>,
     pub lin_vel: Vector3<f32>,
     pub ang_vel: Vector3<f32>,
+}
+
+impl Fixed {
+    pub fn location(&self) -> Point3<f32> {
+        self.pos * Point3::origin()
+    }
 }
 
 impl Moveable {

@@ -49,8 +49,8 @@ impl<R: gfx::Resources, C: gfx::CommandBuffer<R> + 'static> App<R, C> for Settin
     fn update<'a>(&'a mut self, common: &mut Common<R, C>) -> Box<FnBox(&mut CommonReply<R, C>) + 'a>
     {
         self.speed.length = 0.2 + 0.6 * self.length.value;
-        let speed = self.speed.update(&mut common.gurus.interact.primary);
-        let length = self.length.update(&mut common.gurus.interact.primary);
+        let speed = self.speed.update(&mut common.gurus.interact);
+        let length = self.length.update(&mut common.gurus.interact);
 
         Box::new(move |r: &mut CommonReply<_, _>| {
             r.meta.physics_speed = speed(r);
