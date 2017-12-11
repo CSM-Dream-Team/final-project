@@ -16,7 +16,7 @@ use geo::*;
 pub struct Meshes<R: gfx::Resources> {
     // UI Elements
     pub controller: PbrMesh<R>,
-    pub grid_lines: Mesh<R, VertC, ()>,
+    pub wire_box: Mesh<R, VertC, ()>,
     pub floor: PbrMesh<R>,
     pub slider_control: PbrMesh<R>,
     pub slider_frame: PbrMesh<R>,
@@ -88,7 +88,7 @@ impl<R: gfx::Resources> Meshes<R> {
                 factory,
                 "assets/controller.obj",
                 [0x80, 0x80, 0xFF, 0xFF])?,
-            grid_lines: grid_lines(8, Vector3::new(8., 8., 8.)).upload(factory),
+            wire_box: grid_lines(1, Vector3::new(1., 1., 1.)).upload(factory),
             floor: plane(2.5)
                 .with_tex(Point2::new(0., 0.))
                 .compute_tan()

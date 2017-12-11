@@ -90,7 +90,7 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
             let quat = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 0.);
             common.painters.solid.draw(&mut common.draw_params,
                                        na::convert(Similarity3::from_parts(*t, quat, 0.5)),
-                                       &common.meshes.grid_lines);
+                                       &common.meshes.wire_box);
 
             // Return the future
             common.gurus.interact.primary.pointing_laser(&Isometry3::from_parts(*t, na::one()),
