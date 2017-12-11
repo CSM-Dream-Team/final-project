@@ -5,6 +5,7 @@
 extern crate log;
 extern crate simplelog;
 extern crate clap;
+extern crate ctrlc;
 
 extern crate flight;
 
@@ -141,12 +142,22 @@ fn main() {
         PathBuf::from("states/settings.json")),
     ];
 
+    // Load from the applications
     for app in applications.iter_mut() {
         if let Ok(mut file) = File::open(app.1.clone()) {
             let mut deserializer = Deserializer::new(IoRead::new(file));
             app.0.de_state(&mut deserializer).unwrap();
         }
     }
+
+    // Handle Ctrl+C
+    ctrlc::set_handler(move || {
+        for app in applications.iter_mut() {
+            let mut file = File::open(&app.1).unwrap();
+            let mut serializer = Serializer::new(file);
+            app.0.se_state(&mut serializer).unwrap();
+        }
+    }).expect("Error setting Ctrl-C handler");
 
     // setup context
     let mut ctx = draw::DrawParams {
