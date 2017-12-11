@@ -347,7 +347,13 @@ impl Moveable {
         use self::Moveable::*;
         use self::MoveableIntention as Mi;
 
-        let solid = if let &mut Moveable::Free = self { true } else { false };
+        let solid = match self { 
+            &mut Free => true,
+            &mut Yanked { index, ..} | &mut Grabbed { index, .. } => {
+                index.guru(interact).block();
+                false
+            },
+        };
         let cons: Vec<_> = (&[ControllerIndex::primary(), ControllerIndex::secondary()])
             .into_iter()
             .map(|&con| {
@@ -422,23 +428,25 @@ impl Moveable {
                 &mut Yanked { progress, index, .. } => {
                     let con = index.reply(reply);
 
-                    let next = if progress < 1. {
-                    let mut dp = d_yank / (1. - progress + d_yank);
+                    let (next, lin_vel, ang_vel) = if progress < 1. {
+                        let mut dp = d_yank / (1. - progress + d_yank);
                         dp = dp.min(1.).max(0.);
                         let dest = con.data.pose() * inv_yank_offset;
-                        Isometry3::from_parts(
+                        let next = Isometry3::from_parts(
                             Translation3::from_vector(
                                 pos.translation.vector * (1. - dp) + dest.translation.vector * dp
                             ),
                             pos.rotation.slerp(&dest.rotation, dp),
-                        )
+                        );
+                        let lin_vel = (next.translation.vector - pos.translation.vector) / con.data.dt as f32;
+                        let ang_vel = (next.rotation * pos.rotation.inverse()).scaled_axis() / con.data.dt as f32;
+                        (next, lin_vel, ang_vel)
                     } else {
-                        con.data.pose() * inv_yank_offset
+                        let ang_vel = con.data.ang_vel;
+                        let mut lin_vel = con.data.lin_vel;
+                        lin_vel += ang_vel.cross(&inv_yank_offset.translation.vector);
+                        (con.data.pose() * inv_yank_offset, lin_vel, ang_vel)
                     };
-
-                    let delta = pos.inverse() * next;
-                    let lin_vel = delta.translation.vector / con.data.dt as f32;
-                    let ang_vel = delta.rotation.scaled_axis() / con.data.dt as f32;
 
                     return MoveData {
                         intent: Mi::Move,
