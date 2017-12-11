@@ -6,7 +6,7 @@ use serde_json::{Deserializer, Serializer, Error as JsonError};
 use serde_json::de::IoRead as JsonRead;
 
 use nalgebra::{self as na, Vector3, Similarity3, Isometry3, Translation3, UnitQuaternion};
-use ncollide::shape::{ShapeHandle, Cuboid, Cylinder};
+use ncollide::shape::{Cuboid, Cylinder};
 use nphysics3d::object::RigidBody;
 
 // Flight
@@ -37,7 +37,7 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
         state.serialize(serializer)
     }
 
-    fn de_state(&mut self, deserializer: &mut Deserializer<JsonRead<Re>>) -> Result<(), JsonError> {
+    fn de_state(&mut self, _deserializer: &mut Deserializer<JsonRead<Re>>) -> Result<(), JsonError> {
         // TODO
         Ok(())
     }
@@ -54,11 +54,12 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
 
         // Draw floor
         let floor_shape = Cuboid::new(Vector3::new(2.5, 1., 2.5));
-        common.gurus.interact.primary.laser(&na::one(), &floor_shape);
-        common.gurus.interact.secondary.laser(&na::one(), &floor_shape);
+        let floor_pos = Isometry3::from_parts(Translation3::new(0., -1., 0.), na::one());
+        common.gurus.interact.primary.laser(&floor_pos, &floor_shape);
+        common.gurus.interact.secondary.laser(&floor_pos, &floor_shape);
 
         let mut floor_rb = RigidBody::new_static(floor_shape, 0.1, 0.6);
-        floor_rb.set_translation(Translation3::new(0., -1., 0.));
+        floor_rb.set_transformation(floor_pos);
         floor_rb.set_margin(0.00001);
         common.gurus.physics.body(floor_rb);
         common.painters.pbr.draw(&mut common.draw_params, na::one(), &common.meshes.floor);
@@ -81,6 +82,16 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
                     0.5
                 )
             ), &self.halo_mesh);
+
+            for con in &[&r.reply.interact.primary, &r.reply.interact.secondary] {
+                r.painters.solid.draw(&mut r.draw_params, na::convert(
+                    Similarity3::from_isometry(
+                        con.data.pose,
+                        con.laser_toi.max(0.01).min(10.),
+                    )
+                ), if con.laser_toi == ::std::f32::INFINITY { &r.meshes.blue_ray } else { &r.meshes.red_ray });
+
+            }
         })
     }
 }
