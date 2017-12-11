@@ -112,6 +112,7 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
                         Some(v) => *v,
                         None => false,
                     };
+                    println!("{}: {}", app, current_value);
                     r.meta.active_apps.entry(app.to_owned()).or_insert(!current_value);
                 }
             }
