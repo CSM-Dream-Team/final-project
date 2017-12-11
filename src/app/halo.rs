@@ -79,10 +79,44 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
                             &torus,
                             true);
 
-        // Draw toggles
+        // Setup toggle futures
+        let toggles = vec![
+            Translation3::new(2., 1., 0.),
+            Translation3::new(-2., 1., 0.),
+        ];
+        let toggle_box_shape = Cuboid::new(Vector3::new(0.5, 0.5, 0.5));
+        let toggle_futures: Vec<_> = toggles.iter().map(|t| {
+            // Draw the toggles
+            let quat = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 0.);
+            common.painters.solid.draw(&mut common.draw_params,
+                                       na::convert(Similarity3::from_parts(*t, quat, 0.5)),
+                                       &common.meshes.grid_lines);
+
+            // Return the future
+            common.gurus.interact.primary.pointing_laser(&Isometry3::from_parts(*t, na::one()),
+                                                         &toggle_box_shape, true)
+        }).collect();
 
         Box::new(move |r: &mut CommonReply<_, _>| {
             let _torus = torus(&r.reply.interact);
+
+            // Do the toggles
+            for (i, f) in toggle_futures.into_iter().enumerate() {
+                if f(&r.reply.interact).is_some() {
+                    let app = match i {
+                        0 => "lets_get_physical",
+                        1 => "snowflakes",
+                        _ => panic!("Invalid application match"),
+                    };
+                    let current_value = match r.meta.active_apps.get(app) {
+                        Some(v) => *v,
+                        None => false,
+                    };
+                    r.meta.active_apps.entry(app.to_owned()).or_insert(!current_value);
+                }
+            }
+
+            // Draw the halo
             r.painters.pbr.draw(&mut r.draw_params, na::convert(
                 Similarity3::from_parts(
                     Translation3::new(0., 2.5, 0.),
