@@ -6,7 +6,7 @@ use serde_json::{Deserializer, Serializer, Error as JsonError};
 use serde_json::de::IoRead as JsonRead;
 
 use nalgebra::{self as na, Vector3, Isometry3, Translation3};
-use ncollide::shape::Cuboid;
+use ncollide::shape::{ShapeHandle, Compound, Cuboid, Ball};
 use nphysics3d::object::RigidBody;
 
 // Flight
@@ -69,10 +69,10 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
     }
 
     fn de_state(&mut self, deserializer: &mut Deserializer<JsonRead<Re>>) -> Result<(), JsonError> {
-        // Clear all of the current state
+// Clear all of the current state
         self.blocks.clear();
 
-        // Read in the new block locations
+// Read in the new block locations
         let state = SnowflakeState::deserialize(deserializer)?;
         self.new_blocks = state.block_locations.iter().map(|l| {
             let block_shape = Cuboid::new(Vector3::new(0.15, 0.15, 0.3));
@@ -89,13 +89,22 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
         // Add the old blocks
         self.blocks.append(&mut self.new_blocks);
 
-        // Render the snowmen
+        // Snowmen
+        let snowman_shapes = vec![
+            (Isometry3::new(Vector3::new(0., 0.22, 0.), na::zero()), ShapeHandle::new(Ball::new(0.26))),
+            (Isometry3::new(Vector3::new(0., 0.60, 0.), na::zero()), ShapeHandle::new(Ball::new(0.20))),
+            (Isometry3::new(Vector3::new(0., 0.85, 0.), na::zero()), ShapeHandle::new(Ball::new(0.15))),
+        ];
+        let snowman_shape = Compound::new(snowman_shapes);
         let snowmen_locations = vec![Translation3::new(2., 0., 2.),
                                      Translation3::new(-2., 0., 2.),
                                      Translation3::new(-2., 0., -2.),
                                      Translation3::new(2., 0., -2.)];
         for loc in snowmen_locations {
             common.painters.pbr.draw(&mut common.draw_params, na::convert(loc), &self.snowman);
+            let mut body = RigidBody::new_static(snowman_shape.clone(), 0.0, 0.8);
+            body.set_translation(loc);
+            common.gurus.physics.body(body);
         }
 
         // Setup blocks & futures
