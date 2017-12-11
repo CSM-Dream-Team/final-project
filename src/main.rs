@@ -250,7 +250,7 @@ fn main() {
             meta,
         };
 
-         // Clear targets
+        // Clear targets
         common.draw_params.encoder.clear_depth(&common.draw_params.depth, FAR_PLANE as f32);
         common.draw_params.encoder.clear(&common.draw_params.color, [BACKGROUND[0].powf(1. / 2.2), BACKGROUND[1].powf(1. / 2.2), BACKGROUND[2].powf(1. / 2.2), BACKGROUND[3]]);
 

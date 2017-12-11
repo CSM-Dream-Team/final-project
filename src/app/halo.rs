@@ -55,6 +55,8 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
         // Draw floor
         let floor_shape = Cuboid::new(Vector3::new(2.5, 1., 2.5));
         common.gurus.interact.primary.laser(&na::one(), &floor_shape);
+        common.gurus.interact.secondary.laser(&na::one(), &floor_shape);
+
         let mut floor_rb = RigidBody::new_static(floor_shape, 0.1, 0.6);
         floor_rb.set_translation(Translation3::new(0., -1., 0.));
         floor_rb.set_margin(0.00001);
