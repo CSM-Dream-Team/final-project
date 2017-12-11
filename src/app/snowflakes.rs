@@ -11,13 +11,14 @@ use nphysics3d::object::RigidBody;
 
 // Flight
 use flight::{PbrMesh, Error, load};
+use flight::vr::Trackable;
 
 // GFX
 use gfx;
 use app::App;
 
 use common::{Common, CommonReply, Meta};
-use common::gurus::interact::{GrabableState, GrabbablePhysicsState};
+use common::gurus::interact::{Moveable, GrabbablePhysicsState, ControllerIndex};
 
 pub struct Snowblock(GrabbablePhysicsState);
 
@@ -111,19 +112,28 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
                                      Translation3::new(-2., 0., 2.),
                                      Translation3::new(-2., 0., -2.),
                                      Translation3::new(2., 0., -2.)];
-        for loc in snowmen_locations {
+
+        let block_spawns = snowmen_locations.into_iter().flat_map(|loc| {
             common.painters.pbr.draw(&mut common.draw_params, na::convert(loc), &self.snowman);
             let mut body = RigidBody::new_static(snowman_shape.clone(), 0.0, 0.8);
             body.set_translation(loc);
             common.gurus.physics.body(body);
-        }
+
+            (&[ControllerIndex::primary(), ControllerIndex::secondary()]).iter()
+                .map(|&index| {
+                    let con = index.guru(&mut common.gurus.interact);
+                    (
+                        index,
+                        con.pointing_laser(
+                            &Isometry3::from_parts(loc, na::one()),
+                            &snowman_shape,
+                            true),
+                    )
+                }).collect::<Vec<_>>()
+        }).collect::<Vec<_>>();
+
 
         // Setup blocks & futures
-        let block_shape = Cuboid::new(Vector3::new(0.15, 0.15, 0.3));
-        let add_future = GrabableState::default().update(&mut common.gurus.interact.primary,
-                                                         common.gurus.interact.secondary.data.pose,
-                                                         &block_shape);
-
         let remove_blocks = &mut self.remove_blocks;
         let futures: Vec<_> = self.blocks
             .iter_mut()
@@ -142,15 +152,25 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
         let snow_block = &self.snow_block;
         let new_blocks = &mut self.new_blocks;
         Box::new(move |r: &mut CommonReply<R, C>| {
-            use self::GrabableState::*;
-            match add_future(&r.reply.interact) {
-                Held { .. } => new_blocks.push({
+            new_blocks.extend(block_spawns.into_iter()
+                .filter_map(|(i, f)| f(&r.reply.interact).map(|h| (i, h)))
+                .map(|(index, hit)| {
+                    let con = index.reply(&r.reply.interact);
+                    let block_shape = Cuboid::new(Vector3::new(0.15, 0.15, 0.3));
                     let mut body = RigidBody::new_dynamic(block_shape, 100., 0.0, 0.8);
                     body.set_margin(0.00001);
-                    Snowblock(GrabbablePhysicsState::new_free(body))
-                }),
-                _ => (),
-            }
+                    body.set_translation(Translation3::from_vector(
+                        con.data.origin().coords + con.data.pointing() * hit.0.toi
+                    ));
+                    Snowblock(GrabbablePhysicsState {
+                        body,
+                        mov: Moveable::Yanked {
+                            progress: 0.,
+                            start: na::one(),
+                            index: index,
+                        },
+                    })
+                }));
             for block in futures {
                 block(r, snow_block);
             }
