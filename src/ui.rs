@@ -4,7 +4,7 @@ use nalgebra::{Matrix4, Vector4, Isometry3, Vector3, Translation3, Transform3};
 use ncollide::shape::{Cuboid};
 use gfx;
 
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum SliderMode {
     Unheld,
     Moving,
@@ -74,6 +74,7 @@ impl Slider {
                     let next_val = ((next_pos / true_len) + 0.5).max(0.).min(1.);
                     let current_pos = (*value - 0.5) * true_len;
 
+                    println!("c: {:0.3} n: {:0.3}", current_pos, next_pos);
                     match (*mode, (current_pos - next_pos).abs() < slider_r) {
                         (Unheld, true) => *mode = Sliding,
                         (Unheld, false) => *mode = Moving,

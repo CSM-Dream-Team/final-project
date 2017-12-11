@@ -16,11 +16,12 @@ pub struct RayHit(pub RayIntersection<Vector3<f32>>);
 pub struct InteractGuru {
     pub primary: ControllerGuru,
     pub secondary: ControllerGuru,
+    pub dt: f64,
 }
 
 impl InteractGuru {
     /// Create a new `InteractGuru` that checkes aganst the given controllers.
-    pub fn new(primary: &MappedController, secondary: &MappedController) -> InteractGuru {
+    pub fn new(primary: &MappedController, secondary: &MappedController, dt: f64) -> InteractGuru {
         InteractGuru {
             primary: ControllerGuru {
                 data: MappedController { ..*primary },
@@ -40,6 +41,7 @@ impl InteractGuru {
                 laser_toi: INFINITY,
                 index: 1,
             },
+            dt,
         }
     }
 
@@ -79,7 +81,7 @@ impl PartialOrd for InteractQuery {
     }
 }
 
-#[derive(PartialEq, Eq, Copy, Clone)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub struct ControllerIndex(u8);
 
 impl ControllerIndex {
@@ -280,22 +282,21 @@ pub struct ControllerReply {
     can_touch: bool,
 }
 
-pub const YANK_SPEED: f32 = 1.2;
+pub const YANK_SPEED: f32 = 0.2;
 pub const YANK_DIFFICULTY: f32 = 1.0;
 
-#[derive(Eq, PartialEq, Copy, Clone)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub enum MoveableIntention {
     Move,
     Manipulate,
     Free,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub enum Moveable {
     Grabbed {
         inv_offset: Isometry3<f32>,
         index: ControllerIndex,
-        intent: MoveableIntention,
     },
     Yanked {
         progress: f32,
@@ -312,11 +313,13 @@ impl Default for Moveable {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct MoveData {
     pub intent: MoveableIntention,
     pub fixed: Option<Fixed>,
 }
 
+#[derive(Debug, Clone)]
 pub struct Fixed {
     pub by: ControllerIndex,
     pub pos: Isometry3<f32>,
@@ -351,6 +354,8 @@ impl Moveable {
                 (con, guru.pointing_laser(&pos, shape, true), guru.touched(&pos, shape))
             }).collect();
 
+        let d_yank = interact.dt as f32 / YANK_SPEED;
+
         move |reply| {
             match self {
                 &mut Free => {
@@ -372,7 +377,6 @@ impl Moveable {
                                 *self = Grabbed {
                                     index: ind,
                                     inv_offset: con.data.pose.inverse() * pos,
-                                    intent: Mi::Manipulate,
                                 };
                                 break
                             }
@@ -380,15 +384,11 @@ impl Moveable {
                     }
                 },
                 &mut Yanked { progress, index, start } => {
-                    if progress + YANK_SPEED > 1. {
-                        *self = Grabbed {
-                            index: index,
-                            inv_offset: inv_yank_offset,
-                            intent: Mi::Move,
-                        };
+                    if progress + d_yank > 1. {
+                        *self = Free;
                     } else {
                         *self = Yanked {
-                            progress: progress + YANK_SPEED,
+                            progress: progress + d_yank,
                             start: start,
                             index: index,
                         };
@@ -401,14 +401,14 @@ impl Moveable {
                 },
             };
             match self {
-                &mut Grabbed { index, inv_offset, intent } => {
+                &mut Grabbed { index, inv_offset } => {
                     let con = index.reply(reply);
                     let ang_vel = con.data.ang_vel;
                     let mut lin_vel = con.data.lin_vel;
                     lin_vel += ang_vel.cross(&inv_offset.translation.vector);
 
                     return MoveData {
-                        intent: intent,
+                        intent: Mi::Manipulate,
                         fixed: Some(Fixed {
                             by: index,
                             pos: con.data.pose() * inv_offset,
@@ -419,7 +419,7 @@ impl Moveable {
                 },
                 &mut Yanked { progress, index, .. } => {
                     let con = index.reply(reply);
-                    let mut dp = YANK_SPEED / (1. - progress + YANK_SPEED);
+                    let mut dp = d_yank / (1. - progress + d_yank);
                     dp = dp.min(1.).max(0.);
                     let dest = con.data.pose() * inv_yank_offset;
                     let next = Isometry3::from_parts(
