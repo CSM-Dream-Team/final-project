@@ -29,21 +29,25 @@ pub struct LetsGetPhysicalState {
     location: Isometry3<f32>,
 }
 
+fn spawn_mjolnir() -> GrabbablePhysicsState {
+    let shapes = vec![(Isometry3::new(Vector3::new(0., -3., 0.) * 0.08, na::zero()),
+                       ShapeHandle::new(Cuboid::new(Vector3::new(2.0, 1.5, 1.5) * 0.08))),
+                      (Isometry3::new(Vector3::new(0., 1.25, 0.) * 0.08, na::zero()),
+                       ShapeHandle::new(Cylinder::new(3.25 * 0.08, 0.5 * 0.08)))];
+    let compound = Compound::new(shapes);
+
+    let mut mjolnir_body = RigidBody::new_dynamic(compound, 2330., 0.35, 0.47);
+    let location = Isometry3::new(Vector3::new(0., 2.5, 0.), na::zero());
+    mjolnir_body.set_transformation(location);
+
+    GrabbablePhysicsState::new_free(mjolnir_body)
+}
+
 impl<R: gfx::Resources> LetsGetPhysical<R> {
     pub fn new<F: gfx::Factory<R>>(factory: &mut F) -> Result<Self, Error> {
-        let shapes = vec![(Isometry3::new(Vector3::new(0., -3., 0.) * 0.08, na::zero()),
-                           ShapeHandle::new(Cuboid::new(Vector3::new(2.0, 1.5, 1.5) * 0.08))),
-                          (Isometry3::new(Vector3::new(0., 1.25, 0.) * 0.08, na::zero()),
-                           ShapeHandle::new(Cylinder::new(3.25 * 0.08, 0.5 * 0.08)))];
-        let compound = Compound::new(shapes);
-        let mut mjolnir_body = RigidBody::new_dynamic(compound, 2330., 0.35, 0.47);
-        let location = Isometry3::new(Vector3::new(0., 0.5, 0.), na::zero());
-
-        mjolnir_body.set_transformation(location);
-
         Ok(LetsGetPhysical {
             mjolnir: load::object_directory(factory, "assets/hammer/")?,
-            grabbable_state: GrabbablePhysicsState::new_free(mjolnir_body),
+            grabbable_state: spawn_mjolnir(),
         })
     }
 }
@@ -69,9 +73,9 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
                   common: &mut Common<R, C>)
                   -> Box<FnBox(&mut CommonReply<R, C>) + 'b> {
         // Reset if you throw it off the platform.
+        // TODO: this doesn't work with alternate gravity
         if self.grabbable_state.body.position().translation.vector.y < 10. {
-            self.grabbable_state.body.set_transformation(
-                Isometry3::new(Vector3::new(0., 2., 0.), na::zero()));
+            self.grabbable_state = spawn_mjolnir();
         }
 
         let gp = self.grabbable_state.update(&mut common.gurus.interact.primary,
