@@ -211,7 +211,7 @@ After analyzing the those libraries we realized that none of them fully fit our
 needs. Thus, we decided to create our own architecture which achieves all of the
 goals outlined in Section~\ref{sec:introduction}. It takes an exiting UI
 architecture (immediate mode) and introduces a deferred aspect which allows us
-to solve the global state problem described below.
+to solve the incomplete information problem described below.
 
 \subsection{Immediate Mode}
 % TODO: describe why this is cool
@@ -223,15 +223,15 @@ library draws the entire scene from memory. The entire scene is stored in memory
 between frames and modification of the scene is done by modifying the in-memory
 representation of the scene~\cite{Microsoft:Retained-vs-Immediate}.
 
-Retained mode presents some problems when handling global state; namely state
-synchronization across user interface trees. For example, many applications have
-a stored state such as a list of items table. However, there may be elements
-external to the table which modify the list of items. This causes a problem of
-cross mutation. One common way of fixing this problem in old applications was to
-add a function call to refresh the table when the button was clicked. This has
-major scalability problems when the elements which are change by a single button
-form a massive dependency tree. Additionally, if a programmer misses one refresh
-call, it can cause the state in part of the application to become stale.
+Retained mode presents some problems with synchronization across user interface
+trees. For example, many applications have a stored state such as a list of
+items table. However, there may be elements external to the table which modify
+the list of items. This causes a problem of cross mutation. One common way of
+fixing this problem in old applications was to add a function call to refresh
+the table when the button was clicked. This has major scalability problems when
+the elements which are change by a single button form a massive dependency tree.
+Additionally, if a programmer misses one refresh call, it can cause the state in
+part of the application to become stale.
 
 Currently, one of the popular ways of handling this issue is using Flux, the
 underlying architecture of Redux. This model forces state to be stored in a
@@ -241,27 +241,37 @@ model ensures that there is one source of truth---the common data store---and
 that if one component sends a message which modifies that central state, then
 the entire UI tree can update accordingly.
 
+% FUTURE: like Wellford's for immediate mode
 An alternative way of tackling this problem is using \textit{immediate mode}.
 In this architecture, the UI is defined procedurally for each frame. The
 graphics library does not store the scene in memory, rather any state that is
 necessary to create the scene is stored by the application
 itself~\cite{Microsoft:Retained-vs-Immediate}. Immediate mode prevents the
 problem of stale state and cross mutation by recomputing the entire UI scene
-every frame.
+every frame. In an immediate mode architecture, a programmer defines that a UI
+element exists on each frame, and if they want to remove a UI element, they
+simply do not call the function to create an element.
 
-% TODO: put this somewhere
-The Rust programming language enforces minimal use of mutable references.
-Although this might seem like a limitation of the Rust language, avoiding
-random, unorganized mutation is a wise idea in any codebase. It became obvious
-early on that callbacks were not a long-term solution to creating UI components.
-% TODO: data duplication
+The major drawback of immediate mode is that there is no guarantee that another
+element will be created later that will interfere with the current element's
+state. We call this problem the incomplete information problem. An example of
+this problem would be an element in a virtual environment whose color depends on
+whether or not the user is pointing at it. It is easy to detect whether or not
+the controller is pointed at the element. It is impossible to guarantee that
+another component will no be added to the scene which will obstruct the
+controller's view of the first element.
 
-% TODO: describe general ideals of our architecture (programming language and
-% implementation agnostic)
-% TODO: mention how our deferred immediate mode program architecture builds on
-% and combines concepts from many previous architectures
+In other words, there are some questions about the state of the system which
+cannot be answered until all UI elements have "reported" their state.  To solve
+this incomplete information problem, we added a new aspect to immediate mode:
+deferability described in the next section.
 
 \subsection{Deferred}
+retained mode -> does not have the incomplete data problem, has synchronization
+problem
+immediate mode -> incomplete data problem, not synchronization problem
+deferred immediate mode -> keeps lack of synchronization problem form immediate
+mode, but adds synchronization by deferring.
 % TODO: describe why this is cool
 
 \section{Flight}\label{sec:flight}
