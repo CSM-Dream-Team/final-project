@@ -358,24 +358,51 @@ by other programmers, we utilized a few external libraries for Flight. The main
 dependencies are listed below.
 \begin{itemize}
     \item \textbf{\texttt{rust-webvr}}: OpenVR wrapper used by the Servo browser
-    \item \textbf{\texttt{nalgebra}}: linear primitives, transformations, and operations
+    \item \textbf{\texttt{nalgebra}}: linear primitives, transformations, and
+        operations
     \item \textbf{\texttt{ncollide}}: geometric operations and queries
     \item \textbf{\texttt{nphysics}}: a simple rigid body physics engine
-    \item \textbf{\texttt{gfx}}: a powerful, type-safe OpenGL/DX11/Vulkan wrapper
+    \item \textbf{\texttt{gfx}}: a powerful, type-safe OpenGL/DX11/Vulkan
+        wrapper
 \end{itemize}
 
 \section{Case Studies}\label{sec:case-studies}
+
 We started this project with the goal of implementing a graphical shell in
 virtual reality. The problems we encountered motivated the development of the
 DIM architecture and \texttt{flight-ui}.
 
-\subsection{<TODO: interactivity>}
+\subsection{Yanking, Grabbing, and Pointing}
 
 \subsection{Let's Get Physical and Snowflakes --- Physics}
-% TODO: Describe how physics, spawning, etc. works in Immediate Mode & Physics
-% guru
+We created two applications which rely heavily on physics. \textit{Let's Get
+Physical} allows the user to swing and throw Mjolnir, Thor's hammer, and hit
+other objects in a physically realistic manner. \textit{Snowflakes} allows the
+user to stack snow blocks on top of one another in a physically accurate manner.
+We created these applications separately and then combined them later. We
+discuss this combined application here.
+
+The challenge with physics in immediate mode is the fact that objects in the
+physical world are inherently intertwined. For example, each snow block might
+influence, or be influenced by, any other snow block or Mjolnir. Without
+deferred immediate mode, the physics world would need to be the ultimate source
+of truth regarding which snow blocks exist and where they are in space. The
+problem with this is that we need to allow the user to spawn and move blocks
+within the world while still interacting with all of the other physics objects.
+
+With deferred immediate mode, we are able to add each block and Mjolnir to the
+physics world (using the physics guru) every frame, then we wait for the physics
+guru to resolve. After the physics guru has resolved, we are able to render
+the blocks and Mjolnir in the proper location.
+
+Although these applications were developed independently, and even still exist
+in separate modules of our application, deferred immediate mode with the physics
+guru allowed us to integrate the two applications with minimal code changes. The
+end result was being able to hit snow blocks with Mjolnir and vise versa.
 
 \subsection{{\name} --- Global User Interface}
+For our project we also created a module which allowed the user to turn on and
+off \textit{Let's Get Physical}.
 % TODO: Describe how we are using it to make the torus thing
 
 \section{Conclusion}\label{sec:conclusion}
