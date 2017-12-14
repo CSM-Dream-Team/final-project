@@ -76,21 +76,21 @@ approach to virtual reality development. Specifically, we require that this
 system meets the following criteria.
 
 \subsection{Performant}\label{sec:performant}
-Traditionally, animation is done around 60 frames per second.  This is due to the
-wave of monitors and televisions that ran at 60Hz and had a refresh rate of
-60 frames per second (fps).  This is fine when looking at a screen from a distance,
-however it has been found that in order to appear believable and prevent
-disorientation, a virtual reality program must run with at least 90 fps.
-In fact many studies have shown that when VR is run with lower frame rates
-users experience headaches and nausea faster than when at high frame rates
-\cite{irisVR}. As VR headsets run two mini monitors concurrently, the effective
-required frame rate is 180fps.  Achieving this frame rate is resource intensive
-and requires highly efficient and optimized code. Additionally, multi-threading
-is imperative so that long-running processes can occur without blocking the user
-interface. This is unlike a traditional desktop user interface where blocking
-the UI process for a second does not have a major affect on the usability of the
-program. These factors require a VR framework that is highly performant and
-multi-threadable.
+Traditionally, animation is done around 60 frames per second.  This is due to
+the wave of monitors and televisions that ran at 60Hz and had a refresh rate of
+60 frames per second (fps).  This is fine when looking at a screen from a
+distance, however it has been found that in order to appear believable and
+prevent disorientation, a virtual reality program must run with at least 90 fps.
+In fact many studies have shown that when VR is run with lower frame rates users
+experience headaches and nausea faster than when at high frame
+rates~\cite{irisVR}. As VR headsets run two mini monitors concurrently, the
+effective required frame rate is 180fps.  Achieving this frame rate is resource
+intensive and requires highly efficient and optimized code. Additionally,
+multi-threading is imperative so that long-running processes can occur without
+blocking the user interface. This is unlike a traditional desktop user interface
+where blocking the UI process for a second does not have a major affect on the
+usability of the program. These factors require a VR framework that is highly
+performant and multi-threadable.
 
 \subsection{Natural}\label{sec:natural}
 A \textit{natural user interface} is an interface that can be used without the
@@ -146,6 +146,7 @@ extensibility via the addition of self-contained modules.
 
 \begin{center}***\end{center}
 
+    % TODO: fix this
 Given these criteria, we evaluate current program architectures and UI libraries
 in Section~\ref{sec:existing_tools}. We also describe how these architectures
 influenced our deferred immediate mode architecture which we formally present in
@@ -195,33 +196,15 @@ If the DOM is entirely abstracted away, then there is no reason to build on it
 in the first place. VR can be attacked at a much lower level using desktop VR
 frameworks and ported to the web using technologies such as webassembly (WASM).
 
-% \subsection{Entity Component Systems}\label{sec:ecs}
-
-% Entity component systems are just as applicable to desktop VR as to web VR. In
-% fact, one of our first attempts ...
-
-% \subsection{Event Tree}\label{sec:event-tree}
-
-% However, this approach has a fatal flaw. Most user interactions in a virtual
-% reality environment require global information, that is ..
-
-\section{Deferred Immediate Mode}\label{sec:dim}
-
-After analyzing the those libraries we realized that none of them fully fit our
-needs. Thus, we decided to create our own architecture which achieves all of the
-goals outlined in Section~\ref{sec:introduction}. It takes an exiting UI
-architecture (immediate mode) and introduces a deferred aspect which allows us
-to solve the incomplete information problem described below.
-
-\subsection{Immediate Mode}
-% TODO: describe why this is cool
-All of the libraries and frameworks we discussed in Section~\ref{sec:existing_tools}
-use a \textit{retained mode architecture}. Retained mode architectures are
-declarative. In the context of user interfaces, this means that the entire user
-interface is defined and stored in memory. For each each frame, the graphics
-library draws the entire scene from memory. The entire scene is stored in memory
-between frames and modification of the scene is done by modifying the in-memory
-representation of the scene~\cite{Microsoft:Retained-vs-Immediate}.
+\section{Retained Mode}
+All of the libraries and frameworks we discussed in
+Section~\ref{sec:existing_tools} use a \textit{retained mode architecture}.
+Retained mode architectures are declarative. In the context of user interfaces,
+this means that the entire user interface is defined and stored in memory. For
+each each frame, the graphics library draws the entire scene from memory. The
+entire scene is stored in memory between frames and modification of the scene is
+done by modifying the in-memory representation of the
+scene~\cite{Microsoft:Retained-vs-Immediate}.
 
 Retained mode presents some problems with synchronization across user interface
 trees. For example, many applications have a stored state such as a list of
@@ -241,7 +224,7 @@ model ensures that there is one source of truth---the common data store---and
 that if one component sends a message which modifies that central state, then
 the entire UI tree can update accordingly.
 
-% FUTURE: like Wellford's for immediate mode
+\section{Immediate Mode}
 An alternative way of tackling this problem is using \textit{immediate mode}.
 In this architecture, the UI is defined procedurally for each frame. The
 graphics library does not store the scene in memory, rather any state that is
@@ -253,7 +236,7 @@ element exists on each frame, and if they want to remove a UI element, they
 simply do not call the function to create an element.
 
 The major drawback of immediate mode is that there is no guarantee that another
-element will be created later that will interfere with the current element's
+element will not be created later that will interfere with the current element's
 state. We call this problem the incomplete information problem. An example of
 this problem would be an element in a virtual environment whose color depends on
 whether or not the user is pointing at it. It is easy to detect whether or not
@@ -265,6 +248,15 @@ In other words, there are some questions about the state of the system which
 cannot be answered until all UI elements have "reported" their state.  To solve
 this incomplete information problem, we added a new aspect to immediate mode:
 deferability described in the next section.
+
+\section{Deferred Immediate Mode}\label{sec:dim}
+
+% FUTURE: like Wellford's for immediate mode
+After analyzing the those libraries we realized that none of them fully fit our
+needs. Thus, we decided to create our own architecture which achieves all of the
+goals outlined in Section~\ref{sec:introduction}. It takes an exiting UI
+architecture (immediate mode) and introduces a deferred aspect which allows us
+to solve the incomplete information problem described below.
 
 \subsection{Deferred}
 retained mode -> does not have the incomplete data problem, has synchronization
