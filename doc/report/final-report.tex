@@ -472,10 +472,14 @@ whether or not to call each applications' functions.
 We also implemented the ability to save the state of the application. Each
 module of the application individually defines a serialize and deserialize
 function which converts the module state to a JSON format. When the user exits
-and reopens the application, the state of the application is restored.
+and reopens the application, the state of the application is restored. By using
+immediate mode, we are able to minimize the amount of state that we have to
+store; we only need to store enough state to begin calling the same functions
+once the application is reopened.
 
-Because we are using
-immediate mode, the amount of state that we have to store is minimal.
+In the example of \textit{Snowflakes} we only need to store the location and
+rotation of each snow block. Likewise for \textit{Let's Get Physical}; we only
+need to store the location and rotation of Mjolnir.
 
 \section{Conclusion}\label{sec:conclusion}
 % TODO: Conclude (duh)
