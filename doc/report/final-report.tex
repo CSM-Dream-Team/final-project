@@ -150,14 +150,15 @@ extensibility via the addition of self-contained modules.
 
 \begin{center}***\end{center}
 
-% TODO: fix this
 Given these criteria, we evaluate current program architectures and UI libraries
-in Section~\ref{sec:existing_tools}. We also describe how these architectures
-influenced our deferred immediate mode architecture which we formally present in
-Section~\ref{sec:dim}. In Section~\ref{sec:flight} we describe Flight---an
-implementation of a VR UI library using the deferred immediate mode
-architecture. Then we present three case studies of Flight and the deferred
-immediate mode architecture in use in real applications in
+in Section~\ref{sec:existing_tools}. We describe the overarching architecture of
+these libraries is Section~\ref{sec:retained-mode} and discuss the immediate
+mode architecture in Section~\ref{sec:immediate-mode}. We describe how these
+architectures influenced our deferred immediate mode architecture which we
+formally present in Section~\ref{sec:dim}. In Section~\ref{sec:flight} we
+describe Flight---an implementation of a VR UI library using the deferred
+immediate mode architecture. Then we present three case studies of Flight and
+the deferred immediate mode architecture in use in real applications in
 Section~\ref{sec:case-studies} and conclude in Section~\ref{sec:conclusion}.
 
 \section{Existing Toolkits}\label{sec:existing_tools}
@@ -202,7 +203,7 @@ If the DOM is entirely abstracted away, then there is no reason to build on it
 in the first place. VR can be attacked at a much lower level using desktop VR
 frameworks and ported to the web using technologies such as webassembly (WASM).
 
-\section{Retained Mode}
+\section{Retained Mode}\label{sec:retained-mode}
 
 All of the libraries and frameworks we discussed in
 Section~\ref{sec:existing_tools} use a \textit{retained mode architecture}.
@@ -231,7 +232,7 @@ model ensures that there is one source of truth---the common data store---and
 that if one component sends a message which modifies that central state, then
 the entire UI tree can update accordingly.
 
-\section{Immediate Mode}
+\section{Immediate Mode}\label{sec:immediate-mode}
 
 An alternative way of tackling this problem is using \textit{immediate mode}.
 In this architecture, the UI is defined procedurally for each frame. The
