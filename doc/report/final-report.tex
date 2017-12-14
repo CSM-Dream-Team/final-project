@@ -412,6 +412,21 @@ DIM architecture and \texttt{flight-ui}.
 
 \subsection{Yanking, Grabbing, and Pointing}
 
+The most important aspect of a virtual reality application is the interface
+system. Since our interface incorporates many movable elements, we needed
+intuitive controls for moving objects. We chose to implement yanking (bringing a
+distant object closer), grabbing (directly manipulating an object at close
+range), and pointing (triggering an event from a distance). All three were done
+through a combination of the \texttt{InteractGuru} object and a
+\texttt{Moveable} state object.
+
+DIM enabled these interactions to be perfectly encapsulated. For example, a huge
+last-minute refactor of the movement system required virtual no changes to the
+physics system, global user interface, and applications despite all relying
+heavily on the old API. Again, countless new edge cases were created by the
+addition of the yanking operation, but the physics guru handled them easily
+without any changes.
+
 \subsection{Let's Get Physical and Snowflakes --- Physics}
 We created two applications which rely heavily on physics. \textit{Let's Get
 Physical} allows the user to swing and throw Mjolnir, Thor's hammer, and hit
