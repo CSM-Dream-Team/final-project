@@ -226,18 +226,28 @@ representation of the scene~\cite{Microsoft:Retained-vs-Immediate}.
 Retained mode presents some problems when handling global state; namely state
 synchronization across user interface trees. For example, many applications have
 a stored state such as a list of items table. However, there may be elements
-external to the table which modify the list of items. One common way of fixing
-this problem in old applications was to add a function call to refresh the table
-when the button was clicked. This has major scalability problems when the
-elements which are change by a single button form a massive dependency tree.
+external to the table which modify the list of items. This causes a problem of
+cross mutation. One common way of fixing this problem in old applications was to
+add a function call to refresh the table when the button was clicked. This has
+major scalability problems when the elements which are change by a single button
+form a massive dependency tree. Additionally, if a programmer misses one refresh
+call, it can cause the state in part of the application to become stale.
 
-Currently, one of the popular ways of handling this issue is using Redux. This
-model forces state to be stored in a single global store. Data is sent from this
-store down the entire UI tree, and messages which modify the state are
-propagated upwards through the tree. This model ensures that there is one source
-of truth---the common data store---and that if one component sends a message
-which modifies that central state, then the entire UI tree can update
-accordingly.
+Currently, one of the popular ways of handling this issue is using Flux, the
+underlying architecture of Redux. This model forces state to be stored in a
+single global store. Data is sent from this store down the entire UI tree, and
+messages which modify the state are propagated upwards through the tree. This
+model ensures that there is one source of truth---the common data store---and
+that if one component sends a message which modifies that central state, then
+the entire UI tree can update accordingly.
+
+An alternative way of tackling this problem is using \textit{immediate mode}.
+In this architecture, the UI is defined procedurally for each frame. The
+graphics library does not store the scene in memory, rather any state that is
+necessary to create the scene is stored by the application
+itself~\cite{Microsoft:Retained-vs-Immediate}. Immediate mode prevents the
+problem of stale state and cross mutation by recomputing the entire UI scene
+every frame.
 
 % TODO: put this somewhere
 The Rust programming language enforces minimal use of mutable references.
