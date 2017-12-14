@@ -226,7 +226,21 @@ representation of the scene~\cite{Microsoft:Retained-vs-Immediate}.
 
 Retained mode presents some problems when handling global state; namely state
 synchronization across user interface trees. For example, many applications have
-a stored state such as a list of items table. However, we 
+a stored state such as a list of items table. However, there may be elements
+external to the table which modify the list of items. One common way of fixing
+this problem in old applications was to add a function call to refresh the table
+when the button was clicked. This has major scalability problems when the
+elements which are change by a single button form a massive dependency tree.
+
+Currently, one of the popular ways of handling this issue is using Redux. This
+model forces state to be stored in a single global store. Data is sent from this
+store down the entire UI tree, and messages which modify the state are
+propagated upwards through the tree. This model ensures that there is one source
+of truth---the common data store---and that if one component sends a message
+which modifies that central state, then the entire UI tree can update
+accordingly.
+
+
 
 % TODO: put this somewhere
 The Rust programming language enforces minimal use of mutable references.
@@ -234,9 +248,6 @@ Although this might seem like a limitation of the Rust language, avoiding
 random, unorganized mutation is a wise idea in any codebase. It became obvious
 early on that callbacks were not a long-term solution to creating UI components.
 % TODO: data duplication
-
-Currently, one of the popular ways of handling this issue is using Redux. This
-forces state to be
 
 % TODO: describe general ideals of our architecture (programming language and
 % implementation agnostic)
