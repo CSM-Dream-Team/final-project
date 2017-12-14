@@ -53,6 +53,7 @@
 \end{abstract}
 
 \section{Introduction}\label{sec:introduction}
+
 The Virtual Reality (VR) market is growing rapidly. The International Data
 Corporation (IDC) projects that revenues for the combined Augmented Reality (AR)
 and Virtual Reality markets will grow from \$5.2 billion in 2016 to more than
@@ -76,6 +77,7 @@ approach to virtual reality development. Specifically, we require that this
 system meets the following criteria.
 
 \subsection{Performant}\label{sec:performant}
+
 Traditionally, animation is done around 60 frames per second.  This is due to
 the wave of monitors and televisions that ran at 60Hz and had a refresh rate of
 60 frames per second (fps).  This is fine when looking at a screen from a
@@ -93,6 +95,7 @@ usability of the program. These factors require a VR framework that is highly
 performant and multi-threadable.
 
 \subsection{Natural}\label{sec:natural}
+
 A \textit{natural user interface} is an interface that can be used without the
 need for a controller~\cite{Wimmers:2015:VR:Natural-UI}. Although current VR
 systems utilize hand-held controllers, they emulate this goal much better than
@@ -127,6 +130,7 @@ and web application fields already have general purpose user interface toolkits
 general-purpose.
 
 \subsection{Modular}\label{sec:modular}
+
 A direct result of flexibility is modularity---a flexible architecture cannot be
 a monolith. Many current VR libraries include features such as pathfinding and
 character rigging which must be included even if they are not used. This is not
@@ -146,7 +150,7 @@ extensibility via the addition of self-contained modules.
 
 \begin{center}***\end{center}
 
-    % TODO: fix this
+% TODO: fix this
 Given these criteria, we evaluate current program architectures and UI libraries
 in Section~\ref{sec:existing_tools}. We also describe how these architectures
 influenced our deferred immediate mode architecture which we formally present in
@@ -157,12 +161,14 @@ immediate mode architecture in use in real applications in
 Section~\ref{sec:case-studies} and conclude in Section~\ref{sec:conclusion}.
 
 \section{Existing Toolkits}\label{sec:existing_tools}
+
 % TODO: Give brief overview of our "adventures in VR library design"
 We researched many current VR software architectures to find one which suited
 our needs. In this section we describe a variety of libraries and evaluate their
 ability to accomplish our goals as described in the previous section.
 
 \subsection{Unity}\label{sec:unity}
+
 Unity is a game engine which was designed to allow programmers to easily create
 games and has many features which make this process effortless. Unity has been
 used to create many successful, award-winning VR games and applications
@@ -197,6 +203,7 @@ in the first place. VR can be attacked at a much lower level using desktop VR
 frameworks and ported to the web using technologies such as webassembly (WASM).
 
 \section{Retained Mode}
+
 All of the libraries and frameworks we discussed in
 Section~\ref{sec:existing_tools} use a \textit{retained mode architecture}.
 Retained mode architectures are declarative. In the context of user interfaces,
@@ -225,6 +232,7 @@ that if one component sends a message which modifies that central state, then
 the entire UI tree can update accordingly.
 
 \section{Immediate Mode}
+
 An alternative way of tackling this problem is using \textit{immediate mode}.
 In this architecture, the UI is defined procedurally for each frame. The
 graphics library does not store the scene in memory, rather any state that is
@@ -250,15 +258,16 @@ this incomplete information problem, we added a new aspect to immediate mode:
 deferability described in the next section.
 
 \section{Deferred Immediate Mode}\label{sec:dim}
-
 % FUTURE: like Wellford's for immediate mode
-After analyzing the those libraries we realized that none of them fully fit our
-needs. Thus, we decided to create our own architecture which achieves all of the
-goals outlined in Section~\ref{sec:introduction}. It takes an exiting UI
-architecture (immediate mode) and introduces a deferred aspect which allows us
-to solve the incomplete information problem described below.
 
-\subsection{Deferred}
+The Deferred Immediate Mode (DIM) architecture provides all of the advantages of
+both immediate mode and retained mode. It uses immediate mode as a base and thus
+inherits the easy procedural definition of UIs. Additionally, DIM does not have
+the problem of stale state and cross mutation. DIM solves the incomplete data
+problem by providing synchronization using deferability.
+
+At it
+
 retained mode -> does not have the incomplete data problem, has synchronization
 problem
 immediate mode -> incomplete data problem, not synchronization problem
@@ -267,6 +276,7 @@ mode, but adds synchronization by deferring.
 % TODO: describe why this is cool
 
 \section{Flight}\label{sec:flight}
+
 % TODO: this section should describe the implementation of DIM (or whatever we
 % call it)
 Flight is our implementation of a VR UI library and the DIM architecture using
@@ -274,10 +284,12 @@ the Rust programming language. Flight is designed from the ground up to be
 performant, general, and modular.
 
 \subsection{Language}
+
 % TODO: why Rust? Type system.
 We chose to implement Flight in Rust for a few reasons.
 
 \subsubsection{Performance}
+
 As mentioned in Section~\ref{sec:performant}, virtual reality requires a high
 frame rate.
 % TODO: ...
@@ -324,6 +336,7 @@ define dim_function(queriable):
 % TODO: more stuff here
 
 \subsection{Dependencies}
+
 The Rust dependency manager, Cargo, allows programmers to easily include
 third-party libraries from \url{https://crates.io}. To avoid duplicating work
 by other programmers, we utilized a few external libraries for Flight. The main
