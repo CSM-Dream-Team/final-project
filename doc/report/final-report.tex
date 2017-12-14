@@ -438,10 +438,29 @@ in separate modules of our application, deferred immediate mode with the physics
 guru allowed us to integrate the two applications with minimal code changes. The
 end result was being able to hit snow blocks with Mjolnir and vise versa.
 
-\subsection{{\name} --- Global User Interface}
+\subsection{Global User Interface}
 For our project we also created a module which allowed the user to turn on and
-off \textit{Let's Get Physical}.
-% TODO: Describe how we are using it to make the torus thing
+off \textit{Let's Get Physical} and \textit{Snowflakes}. This module rendered
+two boxes, each of which toggles on and off one of the applications. We stored
+some minimal state about whether or not each application is enabled. If the
+application is not enabled, its functions are not called and thus, since we are
+using immediate mode, the objects are not rendered. When the application is
+toggled back on, the functions for that application begin to be called again and
+the objects associated with that application are rendered again.
+
+This example illustrates the power of immediate mode. We did not have to go
+through the entire scene removing or adding all of the elements associated with
+the toggled application, we merely had to check a boolean value to determine
+whether or not to call each applications' functions.
+
+\subsection{State Saving}
+We also implemented the ability to save the state of the application. Each
+module of the application individually defines a serialize and deserialize
+function which converts the module state to a JSON format. When the user exits
+and reopens the application, the state of the application is restored.
+
+Because we are using
+immediate mode, the amount of state that we have to store is minimal.
 
 \section{Conclusion}\label{sec:conclusion}
 % TODO: Conclude (duh)
