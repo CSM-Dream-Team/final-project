@@ -261,18 +261,21 @@ deferability described in the next section.
 % FUTURE: like Wellford's for immediate mode
 
 The Deferred Immediate Mode (DIM) architecture provides all of the advantages of
-both immediate mode and retained mode. It uses immediate mode as a base and thus
-inherits the easy procedural definition of UIs. Additionally, DIM does not have
-the problem of stale state and cross mutation. DIM solves the incomplete data
-problem by providing synchronization using deferability.
+both immediate mode and retained mode. DIM starts with immediate mode as a base
+and thus inherits the easy procedural definition of UIs from immediate mode.
+Like immediate mode, DIM also does not have the problem of stale state and cross
+mutation.  DIM solves the incomplete data problem from the immediate mode
+architecture by deferring the final state resolution until all all elements have
+reported their state.
 
-At it
+The core pattern of DIM is that UI elements are declared and rendered using the
+following process
+\begin{enumerate}
+    \item Each element is defined and reports their state.
+    \item Deferred computations are resolved.
+    \item Each element receives the resolved state and finishes updating.
+\end{enumerate}
 
-retained mode -> does not have the incomplete data problem, has synchronization
-problem
-immediate mode -> incomplete data problem, not synchronization problem
-deferred immediate mode -> keeps lack of synchronization problem form immediate
-mode, but adds synchronization by deferring.
 % TODO: describe why this is cool
 
 \section{Flight}\label{sec:flight}
