@@ -289,14 +289,29 @@ performant, general, and modular.
 
 \subsection{Language}
 
-% TODO: why Rust? Type system.
-We chose to implement Flight in Rust for a few reasons.
+We chose to implement Flight using the Rust language for a few reasons.
 
 \subsubsection{Performance}
 
 As mentioned in Section~\ref{sec:performant}, virtual reality requires a high
-frame rate.
-% TODO: ...
+frame rate. Rust is a very fast compiled language that makes asynchronous and
+concurrent code safe and easy to write.
+
+\subsubsection{Safety}
+
+Rust's safety guarantees can help to eliminate the time consuming debugging of
+memory, logic, and concurrency issues.
+
+\subsubsection{Ecosystem}
+
+Despite being very young, the Rust ecosystem already has tools for graphics,
+physics, and virtual reality.
+
+\subsubsection{Functional}
+
+Concisely implementing DIM requires first-class functions and functional
+constructs. C++ does not have this, but Rust does.
+
 
 \subsection{Dependencies}
 The Rust dependency manager, Cargo, allows programmers to easily include
@@ -315,40 +330,63 @@ dependencies are listed below.
 
 Most parts of the user interface update process (rendering, point-tests, etc.)
 can be done online with a pure immediate mode API. Only a few important steps
-(ray-casting, physics step, etc.) implicitly require DIM. Th
+(ray-casting, physics step, etc.) implicitly require DIM. These operations are
+made available by objects we call ``Gurus''. Gurus are responsible for
+aggregating reports and then resolving to a complete output. For example, the
+API for a simple ray-cast guru might be the following:
 
-Many DIM functions in \texttt{flight-ui} adhere to the following pattern:
+\begin{minted}{text}
+guru RayCast:
+    variable shapes: []
+    variable ray: ...
+
+    function ray_cast(shape):
+        if ray.hits(shape):
+            append shape to shapes
+        yield until resolved
+        return shapes[0] is shape
+
+    function resolve():
+        sort shapes by ray.distance(shape)
+\end{minted}
+
+Any component that depends on a guru must also have a mechanism for deferring:
+
+\begin{minted}{text}
+function dim_example(guru):
+    data ~$\leftarrow$~ query(guru)
+    yeild until data
+    return data
+\end{minted}
+
+A DIM function in the Rust language usually has this rough form:
 
 \begin{minted}{rust}
-fn dim_function<'partial>(
+fn dim_example<'partial>(
     // mutates the self state
     &'partial mut self,
     // depends on some deferred computation
-    source: &mut Deferred
+    guru: &mut Guru
 )
     // defer self until computation is resolved
-    -> impl FnOnce(&DeferredReply)
+    -> impl FnOnce(&GuruReply)
     // output will be available
     -> MyOutput + 'partial
 {
-    // query the deferred computation
-    let data = self.query(source);
+    // ask the guru a question
+    let data = self.query(guru);
     // defer further work on self
-    move |ready| {
-        // computation output is available
-        return data(ready)
+    move |reply| {
+        // guru answer is available
+        return data(reply)
     }
 }
 \end{minted}
 
-Below is this pattern written more abstractly:
-
-\begin{minted}{text}
-define dim_function(source):
-    data ~$\leftarrow$~ query(source)
-    yeild until data
-    return data
-\end{minted}
+Notice that the \texttt{dim\_example} function returns some type that is
+\texttt{FnOnce}. Specifically, the last few lines of \texttt{dim\_example}
+return a closure (\mintinline{rust}{|reply| ...}) that is responsible for
+resolving the incomplete computation.
 
 \subsection{Dependencies}
 
