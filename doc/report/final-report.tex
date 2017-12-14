@@ -76,12 +76,17 @@ approach to virtual reality development. Specifically, we require that this
 system meets the following criteria.
 
 \subsection{Performant}\label{sec:performant}
-% TODO: add citations about frame rate's affects on health in here
-Virtual Reality requires a very high frame rate. A virtual reality program must
-be capable of generating 90 frames per second (fps); thus the effective required
-frame rate is 180fps.  Achieving this frame rate is resource intensive and
-requires highly efficient and optimized code. Additionally, multithreading is
-imperative so that long-running processes can occur without blocking the user
+Traditionally, animation is done around 60 frames per second.  This is due to the 
+wave of monitors and televisions that ran at 60Hz and had a refresh rate of 
+60 frames per second (fps).  This is fine when looking at a screen from a distance, 
+however it has been found that in order to appear believable and prevent 
+disorientation, a virtual reality program must run with at least 90 fps. 
+In fact many studies have shown that when VR is run with lower frame rates
+users experience headaches and nausea faster than when at high frame rates
+\cite{irisVR}. As VR headsets run two mini monitors concurrently, the effective 
+required frame rate is 180fps.  Achieving this frame rate is resource intensive 
+and requires highly efficient and optimized code. Additionally, multi-threading 
+is imperative so that long-running processes can occur without blocking the user
 interface. This is unlike a traditional desktop user interface where blocking
 the UI process for a second does not have a major affect on the usability of the
 program. These factors require a VR framework that is highly performant and
