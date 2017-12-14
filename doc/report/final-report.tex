@@ -15,7 +15,7 @@
 
 \addbibresource{references.bib}
 
-\setminted{autogobble,python3,mathescape,fontsize=\footnotesize}
+\setminted{autogobble,python3,mathescape,frame=lines,framesep=2mm,fontsize=\footnotesize,escapeinside=~~}
 \newcommand\tab[1][.5in]{\hspace*{#1}}
 \newcommand\name{VRsh}
 \newtheorem{definition}{Definition}
@@ -76,16 +76,16 @@ approach to virtual reality development. Specifically, we require that this
 system meets the following criteria.
 
 \subsection{Performant}\label{sec:performant}
-Traditionally, animation is done around 60 frames per second.  This is due to the 
-wave of monitors and televisions that ran at 60Hz and had a refresh rate of 
-60 frames per second (fps).  This is fine when looking at a screen from a distance, 
-however it has been found that in order to appear believable and prevent 
-disorientation, a virtual reality program must run with at least 90 fps. 
+Traditionally, animation is done around 60 frames per second.  This is due to the
+wave of monitors and televisions that ran at 60Hz and had a refresh rate of
+60 frames per second (fps).  This is fine when looking at a screen from a distance,
+however it has been found that in order to appear believable and prevent
+disorientation, a virtual reality program must run with at least 90 fps.
 In fact many studies have shown that when VR is run with lower frame rates
 users experience headaches and nausea faster than when at high frame rates
-\cite{irisVR}. As VR headsets run two mini monitors concurrently, the effective 
-required frame rate is 180fps.  Achieving this frame rate is resource intensive 
-and requires highly efficient and optimized code. Additionally, multi-threading 
+\cite{irisVR}. As VR headsets run two mini monitors concurrently, the effective
+required frame rate is 180fps.  Achieving this frame rate is resource intensive
+and requires highly efficient and optimized code. Additionally, multi-threading
 is imperative so that long-running processes can occur without blocking the user
 interface. This is unlike a traditional desktop user interface where blocking
 the UI process for a second does not have a major affect on the usability of the
@@ -147,20 +147,19 @@ extensibility via the addition of self-contained modules.
 \begin{center}***\end{center}
 
 Given these criteria, we evaluate current program architectures and UI libraries
-including Unity, entity component systems, React-like architectures, and event
-tree architectures in Section~\ref{sec:evolution}. We also describe how these
-architectures influenced our deferred immediate mode architecture which we
-formally present in Section~\ref{sec:dim}. In Section~\ref{sec:flight} we
-describe Flight---an implementation of a VR UI library using the deferred
-immediate mode architecture. Then we present three case studies of Flight and
-the deferred immediate mode architecture in use in real applications in
+in Section~\ref{sec:existing_tools}. We also describe how these architectures
+influenced our deferred immediate mode architecture which we formally present in
+Section~\ref{sec:dim}. In Section~\ref{sec:flight} we describe Flight---an
+implementation of a VR UI library using the deferred immediate mode
+architecture. Then we present three case studies of Flight and the deferred
+immediate mode architecture in use in real applications in
 Section~\ref{sec:case-studies} and conclude in Section~\ref{sec:conclusion}.
 
-\section{Evolution of Deferred Immediate Mode}\label{sec:evolution}
+\section{Existing Toolkits}\label{sec:existing_tools}
+% TODO: Give brief overview of our "adventures in VR library design"
 We researched many current VR software architectures to find one which suited
-our needs. All of them had many advantages but also many disadvantages. In this
-section we describe a variety of libraries and evaluate their ability to
-accomplish our goals as described in the previous section.
+our needs. In this section we describe a variety of libraries and evaluate their
+ability to accomplish our goals as described in the previous section.
 
 \subsection{Unity}\label{sec:unity}
 Unity is a game engine which was designed to allow programmers to easily create
@@ -216,7 +215,7 @@ to solve the global state problem described below.
 
 \subsection{Immediate Mode}
 % TODO: describe why this is cool
-All of the libraries and frameworks we discussed in Section~\ref{sec:evolution}
+All of the libraries and frameworks we discussed in Section~\ref{sec:existing_tools}
 use a \textit{retained mode architecture}. Retained mode architectures are
 declarative. In the context of user interfaces, this means that the entire user
 interface is defined and stored in memory. For each each frame, the graphics
@@ -240,8 +239,6 @@ of truth---the common data store---and that if one component sends a message
 which modifies that central state, then the entire UI tree can update
 accordingly.
 
-
-
 % TODO: put this somewhere
 The Rust programming language enforces minimal use of mutable references.
 Although this might seem like a limitation of the Rust language, avoiding
@@ -260,10 +257,9 @@ early on that callbacks were not a long-term solution to creating UI components.
 \section{Flight}\label{sec:flight}
 % TODO: this section should describe the implementation of DIM (or whatever we
 % call it)
-Flight is our implementation of a VR UI library using the DIM architecture. It
-is written in Rust and is designed to be highly modular. It uses Rust
-\texttt{FnOnce} closures to implement the deferred aspect of the DIM
-architecture and resolves state using a \textit{guru} system.
+Flight is our implementation of a VR UI library and the DIM architecture using
+the Rust programming language. Flight is designed from the ground up to be
+performant, general, and modular.
 
 \subsection{Language}
 % TODO: why Rust? Type system.
@@ -273,6 +269,42 @@ We chose to implement Flight in Rust for a few reasons.
 As mentioned in Section~\ref{sec:performant}, virtual reality requires a high
 frame rate.
 % TODO: ...
+
+\subsection{Pattern}
+
+Many DIM functions in flight-ui adhere to the following pattern:
+
+\begin{minted}{rust}
+fn dim_function<'partial>(
+    // mutates the state of self
+    &'partial mut self,
+    // depends on some other object
+    other: &mut Component
+)
+    // defer until other is resolved
+    -> impl FnOnce(&ComponentOutput)
+    // outputs is available once resolved
+    -> MyOutput + 'partial
+{
+    // another component or guru is queried
+    let unresolved = self.query(other);
+    // deffer further computation
+    move |response| {
+        // query result is now available
+        // return own result
+        unresolved(response)
+    }
+}
+\end{minted}
+
+Below is this pattern written more abstractly.
+
+\begin{minted}{text}
+define dim_function(queriable):
+    query ~$\leftarrow$~ queriable.query()
+    yeild until query
+    return query.output()
+\end{minted}
 
 \subsubsection{Type System}
 % TODO: ...
@@ -285,12 +317,11 @@ third-party libraries from \url{https://crates.io}. To avoid duplicating work
 by other programmers, we utilized a few external libraries for Flight. The main
 dependencies are listed below.
 \begin{itemize}
-    \item \textbf{\texttt{WebVR}}: an OpenVR wrapper built by Mozilla for the
-        Servo browser.
-    \item \textbf{\texttt{nalgebra}}: library for geometric/volumetric
-        operations and queries.
-    \item \textbf{\texttt{gfx}}: % TODO:
-    % TODO: more dependencies?
+    \item \textbf{\texttt{rust-webvr}}: OpenVR wrapper used by the Servo browser
+    \item \textbf{\texttt{nalgebra}}: linear primitives, transformations, and operations
+    \item \textbf{\texttt{ncollide}}: geometric operations and queries
+    \item \textbf{\texttt{nphysics}}: a simple rigid body physics engine
+    \item \textbf{\texttt{gfx}}: a powerful, type-safe OpenGL/DX11/Vulkan wrapper
 \end{itemize}
 
 \subsection{Modular}
