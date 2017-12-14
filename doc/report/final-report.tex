@@ -65,11 +65,11 @@ program architectures to virtual reality. While these paradigms and
 architectures are well-suited for 2D user interfaces and rendering 3D
 environments to a flat screen, they are not designed with VR in mind. Although
 endeavors to adapt these old patterns to VR have been successful, they are
-restrictive in both the code architecture and way of thinking. Grace Hopper 
-loved to say "The most damaging phrase in the language is: `It's always been 
-done that way.'"\cite{Hopper:1987:quote} This quote promotes new ways of 
-thinking. Utilizing outdated architectures hinders the exploration
-and the potential for new design paradigms and program architectures.
+restrictive in both the code architecture and way of thinking. Grace Hopper
+loved to say "The most damaging phrase in the language is: `It's always been
+done that way'"~\cite{Hopper:1987:quote}. This quote promotes new ways of
+thinking. Utilizing outdated architectures hinders the exploration and the
+potential for new design paradigms and program architectures.
 
 Our goal is to find a system that provides a modern, fast, and practical
 approach to virtual reality development. Specifically, we require that this
@@ -152,7 +152,6 @@ the deferred immediate mode architecture in use in real applications in
 Section~\ref{sec:case-studies} and conclude in Section~\ref{sec:conclusion}.
 
 \section{Evolution of Deferred Immediate Mode}\label{sec:evolution}
-% TODO: Give brief overview of our "adventures in VR library design"
 We researched many current VR software architectures to find one which suited
 our needs. All of them had many advantages but also many disadvantages. In this
 section we describe a variety of libraries and evaluate their ability to
@@ -182,15 +181,43 @@ explore systems which have 3D UI elements as first class citizens.
 \subsection{Event Tree}\label{sec:event-tree}
 
 \section{Deferred Immediate Mode}\label{sec:dim}
+
+After analyzing the those libraries we realized that none of them fully fit our
+needs. Thus, we decided to create our own architecture which achieves all of the
+goals outlined in Section~\ref{sec:introduction}. It takes an exiting UI
+architecture (immediate mode) and introduces a deferred aspect which allows us
+to solve the global state problem described below.
+
+\subsection{Immediate Mode}
+% TODO: describe why this is cool
+All of the libraries and frameworks we discussed in Section~\ref{sec:evolution}
+use a \textit{retained mode architecture}. Retained mode architectures are
+declarative. In the context of user interfaces, this means that the entire user
+interface is defined and stored in memory. For each each frame, the graphics
+library draws the entire scene from memory. The entire scene is stored in memory
+between frames and modification of the scene is done by modifying the in-memory
+representation of the scene~\cite{Microsoft:Retained-vs-Immediate}.
+
+Retained mode presents some problems when handling global state; namely state
+synchronization across user interface trees. For example, many applications have
+a stored state such as a list of items table. However, we 
+
+% TODO: put this somewhere
+The Rust programming language enforces minimal use of mutable references.
+Although this might seem like a limitation of the Rust language, avoiding
+random, unorganized mutation is a wise idea in any codebase. It became obvious
+early on that callbacks were not a long-term solution to creating UI components.
+% TODO: data duplication
+
+Currently, one of the popular ways of handling this issue is using Redux. This
+forces state to be
+
 % TODO: describe general ideals of our architecture (programming language and
 % implementation agnostic)
 % TODO: mention how our deferred immediate mode program architecture builds on
 % and combines concepts from many previous architectures
 
 \subsection{Deferred}
-% TODO: describe why this is cool
-
-\subsection{Immediate Mode}
 % TODO: describe why this is cool
 
 \section{Flight}\label{sec:flight}
