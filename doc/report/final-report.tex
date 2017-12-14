@@ -76,12 +76,17 @@ approach to virtual reality development. Specifically, we require that this
 system meets the following criteria.
 
 \subsection{Performant}\label{sec:performant}
-% TODO: add citations about frame rate's affects on health in here
-Virtual Reality requires a very high frame rate. A virtual reality program must
-be capable of generating 90 frames per second (fps); thus the effective required
-frame rate is 180fps.  Achieving this frame rate is resource intensive and
-requires highly efficient and optimized code. Additionally, multithreading is
-imperative so that long-running processes can occur without blocking the user
+Traditionally, animation is done around 60 frames per second.  This is due to the 
+wave of monitors and televisions that ran at 60Hz and had a refresh rate of 
+60 frames per second (fps).  This is fine when looking at a screen from a distance, 
+however it has been found that in order to appear believable and prevent 
+disorientation, a virtual reality program must run with at least 90 fps. 
+In fact many studies have shown that when VR is run with lower frame rates
+users experience headaches and nausea faster than when at high frame rates
+\cite{irisVR}. As VR headsets run two mini monitors concurrently, the effective 
+required frame rate is 180fps.  Achieving this frame rate is resource intensive 
+and requires highly efficient and optimized code. Additionally, multi-threading 
+is imperative so that long-running processes can occur without blocking the user
 interface. This is unlike a traditional desktop user interface where blocking
 the UI process for a second does not have a major affect on the usability of the
 program. These factors require a VR framework that is highly performant and
@@ -171,14 +176,35 @@ However, Unity's UI system was designed for building 2D UIs and has been adapted
 for making 3D UIs. Although these adaptations have been successful, we wanted to
 explore systems which have 3D UI elements as first class citizens.
 
-\subsection{Entity Component System}\label{sec:ecs}
-% TODO:
+\subsection{A-Frame}\label{sec:aframe}
 
-\subsection{React-Like Architecture}\label{sec:react}
-% TODO:
-% TODO: mention A-Frame
+A-Frame is a virtual reality engine created by Mozilla for the web. Scenes are
+built using declarative HTML, and evaluated as an entity component system (ECS).
+Unlike traditional object-oriented programming, where new object types generally
+inherit functionality from a single parent, an ECS creates objects through
+composition. This works very well in a declarative environment, since an entity
+can be declared into existence by simply listing a set of components (e.g.\
+color, shape, movement, interactivity).
+\cite{Mozilla-Hacks:2016:Building-A-Frame}. In addition, building VR apps using
+HTML has the distinct advantage of leveraging proven web UI frameworks such as
+Facebook's React library \cite{Ngo:2017:AFrame:React}.
 
-\subsection{Event Tree}\label{sec:event-tree}
+React and A-Frame are very effective solutions to the problem of VR on the web,
+however both are still fundamentally reliant on the document object model (DOM).
+This constrains the performance and generality of virtual reality applications.
+If the DOM is entirely abstracted away, then there is no reason to build on it
+in the first place. VR can be attacked at a much lower level using desktop VR
+frameworks and ported to the web using technologies such as webassembly (WASM).
+
+% \subsection{Entity Component Systems}\label{sec:ecs}
+
+% Entity component systems are just as applicable to desktop VR as to web VR. In
+% fact, one of our first attempts ...
+
+% \subsection{Event Tree}\label{sec:event-tree}
+
+% However, this approach has a fatal flaw. Most user interactions in a virtual
+% reality environment require global information, that is ..
 
 \section{Deferred Immediate Mode}\label{sec:dim}
 
