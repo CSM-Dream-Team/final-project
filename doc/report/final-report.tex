@@ -297,46 +297,57 @@ As mentioned in Section~\ref{sec:performant}, virtual reality requires a high
 frame rate.
 % TODO: ...
 
-\subsection{Pattern}
+\subsection{Dependencies}
+The Rust dependency manager, Cargo, allows programmers to easily include
+third-party libraries from \url{https://crates.io}. To avoid duplicating work
+by other programmers, we utilized a few external libraries for Flight. The main
+dependencies are listed below.
+\begin{itemize}
+    \item \textbf{\texttt{rust-webvr}}: VR hardware API wrapper
+    \item \textbf{\texttt{nalgebra}}: linear primitives and operations
+    \item \textbf{\texttt{ncollide}}: geometric operations and queries
+    \item \textbf{\texttt{nphysics}}: rigid body physics engine
+    \item \textbf{\texttt{gfx}}: type-safe OpenGL wrapper
+\end{itemize}
 
-Many DIM functions in flight-ui adhere to the following pattern:
+\subsection{API Pattern}
+
+Most parts of the user interface update process (rendering, point-tests, etc.)
+can be done online with a pure immediate mode API. Only a few important steps
+(ray-casting, physics step, etc.) implicitly require DIM. Th
+
+Many DIM functions in \texttt{flight-ui} adhere to the following pattern:
 
 \begin{minted}{rust}
 fn dim_function<'partial>(
-    // mutates the state of self
+    // mutates the self state
     &'partial mut self,
-    // depends on some other object
-    other: &mut Component
+    // depends on some deferred computation
+    source: &mut Deferred
 )
-    // defer until other is resolved
-    -> impl FnOnce(&ComponentOutput)
-    // outputs is available once resolved
+    // defer self until computation is resolved
+    -> impl FnOnce(&DeferredReply)
+    // output will be available
     -> MyOutput + 'partial
 {
-    // another component or guru is queried
-    let unresolved = self.query(other);
-    // deffer further computation
-    move |response| {
-        // query result is now available
-        // return own result
-        unresolved(response)
+    // query the deferred computation
+    let data = self.query(source);
+    // defer further work on self
+    move |ready| {
+        // computation output is available
+        return data(ready)
     }
 }
 \end{minted}
 
-Below is this pattern written more abstractly.
+Below is this pattern written more abstractly:
 
 \begin{minted}{text}
-define dim_function(queriable):
-    query ~$\leftarrow$~ queriable.query()
-    yeild until query
-    return query.output()
+define dim_function(source):
+    data ~$\leftarrow$~ query(source)
+    yeild until data
+    return data
 \end{minted}
-
-\subsubsection{Type System}
-% TODO: ...
-
-% TODO: more stuff here
 
 \subsection{Dependencies}
 
@@ -352,23 +363,10 @@ dependencies are listed below.
     \item \textbf{\texttt{gfx}}: a powerful, type-safe OpenGL/DX11/Vulkan wrapper
 \end{itemize}
 
-\subsection{Modular}
-% TODO:
-
-\subsection{Deferred}
-% TODO: describe how we use FnOnces
-
-\subsection{Immediate Mode}
-% TODO: describe how we did this (update function)
-
-\subsection{Gurus} % TODO: maybe lump this in with something else?
-% TODO: describe how the gurus help resolve things
-
-% TODO: add subsubsections about the various gurus?
-
 \section{Case Studies}\label{sec:case-studies}
-% TODO: Explain that we were creating these applications for a VR independent
-% study.
+We started this project with the goal of implementing a graphical shell in
+virtual reality. The problems we encountered motivated the development of the
+DIM architecture and \texttt{flight-ui}.
 
 \subsection{<TODO: interactivity>}
 
