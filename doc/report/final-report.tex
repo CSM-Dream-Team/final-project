@@ -52,7 +52,7 @@
     studies of this library in use.
 \end{abstract}
 
-\section{Introduction}
+\section{Introduction}\label{sec:introduction}
 The Virtual Reality (VR) market is growing rapidly. The International Data
 Corporation (IDC) projects that revenues for the combined Augmented Reality (AR)
 and Virtual Reality markets will grow from \$5.2 billion in 2016 to more than
@@ -72,7 +72,7 @@ Our goal is to find a system that provides a modern, fast, and practical
 approach to virtual reality development. Specifically, we require that this
 system meets the following criteria.
 
-\subsection{Performant}
+\subsection{Performant}\label{sec:performant}
 % TODO: add citations about frame rate's affects on health in here
 Virtual Reality requires a very high frame rate. A virtual reality program must
 be capable of generating 90 frames per second (fps); thus the effective required
@@ -84,19 +84,19 @@ the UI process for a second does not have a major affect on the usability of the
 program. These factors require a VR framework that is highly performant and
 multi-threadable.
 
-\subsection{Natural}
+\subsection{Natural}\label{sec:natural}
 A \textit{natural user interface} is an interface that can be used without the
 need for a controller~\cite{Wimmers:2015:VR:Natural-UI}. Although current VR
 systems utilize hand-held controllers, they emulate this goal much better than
 desktop, mobile, and web applications. For our discussion of these natural user
 interfaces, we define the following terms.
 
-\begin{definition}
+\begin{definition}\label{def:planar-ui}
     A {\normalfont\text{planar UI}} is a user interface where components are
     organized along a 2D surface.
 \end{definition}
 
-\begin{definition}
+\begin{definition}\label{def:spacial-ui}
     A {\normalfont\text{spacial UI}} is a user interface where components are
     organized within a 3D space.
 \end{definition}
@@ -110,7 +110,7 @@ environments are inherently 3D, they make spacial UI convenient and practical
 for the first time. Thus, the ability to create spacial UI rather than merely to
 planar UI is a high priority.
 
-\subsection{Flexible}
+\subsection{Flexible}\label{sec:flexible}
 % TODO: can do anything, infinite possible applications -> need to be expandable
 Computer software is used to solve a variety of unique problems which in turn
 require a variety of user interface solutions. Thus, a good user interface
@@ -121,7 +121,7 @@ and web application fields already have general purpose user interface toolkits
 (e.g.\ HTML and GTK). We need a UI library for VR which is equally
 general-purpose.
 
-\subsection{Modular}
+\subsection{Modular}\label{sec:modular}
 A direct result of flexibility is modularity---a flexible architecture cannot be
 a monolith. Many current VR libraries include features such as pathfinding and
 character rigging which must be included even if they are not used. This is not
@@ -158,7 +158,7 @@ our needs. All of them had many advantages but also many disadvantages. In this
 section we describe a variety of libraries and evaluate their ability to
 accomplish our goals as described in the previous section.
 
-\subsection{Unity}
+\subsection{Unity}\label{sec:unity}
 The Unity game engine has been used to create many VR applications
 % TODO: add citations of VR applications that were built using Unity
 
@@ -166,14 +166,14 @@ The Unity game engine has been used to create many VR applications
 % TODO:         existing ecosystem
 
 
-\subsection{Entity Component System}
+\subsection{Entity Component System}\label{sec:ecs}
 % TODO:
 
-\subsection{React-Like Architecture}
+\subsection{React-Like Architecture}\label{sec:react}
 % TODO:
 % TODO: mention A-Frame
 
-\subsection{Event Tree}
+\subsection{Event Tree}\label{sec:event-tree}
 
 \section{Deferred Immediate Mode}\label{sec:dim}
 % TODO: describe general ideals of our architecture (programming language and
@@ -198,7 +198,10 @@ architecture and resolves state using a \textit{guru} system.
 \subsection{Language}
 % TODO: why Rust? Type system.
 We chose to implement Flight in Rust for a few reasons.
+
 \subsubsection{Performance}
+As mentioned in Section~\ref{sec:performant}, virtual reality requires a high
+frame rate.
 % TODO: ...
 
 \subsubsection{Type System}
