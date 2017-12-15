@@ -119,6 +119,7 @@ for the first time. Thus, the ability to create spacial UI rather than merely to
 planar UI is a high priority.
 
 \subsection{Flexible}\label{sec:flexible}
+
 Computer software is used to solve a variety of unique problems which in turn
 require a variety of user interface solutions. Thus, a good user interface
 toolkit must be general enough to accommodate the goals of the developers
@@ -150,15 +151,16 @@ extensibility via the addition of self-contained modules.
 \begin{center}***\end{center}
 
 Given these criteria, we evaluate current program architectures and UI libraries
-in Section~\ref{sec:existing_tools}. We describe the overarching architecture of
+in Section~\ref{sec:existing_tools}. We describe the underlying architecture of
 these libraries is Section~\ref{sec:retained-mode} and discuss the immediate
 mode architecture in Section~\ref{sec:immediate-mode}. We describe how these
 architectures influenced our deferred immediate mode architecture which we
 formally present in Section~\ref{sec:dim}. In Section~\ref{sec:flight} we
 describe Flight---an implementation of a VR UI library using the deferred
-immediate mode architecture. Then we present three case studies of Flight and
-the deferred immediate mode architecture in use in real applications in
-Section~\ref{sec:case-studies} and conclude in Section~\ref{sec:conclusion}.
+immediate mode architecture. Then we present four case studies of Flight and
+the deferred immediate mode architecture being used to solve real software
+engineering problems in Section~\ref{sec:case-studies}. We conclude in
+Section~\ref{sec:conclusion}.
 
 \section{Existing Toolkits}\label{sec:existing_tools}
 
@@ -177,9 +179,9 @@ become the de facto standard for building VR applications. For example, Google
 released a TiltBrush toolkit on GitHub under the Apache 2.0
 library~\cite{Google:TiltBrush}.
 
-However, Unity's UI system was designed for building 2D UIs and has been adapted
-for making 3D UIs. Although these adaptations have been successful, we wanted to
-explore systems which have 3D UI elements as first class citizens.
+Unity's UI system, however, was designed for building 2D UIs and has been
+adapted for making 3D UIs. Although these adaptations have been successful, we
+wanted to explore systems which have 3D UI elements as first class citizens.
 
 \subsection{A-Frame}\label{sec:aframe}
 
@@ -189,17 +191,17 @@ Unlike traditional object-oriented programming, where new object types generally
 inherit functionality from a single parent, an ECS creates objects through
 composition. This works very well in a declarative environment, since an entity
 can be declared into existence by simply listing a set of components (e.g.\
-color, shape, movement, interactivity).
-\cite{Mozilla-Hacks:2016:Building-A-Frame}. In addition, building VR apps using
-HTML has the distinct advantage of leveraging proven web UI frameworks such as
-Facebook's React library \cite{Ngo:2017:AFrame:React}.
+color, shape, movement,
+interactivity)~\cite{Mozilla-Hacks:2016:Building-A-Frame}. In addition, building
+VR apps using HTML has the distinct advantage of leveraging proven web UI
+frameworks such as Facebook's React library~\cite{Ngo:2017:AFrame:React}.
 
 React and A-Frame are very effective solutions to the problem of VR on the web,
 however both are still fundamentally reliant on the document object model (DOM).
 This constrains the performance and generality of virtual reality applications.
 If the DOM is entirely abstracted away, then there is no reason to build on it
 in the first place. VR can be attacked at a much lower level using desktop VR
-frameworks and ported to the web using technologies such as webassembly (WASM).
+frameworks and ported to the web using technologies such as WebAssembly (WASM).
 
 \section{Retained Mode}\label{sec:retained-mode}
 
@@ -215,30 +217,30 @@ scene~\cite{Microsoft:Retained-vs-Immediate}.
 Retained mode presents some problems with synchronization across user interface
 trees. For example, many applications have a stored state such as a list of
 items table. However, there may be elements external to the table which modify
-the list of items. This causes a problem of cross mutation. One common way of
-fixing this problem in old applications was to add a function call to refresh
+the list of items. This causes a problem of cross mutation. One common method of
+solving this problem in old applications was to add a function call to refresh
 the table when the button was clicked. This has major scalability problems when
-the elements which are change by a single button form a massive dependency tree.
-Additionally, if a programmer misses one refresh call, it can cause the state in
-part of the application to become stale.
+the elements which are changed by a single button form a massive dependency
+tree.  Additionally, if a programmer misses one refresh call, it can cause the
+state in part of the application to become stale.
 
-Currently, one of the popular ways of handling this issue is using Flux, the
-underlying architecture of Redux. This model forces state to be stored in a
-single global store. Data is sent from this store down the entire UI tree, and
-messages which modify the state are propagated upwards through the tree. This
-model ensures that there is one source of truth---the common data store---and
-that if one component sends a message which modifies that central state, then
-the entire UI tree can update accordingly.
+Currently, one of the popular ways of handling the synchronization problem is
+Flux, the underlying architecture of Facebook's Redux. This model forces state
+to be stored in a single global store. Data is sent from this store down the
+entire UI tree, and messages which modify the state are propagated upwards
+through the tree. This model ensures that there is one source of truth---the
+common data store---and that if one component sends a message which modifies
+that central state, then the entire UI tree can update accordingly.
 
 \section{Immediate Mode}\label{sec:immediate-mode}
 
-An alternative way of tackling this problem is using \textit{immediate mode}.
-In this architecture, the UI is defined procedurally for each frame. The
+An alternative way of tackling the synchronization problem is \textit{immediate
+mode}.  In this architecture, the UI is defined procedurally for each frame. The
 graphics library does not store the scene in memory, rather any state that is
 necessary to create the scene is stored by the application
 itself~\cite{Microsoft:Retained-vs-Immediate}. Immediate mode prevents the
 problem of stale state and cross mutation by recomputing the entire UI scene
-every frame. In an immediate mode architecture, a programmer defines that a UI
+every frame. In an immediate mode architecture, a programmer specifies that a UI
 element exists on each frame, and if they want to remove a UI element, they
 simply do not call the function to create an element.
 
@@ -248,7 +250,7 @@ state. We call this problem the incomplete information problem. An example of
 this problem would be an element in a virtual environment whose color depends on
 whether or not the user is pointing at it. It is easy to detect whether or not
 the controller is pointed at the element. It is impossible to guarantee that
-another component will no be added to the scene which will obstruct the
+another component will not be added to the scene which will obstruct the
 controller's view of the first element.
 
 In other words, there are some questions about the state of the system which
@@ -264,11 +266,11 @@ both immediate mode and retained mode. DIM starts with immediate mode as a base
 and thus inherits the easy procedural definition of UIs from immediate mode.
 Like immediate mode, DIM also does not have the problem of stale state and cross
 mutation.  DIM solves the incomplete data problem from the immediate mode
-architecture by deferring the final state resolution until all all elements have
+architecture by deferring final state resolution until all all elements have
 reported their state.
 
 The core pattern of DIM is that UI elements are declared and rendered using the
-following process
+following process:
 \begin{enumerate}
     \item Each element is defined and reports their state.
     \item Deferred computations are resolved.
@@ -308,9 +310,11 @@ tools for graphics, physics, and virtual reality.
 \subsubsection{Functional}
 
 Concisely implementing DIM requires first-class functions and functional
-constructs. C++ does not have this, but Rust does.
+constructs. Other low-level languages such as C++ do not have this ability, but
+Rust does.
 
 \subsection{Dependencies}
+
 The Rust dependency manager, Cargo, allows programmers to easily include
 third-party libraries from \url{https://crates.io}. To avoid duplicating work
 by other programmers, we utilized a few external libraries for Flight. The main
@@ -328,7 +332,7 @@ dependencies are listed below.
 Most parts of the user interface update process (rendering, point-tests, etc.)
 can be done online with a pure immediate mode API. Only a few important steps
 (ray-casting, physics step, etc.) implicitly require DIM. These operations are
-made available by objects we call ``Gurus''. Gurus are responsible for
+made available by objects we call ``Gurus.'' Gurus are responsible for
 aggregating reports and then resolving to a complete output. For example, the
 API for a simple ray-cast guru might be the following:
 
@@ -356,6 +360,7 @@ function dim_example(guru):
     return data
 \end{minted}
 
+\newpage
 A DIM function in the Rust language usually has this rough form:
 
 \begin{minted}{rust}
@@ -415,14 +420,15 @@ range), and pointing (triggering an event from a distance). All three were done
 through a combination of the \texttt{InteractGuru} object and a
 \texttt{Moveable} state object.
 
-DIM enabled these interactions to be perfectly encapsulated. For example, a huge
-last-minute refactor of the movement system required virtual no changes to the
+DIM enabled these interactions to be perfectly encapsulated. For example, a
+last-minute refactor of the movement system required virtually no changes to the
 physics system, global user interface, and applications despite all relying
-heavily on the old API. Again, countless new edge cases were created by the
+heavily on the previous API. Countless new edge cases were created by the
 addition of the yanking operation, but the physics guru handled them easily
 without any changes.
 
 \subsection{Let's Get Physical and Snowflakes --- Physics}
+
 We created two applications which rely heavily on physics. \textit{Let's Get
 Physical} allows the user to swing and throw Mjolnir, Thor's hammer, and hit
 other objects in a physically realistic manner. \textit{Snowflakes} allows the
@@ -433,15 +439,19 @@ discuss this combined application here.
 The challenge with physics in immediate mode is the fact that objects in the
 physical world are inherently intertwined. For example, each snow block might
 influence, or be influenced by, any other snow block or Mjolnir. Without
-deferred immediate mode, the physics world would need to be the ultimate source
-of truth regarding which snow blocks exist and where they are in space. The
-problem with this is that we need to allow the user to spawn and move blocks
-within the world while still interacting with all of the other physics objects.
+deferred immediate mode, the world stored by the physics engine would need to be
+the ultimate source of truth regarding which snow blocks exist and where they
+are in space. The problem with this is that we need to allow the user to spawn
+and move blocks within the world while the blocks still interact with all of the
+other physics objects.
 
 With deferred immediate mode, we are able to add each block and Mjolnir to the
 physics world (using the physics guru) every frame, then we wait for the physics
 guru to resolve. After the physics guru has resolved, we are able to render
-the blocks and Mjolnir in the proper location.
+the blocks and Mjolnir in the proper location. If the user was holding a block
+or Mjolnir, the element is declared in immediate mode as existing at the
+location of the user's controller. This allows interaction between objects that
+are held by the user with ones on the ground.
 
 Although these applications were developed independently, and even still exist
 in separate modules of our application, deferred immediate mode with the physics
