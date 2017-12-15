@@ -10,6 +10,8 @@
 \usepackage[inline]{enumitem}
 \usepackage{amsthm}
 \usepackage{mdframed}
+\usepackage{graphicx}
+\usepackage{subcaption}
 
 \MakeOuterQuote{"}
 
@@ -157,7 +159,7 @@ mode architecture in Section~\ref{sec:immediate-mode}. We describe how these
 architectures influenced our deferred immediate mode architecture which we
 formally present in Section~\ref{sec:dim}. In Section~\ref{sec:flight} we
 describe Flight---an implementation of a VR UI library using the deferred
-immediate mode architecture. Then we present four case studies of Flight and
+immediate mode architecture. Then we present five case studies of Flight and
 the deferred immediate mode architecture being used to solve real software
 engineering problems in Section~\ref{sec:case-studies}. We conclude in
 Section~\ref{sec:conclusion}.
@@ -456,7 +458,23 @@ are held by the user with ones on the ground.
 Although these applications were developed independently, and even still exist
 in separate modules of our application, deferred immediate mode with the physics
 guru allowed us to integrate the two applications with minimal code changes. The
-end result was being able to hit snow blocks with Mjolnir and vise versa.
+end result was being able to hit snow blocks with Mjolnir and vise versa as
+shown in Figure~\ref{fig:physics}.
+
+\begin{figure}[H]
+    \begin{subfigure}{\linewidth}
+        \centering
+        \includegraphics[width=0.8\linewidth]{screenshots/physics_a.jpg}
+        \caption{Stacking}
+    \end{subfigure}
+    \begin{subfigure}{\linewidth}
+        \centering
+        \includegraphics[width=0.8\linewidth]{screenshots/physics_b.jpg}
+        \caption{Mjolnir Hitting Snowblocks}
+    \end{subfigure}
+    \caption{Physics Between Snowblocks and Mjolnir}
+    \label{fig:physics}
+\end{figure}
 
 \subsection{Global User Interface}
 
@@ -467,12 +485,42 @@ some minimal state about whether or not each application is enabled. If the
 application is not enabled, its functions are not called and thus, since we are
 using immediate mode, the objects are not rendered. When the application is
 toggled back on, the functions for that application begin to be called again and
-the objects associated with that application are rendered again.
+the objects associated with that application are rendered again. This toggle
+functionality is shown in Figure~\ref{fig:toggles}.
+
+\begin{figure}[H]
+    \begin{subfigure}{\linewidth}
+        \centering
+        \includegraphics[width=0.8\linewidth]{screenshots/toggle_a.jpg}
+        \caption{Before}
+    \end{subfigure}
+    \begin{subfigure}{\linewidth}
+        \centering
+        \includegraphics[width=0.8\linewidth]{screenshots/toggle_b.jpg}
+        \caption{After}
+    \end{subfigure}
+    \caption{Application Toggles}\label{fig:toggles}
+\end{figure}
 
 This example illustrates the power of immediate mode. We did not have to go
 through the entire scene removing or adding all of the elements associated with
 the toggled application, we merely had to check a boolean value to determine
 whether or not to call each applications' functions.
+
+\begin{figure}[H]
+    \begin{subfigure}{\linewidth}
+        \centering
+        \includegraphics[width=0.8\linewidth]{screenshots/slider_a.jpg}
+        \caption{Before}
+    \end{subfigure}
+    \begin{subfigure}{\linewidth}
+        \centering
+        \includegraphics[width=0.8\linewidth]{screenshots/slider_b.jpg}
+        \caption{After}
+    \end{subfigure}
+    \caption{Interdependent Sliders}
+    \label{fig:sliders}
+\end{figure}
 
 \subsection{State Saving}
 
