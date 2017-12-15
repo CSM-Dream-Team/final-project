@@ -333,7 +333,7 @@ dependencies are listed below.
 
 Most parts of the user interface update process (rendering, point-tests, etc.)
 can be done online with a pure immediate mode API. Only a few important steps
-(ray-casting, physics step, etc.) implicitly require DIM. These operations are
+(ray-casting, physics step, etc.) directly require DIM. These operations are
 made available by objects we call ``Gurus.'' Gurus are responsible for
 aggregating reports and then resolving to a complete output. For example, the
 API for a simple ray-cast guru might be the following:
@@ -507,6 +507,14 @@ through the entire scene removing or adding all of the elements associated with
 the toggled application, we merely had to check a boolean value to determine
 whether or not to call each applications' functions.
 
+\subsection{Control Elements}
+
+\texttt{flight-ui} includes a few control UI elements, notably a one-dimensional
+slider. This slider component can be grabbed, moved, manipulated, and yanked.
+Because all UI components use the immediate mode architecture, they are easily
+associated with state information, simulation parameters, and even other
+interface elements.
+
 \begin{figure}[H]
     \begin{subfigure}{\linewidth}
         \centering
@@ -522,6 +530,11 @@ whether or not to call each applications' functions.
     \label{fig:sliders}
 \end{figure}
 
+Two slider elements are shown in Figure \ref{fig:sliders}. The first controls
+the speed of the physics simulation and the second controls the length of the
+first. This kind of interdependence is frustrating and bug-prone in a retained
+mode system, but was a trival feature to add to our application.
+
 \subsection{State Saving}
 
 We also implemented the ability to save the state of the application. Each
@@ -531,7 +544,7 @@ and reopens the application, the state of the application is restored. By using
 immediate mode, we are able to minimize the amount of state that we have to
 store; we only need to store enough state to begin calling the same functions
 once the application is reopened.
-
+im
 In the example of \textit{Snowflakes} we only need to store the location and
 rotation of each snow block. Likewise for \textit{Let's Get Physical}; we only
 need to store the location and rotation of Mjolnir.
