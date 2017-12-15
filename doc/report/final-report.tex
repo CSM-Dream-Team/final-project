@@ -243,8 +243,8 @@ necessary to create the scene is stored by the application
 itself~\cite{Microsoft:Retained-vs-Immediate}. Immediate mode prevents the
 problem of stale state and cross mutation by recomputing the entire UI scene
 every frame. In an immediate mode architecture, a programmer specifies that a UI
-element exists on each frame, and if they want to remove a UI element, they
-simply do not call the function to create an element.
+element exists on each frame, and if they want to remove the element, they
+simply do not call the function.
 
 The major drawback of immediate mode is that there is no guarantee that another
 element will not be created later that will interfere with the current element's
@@ -424,10 +424,25 @@ through a combination of the \texttt{InteractGuru} object and a
 
 DIM enabled these interactions to be perfectly encapsulated. For example, a
 last-minute refactor of the movement system required virtually no changes to the
-physics system, global user interface, and applications despite all relying
+physics system, global user interface, or applications despite all relying
 heavily on the previous API. Countless new edge cases were created by the
 addition of the yanking operation, but the physics guru handled them easily
 without any changes.
+
+\begin{figure}[H]
+    \begin{subfigure}{\linewidth}
+        \centering
+        \includegraphics[width=0.75\linewidth]{screenshots/yank_a.jpg}
+        \caption{Before}
+    \end{subfigure}
+    \begin{subfigure}{\linewidth}
+        \centering
+        \includegraphics[width=0.75\linewidth]{screenshots/yank_b.jpg}
+        \caption{After}
+    \end{subfigure}
+    \caption{Yanking Mjolnir from a Distance}
+    \label{fig:physics}
+\end{figure}
 
 \subsection{Let's Get Physical and Snowflakes --- Physics}
 
@@ -464,12 +479,12 @@ shown in Figure~\ref{fig:physics}.
 \begin{figure}[H]
     \begin{subfigure}{\linewidth}
         \centering
-        \includegraphics[width=0.8\linewidth]{screenshots/physics_a.jpg}
+        \includegraphics[width=0.75\linewidth]{screenshots/physics_a.jpg}
         \caption{Stacking}
     \end{subfigure}
     \begin{subfigure}{\linewidth}
         \centering
-        \includegraphics[width=0.8\linewidth]{screenshots/physics_b.jpg}
+        \includegraphics[width=0.75\linewidth]{screenshots/physics_b.jpg}
         \caption{Mjolnir Hitting Snowblocks}
     \end{subfigure}
     \caption{Physics Between Snowblocks and Mjolnir}
@@ -491,12 +506,12 @@ functionality is shown in Figure~\ref{fig:toggles}.
 \begin{figure}[H]
     \begin{subfigure}{\linewidth}
         \centering
-        \includegraphics[width=0.8\linewidth]{screenshots/toggle_a.jpg}
+        \includegraphics[width=0.75\linewidth]{screenshots/toggle_a.jpg}
         \caption{Before}
     \end{subfigure}
     \begin{subfigure}{\linewidth}
         \centering
-        \includegraphics[width=0.8\linewidth]{screenshots/toggle_b.jpg}
+        \includegraphics[width=0.75\linewidth]{screenshots/toggle_b.jpg}
         \caption{After}
     \end{subfigure}
     \caption{Application Toggles}\label{fig:toggles}
@@ -515,25 +530,25 @@ Because all UI components use the immediate mode architecture, they are easily
 associated with state information, simulation parameters, and even other
 interface elements.
 
+Two slider elements are shown in Figure \ref{fig:sliders}. The first controls
+the speed of the physics simulation and the second controls the length of the
+first. This kind of interdependence is frustrating and bug-prone in a retained
+mode system, but was a trival feature to add to our application.
+
 \begin{figure}[H]
     \begin{subfigure}{\linewidth}
         \centering
-        \includegraphics[width=0.8\linewidth]{screenshots/slider_a.jpg}
+        \includegraphics[width=0.75\linewidth]{screenshots/slider_a.jpg}
         \caption{Before}
     \end{subfigure}
     \begin{subfigure}{\linewidth}
         \centering
-        \includegraphics[width=0.8\linewidth]{screenshots/slider_b.jpg}
+        \includegraphics[width=0.75\linewidth]{screenshots/slider_b.jpg}
         \caption{After}
     \end{subfigure}
     \caption{Interdependent Sliders}
     \label{fig:sliders}
 \end{figure}
-
-Two slider elements are shown in Figure \ref{fig:sliders}. The first controls
-the speed of the physics simulation and the second controls the length of the
-first. This kind of interdependence is frustrating and bug-prone in a retained
-mode system, but was a trival feature to add to our application.
 
 \subsection{State Saving}
 
