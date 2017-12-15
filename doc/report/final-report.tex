@@ -43,13 +43,13 @@
 \begin{abstract}
     Virtual Reality (VR) Technology has been developing rapidly over the past
     decade. Current solutions such as Unity attempt to use old programming
-    languages and even older paradigms to implement VR applications and thus, limit
-    developers' abilities to create new and unique environments.  With every
-    cutting edge technology, new paradigms and design patterns must be invented.
-    In this paper, we discuss a deferred immediate mode (DIM) application
-    architecture suitable for implementing large virtual reality applications.
-    We present a UI library which utilizes this architecture and a few case
-    studies of this library in use.
+    languages and even older paradigms to implement VR applications and thus,
+    limit developers' abilities to create new and unique environments.  With
+    every cutting edge technology, new paradigms and design patterns must be
+    invented.  In this paper, we discuss a deferred immediate mode (DIM)
+    application architecture suitable for implementing large virtual reality
+    applications.  We present a UI library which utilizes this architecture and
+    a few case studies of this library in use.
 \end{abstract}
 
 \section{Introduction}\label{sec:introduction}
@@ -276,6 +276,10 @@ following process
     \item Each element receives the resolved state and finishes updating.
 \end{enumerate}
 
+The concept of deferring updates until the complete state is resolved is not a
+new concept. Deferred rendering has been used in computer graphics for decades.
+DIM is a generalization of this concept to apply to UIs and real time physics.
+
 \section{Flight}\label{sec:flight}
 
 Flight is our implementation of a VR UI library and the DIM architecture using
@@ -476,6 +480,7 @@ rotation of each snow block. Likewise for \textit{Let's Get Physical}; we only
 need to store the location and rotation of Mjolnir.
 
 \section{Conclusion}\label{sec:conclusion}
+
 Over the past three months, we have explored a variety of user interface
 implementations for virtual reality. While doing so, we have significantly
 improved our knowledge of the Rust language and ecosystem, becoming familiar
