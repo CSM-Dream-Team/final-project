@@ -68,32 +68,30 @@ program architectures to virtual reality. While these paradigms and
 architectures are well-suited for 2D user interfaces and rendering 3D
 environments to a flat screen, they are not designed with VR in mind. Although
 endeavors to adapt these old patterns to VR have been successful, they are
-restrictive in both the code architecture and way of thinking. Grace Hopper
-loved to say "The most damaging phrase in the language is: `It's always been
-done that way'"~\cite{Hopper:1987:quote}. This quote promotes new ways of
-thinking. Utilizing outdated architectures hinders the exploration and the
-potential for new design paradigms and program architectures.
+restrictive, and hinder the exploration of and potential for new design
+paradigms and program architectures.
 
-Our goal is to find a system that provides a modern, fast, and practical
+Our goal is to find a system which provides a modern, fast, and practical
 approach to virtual reality development. Specifically, we require that this
 system meets the following criteria.
 
 \subsection{Performant}\label{sec:performant}
 
-Traditionally, animation is done at approximately 60 frames per second.  This is due to
-the dominance of monitors and televisions that ran at 60Hz and had a refresh rate of
-60 frames per second (fps).  This frame rate is acceptable when viewing a screen from a
-distance. However, in order to appear believable and prevent disorientation, a
-virtual reality program must run at at least 90 fps. In fact, many studies have
-shown that when VR is run with lower frame rates users experience headaches and
-nausea faster than when at high frame rates~\cite{irisVR}. Since VR headsets run
-two displays concurrently, the effective required frame rate is 180fps.
-Achieving this frame rate is resource intensive and requires highly efficient
-and optimized code. Additionally, multi-threading is imperative so that
-long-running processes can occur without blocking the user interface. This is
-unlike a traditional desktop user interface where blocking the UI process for a
-second does not have a major affect on the usability of the program. These
-factors require a VR framework that is highly performant and multi-threadable.
+Traditionally, animation is done at approximately 60 frames per second.  This is
+due to the dominance of monitors and televisions that ran at 60Hz and had a
+refresh rate of 60 frames per second (fps).  This frame rate is acceptable when
+viewing a screen from a distance. However, in virtual reality applications must
+run at at least 90 fps in order to appear believable and prevent disorientation.
+Many studies have shown that when VR is run with lower frame rates users
+experience headaches and nausea faster than when run at higher frame
+rates~\cite{irisVR}. Since VR headsets run two displays concurrently (one for
+each eye), the effective required frame rate is 180fps.  Achieving this frame
+rate is resource intensive and requires highly efficient and optimized code.
+Additionally, multi-threading is imperative so that long-running processes can
+occur without blocking the user interface. This is unlike a traditional desktop
+user interface where blocking the UI process for a second does not have a major
+affect on the usability of the program. These factors require a VR framework
+that is highly performant and multi-threadable.
 
 \subsection{Natural}\label{sec:natural}
 
@@ -124,7 +122,7 @@ planar UI is a high priority.
 
 Computer software is used to solve a variety of unique problems which in turn
 require a variety of user interface solutions. Thus, a good user interface
-toolkit must be general enough to accommodate the goals of the developers
+system must be general enough to accommodate the goals of the developers
 writing the software. Most importantly, such a toolkit must not be opinionated
 about which types of application should be created with it. The desktop, mobile,
 and web application fields already have general purpose user interface toolkits
@@ -142,7 +140,7 @@ features.
 From a software engineering standpoint, a good UI library must allow the
 programmer to integrate any number of components, but these components should
 be add-ons, not dependencies. Additionally, these components should be
-compartmentalized and not interfere with one another. This library design
+compartmentalized and not interfere with one another. Such a library design
 promotes good software engineering practices including the UNIX philosophy ("do
 one thing and do it well") and the open/closed principle ("software entities
 should be open for extension but closed to modification").
@@ -185,11 +183,13 @@ Unity's UI system, however, was designed for building 2D UIs and has been
 adapted for making 3D UIs. Although these adaptations have been successful, we
 wanted to explore systems which have 3D UI elements as first class citizens.
 
+% TODO: add stuff about it being a game-oriented thing
+
 \subsection{A-Frame}\label{sec:aframe}
 
 A-Frame is a virtual reality engine created by Mozilla for the web. Scenes are
 built using declarative HTML, and evaluated as an entity component system (ECS).
-Unlike traditional object-oriented programming, where new object types generally
+Unlike traditional object-oriented programming where new object types generally
 inherit functionality from a single parent, an ECS creates objects through
 composition. This works very well in a declarative environment, since an entity
 can be declared into existence by simply listing a set of components (e.g.\
@@ -200,10 +200,11 @@ frameworks such as Facebook's React library~\cite{Ngo:2017:AFrame:React}.
 
 React and A-Frame are very effective solutions to the problem of VR on the web,
 however both are still fundamentally reliant on the document object model (DOM).
-This constrains the performance and generality of virtual reality applications.
-If the DOM is entirely abstracted away, then there is no reason to build on it
-in the first place. VR can be attacked at a much lower level using desktop VR
-frameworks and ported to the web using technologies such as WebAssembly (WASM).
+This constrains the performance and generality of virtual reality applications
+built on these platforms.  If the DOM is entirely abstracted away, then there is
+no reason to build on it in the first place. VR can be attacked at a much lower
+level using desktop VR frameworks and ported to the web using technologies such
+as WebAssembly (WASM).
 
 \section{Retained Mode}\label{sec:retained-mode}
 
@@ -218,13 +219,13 @@ scene~\cite{Microsoft:Retained-vs-Immediate}.
 
 Retained mode presents some problems with synchronization across user interface
 trees. For example, many applications have a stored state such as a list of
-items table. However, there may be elements external to the table which modify
-the list of items. This causes a problem of cross mutation. One common method of
-solving this problem in old applications was to add a function call to refresh
-the table when the button was clicked. This has major scalability problems when
-the elements which are changed by a single button form a massive dependency
-tree.  Additionally, if a programmer misses one refresh call, it can cause the
-state in part of the application to become stale.
+items in a table. However, there may be elements external to the table which
+modify the list of items. This causes a problem of cross mutation. One common
+method of solving this problem in old applications was to add a function call to
+refresh the table when external element modifies the table. This has major
+scalability problems when the elements which are changed by a single component
+form a massive dependency tree.  Additionally, if a programmer misses one
+refresh call, it can cause the state in part of the application to become stale.
 
 Currently, one of the popular ways of handling the synchronization problem is
 Flux, the underlying architecture of Facebook's Redux. This model forces state
@@ -246,18 +247,17 @@ every frame. In an immediate mode architecture, a programmer specifies that a UI
 element exists on each frame, and if they want to remove the element, they
 simply do not call the function.
 
-The major drawback of immediate mode is that there is no guarantee that another
-element will not be created later that will interfere with the current element's
-state. We call this problem the incomplete information problem. An example of
-this problem would be an element in a virtual environment whose color depends on
-whether or not the user is pointing at it. It is easy to detect whether or not
-the controller is pointed at the element. It is impossible to guarantee that
-another component will not be added to the scene which will obstruct the
-controller's view of the first element.
+The major drawback of immediate mode is that other elements that are created
+later can interfere with the current element's state. We call this problem the
+\textit{incomplete information problem}. An example of this problem would be an
+element in a virtual environment whose color depends on whether or not the user
+is pointing at it. It is easy to detect whether or not the controller is pointed
+at the element. It is impossible to know if another element will be added to the
+scene which will obstruct the controller's view of the first element.
 
 In other words, there are some questions about the state of the system which
 cannot be answered until all UI elements have "reported" their state.  To solve
-this incomplete information problem, we added a new aspect to immediate mode:
+the incomplete information problem, we added a new aspect to immediate mode:
 deferability described in the next section.
 
 \section{Deferred Immediate Mode}\label{sec:dim}
@@ -282,6 +282,7 @@ following process:
 The concept of deferring updates until the complete state is resolved is not a
 new concept. Deferred rendering has been used in computer graphics for decades.
 DIM is a generalization of this concept to apply to UIs and real time physics.
+% TODO: not just UI & physics
 
 \section{Flight}\label{sec:flight}
 
@@ -301,8 +302,8 @@ concurrent code safe and easy to write.
 
 \subsubsection{Safety}
 
-Rust's safety guarantees can help to eliminate the time consuming debugging of
-memory, logic, and concurrency issues.
+Rust's safety guarantees help to eliminate time consuming debugging of memory,
+logic, and concurrency issues.
 
 \subsubsection{Ecosystem}
 
@@ -362,7 +363,6 @@ function dim_example(guru):
     return data
 \end{minted}
 
-\newpage
 A DIM function in the Rust language usually has this rough form:
 
 \begin{minted}{rust}
