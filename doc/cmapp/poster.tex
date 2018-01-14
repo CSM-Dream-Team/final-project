@@ -32,7 +32,11 @@
 
 \usepackage[scale=1.3]{beamerposter} % Use the beamerposter package for laying out the poster
 \usepackage{biblatex}
+\usepackage{csquotes}
 \usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs} % Top and bottom rules for tables
 
 \usetheme{confposter} % Use the confposter theme supplied with this template
 
@@ -60,11 +64,8 @@
 \setlength{\onecolwid}{0.3\paperwidth} % Width of one column
 \setlength{\twocolwid}{0.6\paperwidth} % Width of two columns
 \setlength{\topmargin}{-0.5in} % Reduce the top margin size
+
 %-----------------------------------------------------------
-
-\usepackage{graphicx}  % Required for including images
-
-\usepackage{booktabs} % Top and bottom rules for tables
 
 \title{Exploration of Virtual Reality Using Deferred Immediate Mode}
 \author{Jonathan Sumner Evans, Robinson Merillat, and Sam Sartor}
@@ -118,8 +119,44 @@
 
                 \end{block}
 
-                \begin{block}{Deferred Immediate Mode}
-                    Lipsum
+                \begin{block}{Deferred Immediate Mode (DIM)}
+
+                    \textbf{Immediate Mode} is an architecture in which the
+                    entire UI is defined procedurally every frame. However,
+                    there is a problem with immediate mode:
+
+                    \begin{quote}
+
+                        \textbf{There are some questions about the state of the
+                        system which cannot be answered until all system
+                        elements have "reported" their state.}
+
+                    \end{quote}
+
+                    To solve this incomplete information problem, we added a new
+                    aspect to immediate mode: \textbf{deferability}. This
+                    provides a number of benefits.
+
+                    \begin{itemize}
+
+                        \item \textbf{Procedural UI Generation:} like immediate
+                            mode, DIM allows for easy procedural definition of
+                            UIs.
+
+                        \item \textbf{Prevents Stale State and Cross Mutation:}
+                            stale state occurs when the UI continues to display
+                            old data even after an update to the data. Cross
+                            mutation occurs when one UI element can modify the
+                            state of another element. Since the entire UI is
+                            recalculated every frame, there is no possibility
+                            for these problems.
+
+                        \item \textbf{Interdependency Resolution:}
+                            interdependencies are resolved after all elements
+                            have reported their state.
+
+                    \end{itemize}
+
                 \end{block}
 
             \end{column} % End of the first column
@@ -130,7 +167,23 @@
 
                 \begin{block}{Flight}
 
+                    Flight is our implementation of a VR UI library and the DIM
+                    architecture. Flight is designed from the ground up to be
+                    performant, general, and modular.
+
+                    Flight provides high level abstractions for interacting with
+                    VR hardware, rendering objects in VR, and resolving
+                    interdependencies between elements.
+
                 \end{block}
+
+                % TODO better placement?
+                \begin{figure}[H]
+                    \centering
+                    \includegraphics[width=0.9\linewidth]{../report/screenshots/physics_b.jpg}
+                    \caption{Our Final Project}
+                    \label{fig:project}
+                \end{figure}
 
             \end{column} % End of column 2
 
@@ -140,12 +193,26 @@
 
                 \begin{block}{Final Project}
 
+                    \begin{figure}[H]
+                        \centering
+                        \begin{subfigure}{0.5\linewidth}
+                            \centering
+                            \includegraphics[width=0.95\linewidth]{../report/screenshots/yank_a.jpg}
+                            \caption{Before}
+                        \end{subfigure}%
+                        \begin{subfigure}{0.5\linewidth}
+                            \centering
+                            \includegraphics[width=0.95\linewidth]{../report/screenshots/yank_b.jpg}
+                            \caption{After}
+                        \end{subfigure}
+                        \caption{Yanking Mjolnir from a Distance}
+                        \label{fig:physics}
+                    \end{figure}
+
                 \end{block}
 
                 \begin{block}{References}
-
                     \printbibliography
-
                 \end{block}
 
                 \setbeamercolor{block alerted title}{fg=black,bg=norange} % Change the alert block title colors
@@ -156,10 +223,10 @@
                     \begin{enumerate}[leftmargin=6.5cm, labelsep=1cm]
 
                         \item[\textbf{Project}]
-                            \href{https://github.com/CSM-Dream-Team/final-project}{github.com/CSM-Dream-Team/final-project}
+                            \href{https://github.com/CSM-Dream-Team/final-project}{\url{github.com/CSM-Dream-Team/final-project}}
 
                         \item[\textbf{Flight}]
-                            \href{https://github.com/flight-rs/flight}{github.com/flight-rs/flight}
+                            \href{https://github.com/flight-rs/flight}{\url{github.com/flight-rs/flight}}
                     \end{enumerate}
 
                 \end{alertblock}
