@@ -67,7 +67,7 @@
 
 %-----------------------------------------------------------
 
-\title{Exploration of Virtual Reality Using Deferred Immediate Mode}
+\title{Exploration of Virtual Reality and Deferred Immediate Mode}
 \author{Jonathan Sumner Evans, Robinson Merillat, and Sam Sartor}
 \institute{Department of Computer Science, Colorado School of Mines}
 
@@ -119,11 +119,19 @@
 
                 \end{block}
 
-                \begin{block}{Deferred Immediate Mode (DIM)}
+                \begin{block}{Deferred Immediate Mode}
+                    \setlength{\parskip}{0.5em}
 
-                    \textbf{Immediate Mode} is an architecture in which the
-                    entire UI is defined procedurally every frame. However,
-                    there is a problem with immediate mode:
+                    Over the course of many months, we explored several existing
+                    VR frameworks and application architectures. We determined
+                    that none of them accomplish our goals for VR development.
+
+                    We decided to create our own framework which addresses the
+                    problems that we encountered while attempting to building
+                    complex VR applications in other frameworks.
+
+                    When developing our system architecture, we ran into this
+                    problem:
 
                     \begin{quote}
 
@@ -133,29 +141,15 @@
 
                     \end{quote}
 
-                    To solve this incomplete information problem, we added a new
-                    aspect to immediate mode: \textbf{deferability}. This
-                    provides a number of benefits.
+                    To solve this problem, we created a revolutionary program
+                    architecture called \textbf{Deferred Immediate Mode (DIM)}
+                    which accomplishes all of our goals for VR development by
+                    adding a new aspect to immediate mode architecture called
+                    \textbf{deferability}.
 
-                    \begin{itemize}
-
-                        \item \textbf{Procedural UI Generation:} like immediate
-                            mode, DIM allows for easy procedural definition of
-                            UIs.
-
-                        \item \textbf{Prevents Stale State and Cross Mutation:}
-                            stale state occurs when the UI continues to display
-                            old data even after an update to the data. Cross
-                            mutation occurs when one UI element can modify the
-                            state of another element. Since the entire UI is
-                            recalculated every frame, there is no possibility
-                            for these problems.
-
-                        \item \textbf{Interdependency Resolution:}
-                            interdependencies are resolved after all elements
-                            have reported their state.
-
-                    \end{itemize}
+                    Deferrability enabled us to solve this issue by resolving
+                    interdependencies after all elements have reported their
+                    state.
 
                 \end{block}
 
@@ -168,12 +162,8 @@
                 \begin{block}{Flight}
                     \setlength{\parskip}{0.5em}
 
-                    Through the exploration of existing VR frameworks, we
-                    determined that none of them achieved our goals for VR
-                    development.
-
-                    This led us to create Flight, our own VR toolkit featuring
-                    high level abstractions for interacting with VR hardware,
+                    Flight is our implementation of a VR toolkit featuring high
+                    level abstractions for interacting with VR hardware,
                     real-time rendering, asset loading tools, and UI elements.
                     Flight is designed from the ground up to be performant,
                     general, and modular.
@@ -182,9 +172,8 @@
 
                 \begin{figure}[H]
                     \centering
-                    \includegraphics[width=0.85\linewidth]{../report/screenshots/physics_b.jpg}
-                    \caption{Our Final Project}
-                    \label{fig:project}
+                    \includegraphics[width=0.9\linewidth]{../report/screenshots/physics_b.jpg}
+                    \caption{Our Final Project}\label{fig:project}
                 \end{figure}
 
                 \begin{block}{References}
@@ -213,22 +202,56 @@
             \begin{column}{\onecolwid} % Start of third column
 
                 \begin{block}{Final Project}
+                    \setlength{\parskip}{0.5em}
 
-                    \begin{figure}[H]
-                        \centering
-                        \begin{subfigure}{0.5\linewidth}
-                            \centering
-                            \includegraphics[width=0.95\linewidth]{../report/screenshots/yank_a.jpg}
-                            \caption{Before}
-                        \end{subfigure}%
-                        \begin{subfigure}{0.5\linewidth}
-                            \centering
-                            \includegraphics[width=0.95\linewidth]{../report/screenshots/yank_b.jpg}
-                            \caption{After}
-                        \end{subfigure}
-                        \caption{Yanking Mjolnir from a Distance}
-                        \label{fig:physics}
-                    \end{figure}
+                    Our final project demonstrates the results of using DIM to
+                    implement a complex VR application. The environment
+                    currently provides these features:
+                    \begin{itemize}
+
+                        \item \textbf{Modularity:} Each part of the application
+                            is its own isolated module that can be modified and
+                            even turned off without interfering with other
+                            modules.
+                            \begin{figure}[H]
+                                \begin{subfigure}{0.5\linewidth}
+                                    \centering
+                                    \includegraphics[width=0.95\linewidth]{../report/screenshots/toggle_a.jpg}
+                                    \caption{Before}
+                                \end{subfigure}%
+                                \begin{subfigure}{0.5\linewidth}
+                                    \centering
+                                    \includegraphics[width=0.95\linewidth]{../report/screenshots/toggle_b.jpg}
+                                    \caption{After}
+                                \end{subfigure}
+                                \caption{Application Toggles}\label{fig:toggles}
+                            \end{figure}
+
+                        \item \textbf{Inter-Application Physics:} Althogh each
+                            application is in a seprate module, DIM allows them
+                            to interact seemlessly. For example, Mjolnir can hit
+                            snowblocks.
+
+                        \item \textbf{Yanking, Grabbing, and Pointing:} All
+                            elements which can be grabbed, yanked, or pointed at
+                            are manipulated using a common, intuitive user
+                            experience.
+
+                            \begin{figure}[H]
+                                \centering
+                                \begin{subfigure}{0.5\linewidth}
+                                    \centering
+                                    \includegraphics[width=0.95\linewidth]{../report/screenshots/yank_a.jpg}
+                                    \caption{Before}
+                                \end{subfigure}%
+                                \begin{subfigure}{0.5\linewidth}
+                                    \centering
+                                    \includegraphics[width=0.95\linewidth]{../report/screenshots/yank_b.jpg}
+                                    \caption{After}
+                                \end{subfigure}
+                                \caption{Yanking Mjolnir from a Distance}\label{fig:physics}
+                            \end{figure}
+                    \end{itemize}
 
                 \end{block}
 
