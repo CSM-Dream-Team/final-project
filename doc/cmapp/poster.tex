@@ -88,7 +88,7 @@
 
             \begin{column}{\onecolwid} % The first column
 
-                \begin{block}{Exploration \& Goals}
+                \begin{block}{Goals}
 
                     We set out to find a system that provides a modern, fast,
                     and practical approach to virtual reality development.
@@ -117,16 +117,20 @@
 
                     \end{enumerate}
 
+                \end{block}
+
+                \begin{block}{Exploration}
+
                     Over the course of many months, we explored several existing
                     VR frameworks and application architectures. We determined
                     that none of them meet our criteria for VR development.
 
-                    We created our own user interface and rendering framework, 
-                    \textbf{flight}, which addresses the problems that we've 
-                    encountered during our exploration. We intially made use
-                    of the immediate mode program architecture because of its
-                    flexibility and extensibility, but repeatedly ran into the
-                    following problem:
+                    We created our own user interface and rendering framework
+                    which addresses the problems that we encountered during our
+                    exploration. We initially made use of the immediate mode
+                    program architecture because of its flexibility and
+                    extensibility, but repeatedly ran into the following
+                    problem:
 
                     \begin{quote}
 
@@ -138,12 +142,12 @@
 
                     To solve this problem, we created a powerful new program
                     architecture called \textbf{Deferred Immediate Mode (DIM)}.
+                    DIM adds \textit{deferrability} to the classic immediate
+                    mode architecture while retaining flexibility and solving
+                    our issues with interdependent user interface elements.
+
                     The DIM architecture enabled us to meet all of our goals for
-                    effective VR application development. 
-                    
-                    Adding deferrability to the classic immediate mode architecture 
-                    retained flexibility while solving our issues with interdependent
-                    user interface elements.
+                    effective VR application development.
 
                 \end{block}
 
@@ -158,9 +162,10 @@
 
                     Our virtual reality toolkit, called flight, features high
                     level abstractions for interacting with VR hardware, a
-                    state-of-the-art real-time rendering engine, asset loading tools,
-                    and a selection of built-in UI elements. Flight is designed 
-                    from the ground up to be performant, general, and modular.
+                    state-of-the-art real-time rendering engine, asset loading
+                    tools, and a selection of built-in UI elements. Flight is
+                    designed from the ground up to be performant, general, and
+                    modular.
 
                 \end{block}
 
