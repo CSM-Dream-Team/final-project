@@ -196,11 +196,11 @@ fn main() {
     // Configure env map
     let radiance_levels = 6;
     let radiance = load::load_hdr_cubemap(&mut factory, radiance_levels, |side, level| {
-        let path = format!("assets/glacier_env/radiance_{}_{}.hdr", level, side);
+        let path = format!("assets/snowfield_env/radiance_{}_{}.hdr", level, side);
         Ok(BufReader::new(File::open(path)?))
     }).expect("Could not load radiance map");
     let irradiance = load::load_hdr_cubemap(&mut factory, 1, |side, _| {
-        let path = format!("assets/glacier_env/irradiance_{}.hdr", side);
+        let path = format!("assets/snowfield_env/irradiance_{}.hdr", side);
         Ok(BufReader::new(File::open(path)?))
     }).expect("Could not load irradiance map");
     painters.uber.cfg(|s| {
@@ -209,7 +209,7 @@ fn main() {
         env.radiance_levels = radiance_levels;
         env.irradiance = irradiance;
         env.sun_included = false;
-        env.sun_color = [1., 1., 1., 3.];
+        env.sun_color = [1., 1., 1., 0.];
     });
 
     // Main loop

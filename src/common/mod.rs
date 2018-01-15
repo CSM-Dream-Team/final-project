@@ -122,27 +122,27 @@ impl<R: gfx::Resources> Meshes<R> {
             controller: open_simple_object(
                 factory,
                 "assets/controller.obj",
-                [0.7, 0.7, 0.9],
-                0.,
+                [0.6, 0.6, 0.6],
+                1.,
                 0.2,
                 0.)?,
             wire_box: grid_lines(1, Vector3::new(1., 1., 1.)).upload(factory),
             floor: plane(2.5)
                 .with_tex(Point2::new(0., 0.))
                 .compute_tan()
-                .with_material(simple_material(factory, [0.6, 0.6, 0.6], 1., 0.4, 0.)?)
+                .with_material(simple_material(factory, [0.8, 0.8, 0.8], 0., 0.6, 0.)?)
                 .upload(factory),
             slider_control: open_simple_object(
                 factory,
                 "assets/slider/control.obj",
-                [0.7, 0.7, 0.9],
+                [0.6, 0.6, 0.6],
                 0.,
                 0.2,
                 0.)?,
             slider_frame: open_simple_object(
                 factory,
                 "assets/slider/frame.obj",
-                [0.7, 0.7, 0.9],
+                [0.6, 0.6, 0.6],
                 0.,
                 0.2,
                 0.)?,
