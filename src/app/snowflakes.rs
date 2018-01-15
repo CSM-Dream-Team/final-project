@@ -10,14 +10,14 @@ use ncollide::shape::{ShapeHandle, Compound, Cuboid, Ball};
 use nphysics3d::object::RigidBody;
 
 // Flight
-use flight::{PbrMesh, Error, load};
+use flight::{UberMesh, Error};
 use flight::vr::Trackable;
 
 // GFX
 use gfx;
 use app::App;
 
-use common::{Common, CommonReply, Meta};
+use common::{open_object_directory, Common, CommonReply, Meta};
 use common::gurus::interact::{Moveable, GrabbablePhysicsState, ControllerIndex};
 
 pub struct Snowblock(GrabbablePhysicsState);
@@ -26,14 +26,14 @@ impl Snowblock {
     fn update<'a, R: gfx::Resources, C: gfx::CommandBuffer<R> + 'static>
         (&'a mut self,
          common: &mut Common<R, C>, yank_speed: f32)
-         -> impl FnOnce(&mut CommonReply<R, C>, &PbrMesh<R>) + 'a {
+         -> impl FnOnce(&mut CommonReply<R, C>, &UberMesh<R>) + 'a {
         let gp = self.0.update(&mut common.gurus.interact,
                                &mut common.gurus.physics,
                                Isometry3::identity(),
                                yank_speed);
         move |reply, mesh| {
             let pos = gp(reply);
-            reply.painters.pbr.draw(&mut reply.draw_params, na::convert(pos), mesh);
+            reply.painters.uber.draw(&mut reply.draw_params, na::convert(pos), mesh);
         }
     }
 }
@@ -47,8 +47,8 @@ pub struct Snowflakes<R: gfx::Resources> {
     blocks: Vec<Snowblock>,
     new_blocks: Vec<Snowblock>,
     remove_blocks: Vec<usize>,
-    snowman: PbrMesh<R>,
-    snow_block: PbrMesh<R>,
+    snowman: UberMesh<R>,
+    snow_block: UberMesh<R>,
 }
 
 impl<R: gfx::Resources> Snowflakes<R> {
@@ -57,8 +57,8 @@ impl<R: gfx::Resources> Snowflakes<R> {
             blocks: Vec::new(),
             new_blocks: Vec::new(),
             remove_blocks: Vec::new(),
-            snowman: load::object_directory(factory, "assets/snowman/")?,
-            snow_block: load::object_directory(factory, "assets/snow-block/")?,
+            snowman: open_object_directory(factory, "assets/snowman/")?,
+            snow_block: open_object_directory(factory, "assets/snow-block/")?,
         })
     }
 }
@@ -115,7 +115,7 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
                                      Translation3::new(2., 0., -2.)];
 
         let block_spawns = snowmen_locations.into_iter().flat_map(|loc| {
-            common.painters.pbr.draw(&mut common.draw_params, na::convert(loc), &self.snowman);
+            common.painters.uber.draw(&mut common.draw_params, na::convert(loc), &self.snowman);
             let mut body = RigidBody::new_static(snowman_shape.clone(), 0.0, 0.8);
             body.set_translation(loc);
             common.gurus.physics.body(body);

@@ -11,17 +11,17 @@ use ncollide::shape::{Cuboid, Cylinder};
 use nphysics3d::object::RigidBody;
 
 // Flight
-use flight::{PbrMesh, Error, load};
+use flight::{UberMesh, Error};
 
 // GFX
 use gfx;
 use app::App;
 
-use common::{Common, CommonReply, Meta};
+use common::{open_object_directory, Common, CommonReply, Meta};
 use interact::ControllerIndex;
 
 pub struct Halo<R: gfx::Resources> {
-    halo_mesh: PbrMesh<R>,
+    halo_mesh: UberMesh<R>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -31,7 +31,7 @@ pub struct HaloState {
 
 impl<R: gfx::Resources> Halo<R> {
     pub fn new<F: gfx::Factory<R>>(factory: &mut F) -> Result<Self, Error> {
-        Ok(Halo { halo_mesh: load::object_directory(factory, "assets/halo/")? })
+        Ok(Halo { halo_mesh: open_object_directory(factory, "assets/halo/")? })
     }
 }
 
@@ -54,7 +54,7 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
                   -> Box<FnBox(&mut CommonReply<R, C>) + 'b> {
         // Draw controllers
         for cont in &[&common.gurus.interact.primary, &common.gurus.interact.secondary] {
-            common.painters.pbr.draw(&mut common.draw_params,
+            common.painters.uber.draw(&mut common.draw_params,
                                      na::convert(cont.data.pose),
                                      &common.meshes.controller);
         }
@@ -69,7 +69,7 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
         floor_rb.set_transformation(floor_pos);
         floor_rb.set_margin(0.00001);
         common.gurus.physics.body(floor_rb);
-        common.painters.pbr.draw(&mut common.draw_params, na::one(), &common.meshes.floor);
+        common.painters.uber.draw(&mut common.draw_params, na::one(), &common.meshes.floor);
 
         // Draw torus
         let torus = Cylinder::new(0.02, 0.5);
@@ -119,7 +119,7 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
             }
 
             // Draw the halo
-            r.painters.pbr.draw(&mut r.draw_params, na::convert(
+            r.painters.uber.draw(&mut r.draw_params, na::convert(
                 Similarity3::from_parts(
                     Translation3::new(0., 2.5, 0.),
                     UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 0.),

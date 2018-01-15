@@ -10,17 +10,17 @@ use ncollide::shape::{ShapeHandle, Compound, Cuboid, Cylinder};
 use nphysics3d::object::RigidBody;
 
 // Flight
-use flight::{PbrMesh, Error, load};
+use flight::{UberMesh, Error};
 
 // GFX
 use gfx;
 use app::App;
 
-use common::{Common, CommonReply, Meta};
+use common::{open_object_directory, Common, CommonReply, Meta};
 use common::gurus::interact::GrabbablePhysicsState;
 
 pub struct LetsGetPhysical<R: gfx::Resources> {
-    mjolnir: PbrMesh<R>,
+    mjolnir: UberMesh<R>,
     grabbable_state: GrabbablePhysicsState,
 }
 
@@ -46,7 +46,7 @@ fn spawn_mjolnir() -> GrabbablePhysicsState {
 impl<R: gfx::Resources> LetsGetPhysical<R> {
     pub fn new<F: gfx::Factory<R>>(factory: &mut F) -> Result<Self, Error> {
         Ok(LetsGetPhysical {
-            mjolnir: load::object_directory(factory, "assets/hammer/")?,
+            mjolnir: open_object_directory(factory, "assets/hammer/")?,
             grabbable_state: spawn_mjolnir(),
         })
     }
@@ -92,7 +92,7 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
         let mjolnir = &self.mjolnir;
         Box::new(move |r: &mut CommonReply<R, C>| {
             let pos = gp(r);
-            r.painters.pbr.draw(&mut r.draw_params, na::convert(pos), mjolnir);
+            r.painters.uber.draw(&mut r.draw_params, na::convert(pos), mjolnir);
         })
     }
 }

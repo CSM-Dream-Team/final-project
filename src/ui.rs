@@ -94,7 +94,7 @@ impl Slider {
                 *mode = Unheld;
             }
 
-            reply.painters.pbr.draw(
+            reply.painters.uber.draw(
                 &mut reply.draw_params,
                 (*position) * Transform3::from_matrix_unchecked(
                     Matrix4::from_diagonal(&Vector4::new(thickness / 2., thickness / 2., length / 10., 1.))
@@ -102,7 +102,7 @@ impl Slider {
                 &reply.meshes.slider_frame,
             );
             let slider_pos = (*value - 0.5) * true_len;
-            reply.painters.pbr.draw(
+            reply.painters.uber.draw(
                 &mut reply.draw_params,
                 (*position) * Translation3::new(0., 0., slider_pos) * Transform3::from_matrix_unchecked(
                     Matrix4::from_diagonal(&Vector4::new(thickness / 2., thickness / 2., manip_length / 2., 1.))

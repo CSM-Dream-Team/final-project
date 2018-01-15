@@ -24,6 +24,7 @@ extern crate serde_derive;
 extern crate serde_json;
 
 use std::fs::{self, File};
+use std::io::BufReader;
 use std::boxed::FnBox;
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
@@ -38,15 +39,15 @@ use clap::Arg;
 use gfx::{handle, Factory, texture, Device};
 use gfx::format::*;
 use gfx_device_gl::{NewTexture};
-use gfx::memory::Typed;
+use gfx::memory::{Usage, Bind, Typed};
 use glutin::GlContext;
 
-use nalgebra::{Vector3, Point3};
+use nalgebra::{Vector3};
 
 use serde_json::{Serializer, Deserializer};
 use serde_json::de::{IoRead};
 
-use flight::{draw, Light};
+use flight::{draw, load};
 use flight::vr::*;
 
 pub mod app;
@@ -61,10 +62,7 @@ use common::gurus::{interact, physics};
 
 pub const NEAR_PLANE: f64 = 0.1;
 pub const FAR_PLANE: f64 = 75.;
-pub const BACKGROUND: [f32; 4] = [0.529, 0.808, 0.980, 1.0];
 pub const MAX_STEP: f64 = 0.02;
-const PI: f32 = ::std::f32::consts::PI;
-const PI2: f32 = 2. * PI;
 
 fn main() {
     // Logging setup
@@ -119,8 +117,8 @@ fn main() {
             kind: texture::Kind::D2(render_width as u16, render_height as u16, texture::AaMode::Single),
             levels: 1,
             format: R8_G8_B8_A8::get_surface_type(),
-            bind: gfx::RENDER_TARGET | gfx::SHADER_RESOURCE,
-            usage: gfx::memory::Usage::Data,
+            bind: Bind::RENDER_TARGET | Bind::SHADER_RESOURCE,
+            usage: Usage::Data,
         };
 
         let raw = factory.create_texture_raw(desc, Some(ChannelType::Unorm), None).unwrap();
@@ -195,27 +193,23 @@ fn main() {
     let mut meshes = Meshes::new(&mut factory).unwrap();
     let mut painters = Painters::new(&mut factory).unwrap();
 
-    // Configure lights
-    painters.pbr.cfg(|s| {
-        s.ambient(BACKGROUND);
-        s.lights(&[
-            Light {
-                pos: Point3::new((0. * PI2 / 3.).sin() * 2., 4., (0. * PI2 / 3.).cos() * 2.),
-                color: [1.0, 0.8, 0.8, 15.],
-            },
-            Light {
-                pos: Point3::new((1. * PI2 / 3.).sin() * 2., 4., (1. * PI2 / 3.).cos() * 2.),
-                color: [0.8, 1.0, 0.8, 15.],
-            },
-            Light {
-                pos: Point3::new((2. * PI2 / 3.).sin() * 2., 4., (2. * PI2 / 3.).cos() * 2.),
-                color: [0.8, 0.8, 1.0, 15.],
-            },
-            Light {
-                pos: Point3::new(0., -8., 0.),
-                color: [1.0, 1.0, 1.0, 110.],
-            },
-        ]);
+    // Configure env map
+    let radiance_levels = 6;
+    let radiance = load::load_hdr_cubemap(&mut factory, radiance_levels, |side, level| {
+        let path = format!("assets/glacier_env/radiance_{}_{}.hdr", level, side);
+        Ok(BufReader::new(File::open(path)?))
+    }).expect("Could not load radiance map");
+    let irradiance = load::load_hdr_cubemap(&mut factory, 1, |side, _| {
+        let path = format!("assets/glacier_env/irradiance_{}.hdr", side);
+        Ok(BufReader::new(File::open(path)?))
+    }).expect("Could not load irradiance map");
+    painters.uber.cfg(|s| {
+        let env = s.mut_env();
+        env.radiance = radiance;
+        env.radiance_levels = radiance_levels;
+        env.irradiance = irradiance;
+        env.sun_included = false;
+        env.sun_color = [1., 1., 1., 3.];
     });
 
     // Main loop
@@ -263,8 +257,8 @@ fn main() {
 
         // Clear targets
         common.draw_params.encoder.clear_depth(&common.draw_params.depth, FAR_PLANE as f32);
-        common.draw_params.encoder.clear(&common.draw_params.color, [BACKGROUND[0].powf(1. / 2.2), BACKGROUND[1].powf(1. / 2.2), BACKGROUND[2].powf(1. / 2.2), BACKGROUND[3]]);
-
+        common.painters.uber.clear_env(&mut common.draw_params);
+        
         // Resolve Gurus
         // Draw frame
         let mut common_reply;
