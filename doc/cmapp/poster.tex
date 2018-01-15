@@ -88,12 +88,12 @@
 
             \begin{column}{\onecolwid} % The first column
 
-                \begin{block}{Goals}
+                \begin{block}{Exploration \& Goals}
 
-                    Our goal was to find a system that provides a modern, fast,
+                    We set out to find a system that provides a modern, fast,
                     and practical approach to virtual reality development.
-                    Specifically, we needed a framework which achieved the
-                    following goals:
+                    Specifically, we needed a framework which met the
+                    following criteria:
 
                     \begin{enumerate}[leftmargin=8.75cm, labelsep=1cm]
 
@@ -117,21 +117,16 @@
 
                     \end{enumerate}
 
-                \end{block}
-
-                \begin{block}{Deferred Immediate Mode}
-                    \setlength{\parskip}{0.5em}
-
                     Over the course of many months, we explored several existing
                     VR frameworks and application architectures. We determined
-                    that none of them accomplish our goals for VR development.
+                    that none of them meet our criteria for VR development.
 
-                    We decided to create our own framework which addresses the
-                    problems that we encountered while attempting to building
-                    complex VR applications in other frameworks.
-
-                    When developing our system architecture, we ran into this
-                    problem:
+                    We created our own user interface and rendering framework, 
+                    \textbf{flight}, which addresses the problems that we've 
+                    encountered during our exploration. We intially made use
+                    of the immediate mode program architecture because of its
+                    flexibility and extensibility, but repeatedly ran into the
+                    following problem:
 
                     \begin{quote}
 
@@ -141,15 +136,14 @@
 
                     \end{quote}
 
-                    To solve this problem, we created a revolutionary program
-                    architecture called \textbf{Deferred Immediate Mode (DIM)}
-                    which accomplishes all of our goals for VR development by
-                    adding a new aspect to immediate mode architecture called
-                    \textbf{deferability}.
-
-                    Deferrability enabled us to solve this issue by resolving
-                    interdependencies after all elements have reported their
-                    state.
+                    To solve this problem, we created a powerful new program
+                    architecture called \textbf{Deferred Immediate Mode (DIM)}.
+                    The DIM architecture enabled us to meet all of our goals for
+                    effective VR application development. 
+                    
+                    Adding deferrability to the classic immediate mode architecture 
+                    retained flexibility while solving our issues with interdependent
+                    user interface elements.
 
                 \end{block}
 
@@ -162,11 +156,11 @@
                 \begin{block}{Flight}
                     \setlength{\parskip}{0.5em}
 
-                    Flight is our implementation of a VR toolkit featuring high
-                    level abstractions for interacting with VR hardware,
-                    real-time rendering, asset loading tools, and UI elements.
-                    Flight is designed from the ground up to be performant,
-                    general, and modular.
+                    Our virtual reality toolkit, called flight, features high
+                    level abstractions for interacting with VR hardware, a
+                    state-of-the-art real-time rendering engine, asset loading tools,
+                    and a selection of built-in UI elements. Flight is designed 
+                    from the ground up to be performant, general, and modular.
 
                 \end{block}
 
@@ -235,7 +229,7 @@
                         \item \textbf{Yanking, Grabbing, and Pointing:} All
                             elements which can be grabbed, yanked, or pointed at
                             are manipulated using a common, intuitive user
-                            experience.
+                            interface scheme.
 
                             \begin{figure}[H]
                                 \centering
