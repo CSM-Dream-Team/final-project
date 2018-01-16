@@ -183,8 +183,6 @@ Unity's UI system, however, was designed for building 2D UIs and has been
 adapted for making 3D UIs. Although these adaptations have been successful, we
 wanted to explore systems which have 3D UI elements as first class citizens.
 
-% TODO: add stuff about it being a game-oriented thing
-
 \subsection{A-Frame}\label{sec:aframe}
 
 A-Frame is a virtual reality engine created by Mozilla for the web. Scenes are
@@ -392,20 +390,6 @@ Notice that the \texttt{dim\_example} function returns some type that is
 return a closure (\mintinline{rust}{|reply| ...}) that is responsible for
 resolving the incomplete computation.
 
-\subsection{Dependencies}
-
-The Rust dependency manager, Cargo, allows programmers to easily include
-third-party libraries from \url{https://crates.io}. To avoid duplicating work
-by other programmers, we utilized a few external libraries for Flight. The main
-dependencies are listed below.
-\begin{itemize}
-    \item \textbf{\texttt{rust-webvr}}: VR hardware API wrapper
-    \item \textbf{\texttt{nalgebra}}: linear primitives and operations
-    \item \textbf{\texttt{ncollide}}: geometric operations and queries
-    \item \textbf{\texttt{nphysics}}: rigid body physics engine
-    \item \textbf{\texttt{gfx}}: type-safe OpenGL wrapper
-\end{itemize}
-
 \section{Case Studies}\label{sec:case-studies}
 
 We started this project with the goal of implementing a graphical shell in
@@ -533,7 +517,7 @@ interface elements.
 Two slider elements are shown in Figure \ref{fig:sliders}. The first controls
 the speed of the physics simulation and the second controls the length of the
 first. This kind of interdependence is frustrating and bug-prone in a retained
-mode system, but was a trival feature to add to our application.
+mode system, but was a trivial feature to add to our application.
 
 \begin{figure}[H]
     \begin{subfigure}{\linewidth}
@@ -559,7 +543,7 @@ and reopens the application, the state of the application is restored. By using
 immediate mode, we are able to minimize the amount of state that we have to
 store; we only need to store enough state to begin calling the same functions
 once the application is reopened.
-im
+
 In the example of \textit{Snowflakes} we only need to store the location and
 rotation of each snow block. Likewise for \textit{Let's Get Physical}; we only
 need to store the location and rotation of Mjolnir.
