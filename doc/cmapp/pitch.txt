@@ -1,2 +1,9 @@
 Last semester we completed an independent study in Virtual Reality with Dr.
-Paone. We
+Paone. We created our own VR toolkit from the ground up with an innovative new
+program architecture called Deferred Immediate Mode.
+
+Our toolkit features state-of-the-art real-time rendering and has allowed us to
+create a beautiful VR application.
+
+We have the VR equipment here, so stop by and try it out! We think you will be
+impressed.
