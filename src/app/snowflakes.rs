@@ -161,7 +161,7 @@ impl<R: gfx::Resources + 'static, C: gfx::CommandBuffer<R> + 'static, W: Write, 
                     let mut body = RigidBody::new_dynamic(block_shape, 100., 0.0, 0.8);
                     body.set_margin(0.00001);
                     body.set_translation(Translation3::from_vector(
-                        con.data.origin().coords + con.data.pointing() * hit.0.toi
+                        con.data.origin().coords + con.data.pointing() * hit.toi
                     ));
                     Snowblock(GrabbablePhysicsState {
                         body,

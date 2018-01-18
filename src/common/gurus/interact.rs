@@ -1,6 +1,6 @@
 use nalgebra::{Point3, Vector3, Isometry3, Translation3};
 use ncollide::shape::Shape;
-use ncollide::query::{PointQuery, RayCast, RayIntersection, Ray};
+use ncollide::query::{PointQuery, RayCast, Ray};
 use nphysics3d::object::RigidBody;
 use gfx;
 use flight::vr::{Trackable, MappedController};
@@ -10,7 +10,9 @@ use std::collections::BinaryHeap;
 use std::cmp::{Ord, PartialOrd, PartialEq, Ordering};
 use std::f32::INFINITY;
 
-pub struct RayHit(pub RayIntersection<Vector3<f32>>);
+pub struct RayHit {
+    pub toi: f32,
+}
 
 /// Answers queries about user interactions.
 pub struct InteractGuru {
@@ -145,7 +147,7 @@ impl ControllerGuru {
         if let Some(hit) = hit {
             index = self.pointed_data.len();
             self.pointed_queries.push(InteractQuery {
-                t: hit.0.toi,
+                t: hit.toi,
                 i: index,
                 stop: stops,
             });
@@ -176,7 +178,7 @@ impl ControllerGuru {
     {
         let hit = if !self.point_blocked {
             let ray = Ray::new(self.data.origin(), self.data.pointing());
-            shape.toi_and_normal_with_ray(pos, &ray, true).map(|h| RayHit(h))
+            shape.toi_with_ray(pos, &ray, true).map(|toi| RayHit { toi })
         } else {
             None
         };
@@ -200,11 +202,11 @@ impl ControllerGuru {
     {
         let ray = Ray::new(self.data.origin(), self.data.pointing());
         let hit = if !self.point_blocked {
-            let hit = shape.toi_and_normal_with_ray(pos, &ray, true);
-            if let Some(ref hit) = hit {
-                self.laser_toi(hit.toi);
-            }
-            hit.map(|h| RayHit(h))
+            let hit = shape.toi_with_ray(pos, &ray, true);
+            hit.map(|toi| {
+                self.laser_toi(toi);
+                RayHit { toi }
+            })
         } else {
             if let Some(t) = shape.toi_with_ray(pos, &ray, true) {
                 self.laser_toi(t);
