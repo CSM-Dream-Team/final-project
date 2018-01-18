@@ -1,9 +1,9 @@
-Last semester we completed an independent study in Virtual Reality with Dr.
-Paone. We created our own VR toolkit from the ground up with an innovative new
-program architecture.
+Last semester we completed an independent study in virtual reality with Dr.
+Paone. We hoped to explore new ways of interacting with computers and solving
+problems, but we quickly discovered that there was no way to do that using the
+tools we had avalible. *pause* So we built our own tools! Over the course of
+several months we built a state-of-the-art graphics engine and graphical
+interface toolkit. To solve the problems we encountered, we also developed a
+new type of software architecture.
 
-Our toolkit features state-of-the-art real-time rendering and has allowed us to
-create a beautiful VR application that features real-time, interactive physics.
-
-We have the VR equipment here, so stop by and try it out! We think you will be
-impressed.
+We have a really cool demo set up, and you should all come check it out!
